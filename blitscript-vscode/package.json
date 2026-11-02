@@ -2,7 +2,7 @@
     "name": "blitscript",
     "displayName": "dgz's blitscript",
     "description": "BlitScript language support and Blit Engine projects: create, build and run games, browse the engine API, and get completion, navigation, linting and compile errors.",
-    "version": "0.11.0",
+    "version": "0.11.1",
     "publisher": "Doomgames",
     "license": "MIT",
     "repository": {

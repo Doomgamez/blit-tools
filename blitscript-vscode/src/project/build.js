@@ -24,6 +24,9 @@ function findToolchain(configured) {
     return process.platform === 'win32' && fs.existsSync(WINDOWS_TOOLCHAIN) ? WINDOWS_TOOLCHAIN : '';
 }
 
+// written after a build that worked. the programs can't tell: make only relinks the ones whose sources changed
+const engineStamp = (paths) => path.join(paths.engineBuild, 'engine.built');
+
 function engineSteps(project, toolchain) {
     const paths = projectPaths(project);
     const configure = ['-S', project.engine, '-B', paths.engineBuild, '-DCMAKE_BUILD_TYPE=Release'];
@@ -39,6 +42,7 @@ function engineSteps(project, toolchain) {
     return [
         { kind: 'run', title: 'Configuring the engine', command: 'cmake', args: configure, cwd: project.root },
         { kind: 'run', title: 'Building the engine', command: 'cmake', args: ['--build', paths.engineBuild, '-j', '8'], cwd: project.root },
+        { kind: 'write', title: 'Noting the engine build', path: engineStamp(paths), text: `${new Date().toISOString()}\n` },
     ];
 }
 
@@ -66,6 +70,22 @@ function packList(project) {
     return [compiled, manifest, ...own, ...fromEngine];
 }
 
+// a project keeps its own build of the engine, which goes out of date when the engine repository moves on
+function engineChanged(project, paths) {
+    const stamp = engineStamp(paths);
+
+    if (!fs.existsSync(stamp)) {
+        return true;
+    }
+
+    const built = fs.statSync(stamp).mtimeMs;
+    const sources = ['src', 'blitscript', 'blitfs', 'cmake'].flatMap((folder) => listFiles(path.join(project.engine, folder)))
+        .filter((file) => /\.(c|h|cmake)$/i.test(file))
+        .concat(path.join(project.engine, 'CMakeLists.txt'));
+
+    return sources.some((file) => fs.existsSync(file) && fs.statSync(file).mtimeMs > built);
+}
+
 // the engine build puts every DLL the game needs next to it, an engine from before that has none
 function engineComplete(project) {
     const paths = projectPaths(project);
@@ -75,7 +95,11 @@ function engineComplete(project) {
         return false;
     }
 
-    return process.platform !== 'win32' || fs.existsSync(path.join(paths.engineBuild, 'SDL2.dll'));
+    if (process.platform === 'win32' && !fs.existsSync(path.join(paths.engineBuild, 'SDL2.dll'))) {
+        return false;
+    }
+
+    return !engineChanged(project, paths);
 }
 
 // everything the game needs to run, so the build folder works on a computer without the toolchain

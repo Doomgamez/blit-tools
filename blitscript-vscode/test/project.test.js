@@ -116,8 +116,10 @@ test('an engine from before the DLLs were copied gets rebuilt', () => {
     const project = layout.readProject(root);
     const paths = layout.projectPaths(project);
 
+    const stamp = path.join(paths.engineBuild, 'engine.built');
+
     fs.mkdirSync(paths.engineBuild, { recursive: true });
-    [paths.game, paths.compiler, paths.packer].forEach((file) => fs.writeFileSync(file, ''));
+    [paths.game, paths.compiler, paths.packer, stamp].forEach((file) => fs.writeFileSync(file, ''));
     assert.strictEqual(engineComplete(project), process.platform !== 'win32');
 
     if (process.platform === 'win32') {
@@ -129,6 +131,36 @@ test('an engine from before the DLLs were copied gets rebuilt', () => {
     }
 
     fs.rmSync(path.join(root, '.blit'), { recursive: true, force: true });
+});
+test('an engine older than its sources gets rebuilt', () => {
+    const project = layout.readProject(root);
+    const paths = layout.projectPaths(project);
+    const stamp = path.join(paths.engineBuild, 'engine.built');
+    const longAgo = new Date(2001, 1, 1);
+
+    fs.mkdirSync(paths.engineBuild, { recursive: true });
+    [paths.game, paths.compiler, paths.packer, stamp, path.join(paths.engineBuild, 'SDL2.dll')].forEach((file) => fs.writeFileSync(file, ''));
+    assert.strictEqual(engineComplete(project), true);
+
+    fs.utimesSync(stamp, longAgo, longAgo);
+    assert.strictEqual(engineComplete(project), false, 'older than the sources');
+
+    fs.rmSync(stamp);
+    assert.strictEqual(engineComplete(project), false, 'no stamp, from before this check');
+
+    // only the stamp counts: a program that make didn't need to relink stays old, and that's fine
+    fs.writeFileSync(stamp, '');
+    fs.utimesSync(paths.packer, longAgo, longAgo);
+    assert.strictEqual(engineComplete(project), true, 'an old program');
+
+    fs.rmSync(path.join(root, '.blit'), { recursive: true, force: true });
+});
+test('the engine steps end by noting the build', () => {
+    const steps = engineSteps(layout.readProject(root), '');
+    const last = steps[steps.length - 1];
+
+    assert.strictEqual(last.kind, 'write');
+    assert.strictEqual(path.basename(last.path), 'engine.built');
 });
 test('the archive holds script, manifest, shaders and the font', () => {
     const names = packList(layout.readProject(root)).map((file) => path.basename(file));
