@@ -5,6 +5,7 @@ const vscode = require('vscode');
 const { loadProgram } = require('./core/program');
 const { lint } = require('./core/linter');
 const { compile } = require('./compiler');
+const { findToolchain } = require('./project/build');
 const { files, findCompiler, projectAssetNames } = require('./host');
 
 const LINT_DELAY = 250;
@@ -112,7 +113,8 @@ class Diagnostics {
             return null;
         }
 
-        const result = await compile(compiler, document.uri.fsPath);
+        const toolchain = findToolchain(vscode.workspace.getConfiguration('blitscript').get('toolchainPath'));
+        const result = await compile(compiler, document.uri.fsPath, toolchain);
 
         if (!result.ran) {
             this.status.text = '$(warning) BlitScript: compiler did not run';

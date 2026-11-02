@@ -53,6 +53,12 @@ const MACROS = [
         body: () => ['CLASS ${1:Name}', '    FIELD ${2:position} ${3:VEC3 0 0 0}', '', '    METHOD Init', '        $0', '    END', 'ENDCLASS'],
     },
     {
+        label: 'cblock',
+        detail: 'C99 between C and ENDC, its functions work with CALL',
+        labels: [],
+        body: () => ['C', 'int ${1:Name}(int ${2:value})', '{', '    $0', '}', 'ENDC'],
+    },
+    {
         label: 'repeat',
         detail: 'run a block count times, at least once',
         labels: ['loop'],

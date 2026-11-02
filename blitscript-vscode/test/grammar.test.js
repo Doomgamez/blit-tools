@@ -21,7 +21,8 @@ async function loadGrammar() {
             createOnigScanner: (patterns) => new oniguruma.OnigScanner(patterns),
             createOnigString: (text) => new oniguruma.OnigString(text),
         }),
-        loadGrammar: async () => textmate.parseRawGrammar(
+        // VS Code has the C grammar, here a C block just stays uncolored
+        loadGrammar: async (scope) => scope !== 'source.blitscript' ? null : textmate.parseRawGrammar(
             fs.readFileSync(path.join(__dirname, '..', 'syntaxes', 'blitscript.tmLanguage.json'), 'utf8'), 'blitscript.tmLanguage.json'),
     });
 
@@ -93,11 +94,33 @@ const CASES = [
     ['NEW Enemy 5 -> e', 'NEW', 'keyword.other.new'],
     ['NEW Enemy 5 -> e', 'Enemy', 'entity.name.type.class'],
     ['RETURN x', 'RETURN', 'keyword.control'],
+    ['C', 'C', 'keyword.control'],
+    ['C // some code', 'C', 'keyword.control'],
     ['SET this.health 5', 'this', 'variable.language.this'],
 ];
 
+// a rule that only includes a grammar nobody has gets dropped, the block has to survive the C extension being off
+function blockScopes(grammar) {
+    let stack = textmate.INITIAL;
+
+    return ['SET a 1', 'C', 'int x;', 'ENDC', 'SET b 2'].map((line) => {
+        const { tokens, ruleStack } = grammar.tokenizeLine(line, stack);
+
+        stack = ruleStack;
+        return tokens[0].scopes[tokens[0].scopes.length - 1];
+    });
+}
+
 loadGrammar().then((grammar) => {
     let failed = 0;
+
+    const block = blockScopes(grammar);
+    const wanted = ['keyword.other.blitscript', 'keyword.control.blitscript', 'source.c', 'keyword.control.blitscript', 'keyword.other.blitscript'];
+
+    if (JSON.stringify(block) !== JSON.stringify(wanted)) {
+        failed++;
+        console.log(`FAIL a C block: got ${block.join(', ')}`);
+    }
 
     for (const [line, word, scope] of CASES) {
         const found = scopeOf(grammar, line, word);

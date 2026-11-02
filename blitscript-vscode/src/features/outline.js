@@ -63,7 +63,7 @@ function foldingRanges(document) {
         }
     }
 
-    const blocks = document.classes.flatMap((item) => [item, ...item.methods]);
+    const blocks = [...document.classes.flatMap((item) => [item, ...item.methods]), ...document.cBlocks];
 
     for (const block of blocks) {
         if (block.endLine > block.line) {

@@ -43,7 +43,7 @@ function classify(tokens, index) {
 function contextAt(document, lineIndex, character) {
     const line = document.lines[lineIndex];
 
-    if (!line || (line.commentStart >= 0 && character > line.commentStart)) {
+    if (!line || line.c || (line.commentStart >= 0 && character > line.commentStart)) {
         return { kind: 'none' };
     }
 

@@ -3,6 +3,7 @@
     "name": "BlitScript",
     "scopeName": "source.blitscript",
     "patterns": [
+        { "include": "#c-block" },
         { "include": "#comment" },
         { "include": "#include" },
         { "include": "#main" },
@@ -17,6 +18,17 @@
         { "include": "#values" }
     ],
     "repository": {
+        "c-block": {
+            "begin": "(?i)^\\s*(C)\\s*(?=$|//)",
+            "beginCaptures": { "1": { "name": "keyword.control.blitscript" } },
+            "end": "(?i)^\\s*(ENDC)\\b",
+            "endCaptures": { "1": { "name": "keyword.control.blitscript" } },
+            "contentName": "meta.embedded.block.c source.c",
+            "patterns": [
+                { "include": "source.c" },
+                { "name": "meta.embedded.block.c", "match": "(?!)" }
+            ]
+        },
         "comment": {
             "name": "comment.line.double-slash.blitscript",
             "match": "//.*$"

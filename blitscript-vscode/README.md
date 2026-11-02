@@ -60,6 +60,7 @@ script. The search button finds one by name or description.
   - `for`, `foreach`, `while`, `repeat`: loops. The first three can run 0 times, `repeat` always runs at least once
   - `ifkey`, `ifpressed`: run a block if a key is held down, or went down this frame
   - `class`: a class with a field and an `Init`
+  - `cblock`: a block of C99, its functions work with `CALL`
 - **Outline, folding and snippets**: try `main`, `fn`, `mode3d` and `scene`.
 - **Color swatches and a picker** on `COLOR 24 26 32 255`.
 - **Parameter names in front of arguments**, turn on `blitscript.inlayHints.parameterNames`.
@@ -72,6 +73,7 @@ While you type it checks for what would otherwise only show up at runtime or in 
 - variables that are never set, and `-NAME`, since BlitScript has no unary minus
 - `RET` outside a function, nested `FN`, a second `MAIN`, duplicates, missing `INCLUDE` files, open strings
 - loops without `ENDFOR`, `BREAK` outside a loop, a `FOR` step of 0
+- C blocks without `ENDC`. Saving builds them with gcc, whose errors land on the line in the script
 - classes: missing `ENDCLASS`, unknown parents, repeated fields, `this.` a field that doesn't exist, methods nothing has,
   and the wrong number of values for `NEW`. Fields of other objects are only known when the script runs
 - in a project, assets that aren't in `assets/`, folders in asset names, and audio formats the engine can't play

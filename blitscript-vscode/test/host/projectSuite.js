@@ -164,6 +164,36 @@ async function run() {
         }
     });
 
+    await check('a C block builds into a library next to the game', async () => {
+        const file = inProject('scripts', 'main.bs');
+        const library = inProject('build', 'main.natives.dll');
+        const good = fs.readFileSync(file, 'utf8');
+
+        fs.writeFileSync(file, `${good}\nC\nint Three(void) { return 3; }\nENDC\n`);
+        assert.strictEqual(await execute('blitscript.buildProject'), true);
+        assert.ok(fs.existsSync(library), 'no library');
+
+        fs.writeFileSync(file, good);
+        assert.strictEqual(await execute('blitscript.buildProject'), true);
+        assert.ok(!fs.existsSync(library), 'an old library stayed');
+    });
+
+    await check('a mistake in a C block reaches its line', async () => {
+        const file = inProject('scripts', 'main.bs');
+        const good = fs.readFileSync(file, 'utf8');
+        const line = good.split('\n').length + 1;
+
+        fs.writeFileSync(file, `${good}\nC\nint Three(void) { return nope; }\nENDC\n`);
+
+        const document = await vscode.workspace.openTextDocument(file);
+        await vscode.window.showTextDocument(document);
+        const result = await execute('blitscript.compile');
+
+        fs.writeFileSync(file, good);
+        assert.ok(result && !result.ok, 'it compiled');
+        assert.ok(result.errors.some((error) => error.line === line && /nope/.test(error.message)), JSON.stringify(result.errors).slice(0, 200));
+    });
+
     await check('a missing asset is flagged and clears once it exists', async () => {
         const file = inProject('scripts', 'audio.bs');
         const sound = inProject('assets', 'door.wav');

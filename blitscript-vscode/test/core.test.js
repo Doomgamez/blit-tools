@@ -315,6 +315,33 @@ test('a variable name after NEW ->', () => {
     assert.strictEqual(contextAt(model, 0, 13).kind, 'variableName');
 });
 
+const C_BLOCK = 'C\n#include <stdio.h>\n// not { a function ( \nstatic int helper(int x) { return x; }\nconst char* text = "a { (";\nint Add(int a, int b)\n{\n    if (a) { return helper(b); }\n    return a + b;\n}\n/* int Commented(int a) { } */\ntypedef struct P { int a; } P;\nvoid None(void) { }\nVec3 Twice(Vec3 v, const char* name) { return v; }\nENDC\n';
+test('C is not read as BlitScript', () => assert.deepStrictEqual(messages(`MAIN LBL m\nCALL Add 1 2 -> x\nCALL log x\nEND\n${C_BLOCK}`), []));
+test('a function from a C block counts its arguments', () => assert.ok(messages(`MAIN LBL m\nCALL Add 1\nEND\n${C_BLOCK}`).includes('Add takes 2 argument(s), got 1')));
+test('void means no arguments', () => assert.ok(messages(`MAIN LBL m\nCALL None 1\nEND\n${C_BLOCK}`).includes('None takes 0 argument(s), got 1')));
+test('a VEC3 is one C argument', () => assert.deepStrictEqual(messages(`MAIN LBL m\nCALL Twice VEC3 1 2 3, "a"\nEND\n${C_BLOCK}`), []));
+test('static C functions stay in C', () => assert.ok(messages(`MAIN LBL m\nCALL helper 1\nEND\n${C_BLOCK}`).some((m) => /Unknown function helper/.test(m))));
+test('a commented C function does not exist', () => assert.ok(messages(`MAIN LBL m\nCALL Commented 1\nEND\n${C_BLOCK}`).some((m) => /Unknown function Commented/.test(m))));
+test('C blocks work in an include', () => assert.deepStrictEqual(messages('INCLUDE "c.bs"\nMAIN LBL m\nCALL Add 1 2\nEND', { 'c.bs': C_BLOCK }), []));
+test('a lower case block', () => assert.deepStrictEqual(messages('MAIN LBL m\nEND\nc // note\nint a(void) { return 1; }\nendc'), []));
+test('a C block without ENDC', () => assert.ok(messages('MAIN LBL m\nEND\nC\nint a(void);').includes('This C block has no ENDC')));
+test('ENDC alone', () => assert.ok(messages('MAIN LBL m\nEND\nENDC').includes('ENDC without a C')));
+test('go to a C function', () => {
+    const source = `MAIN LBL m\nCALL Add 1 2\nEND\n${C_BLOCK}`;
+    const { program, model } = open(source);
+    const found = definition(program, model, 1, 6, api);
+    assert.strictEqual(found.line, source.split('\n').findIndex((line) => line.startsWith('int Add')));
+    assert.strictEqual(found.start, 4);
+});
+test('C blocks fold', () => assert.ok(foldingRanges(open(`MAIN LBL m\nEND\n${C_BLOCK}`).model).some((range) => range.start === 2)));
+test('nothing completes inside C', () => assert.strictEqual(contextAt(open(`${C_BLOCK}`).model, 1, 3).kind, 'none'));
+test('gcc errors land on the script line', () => {
+    const [error] = parseCompilerOutput("C:/game/main.bs:6:12: error: 'nope' undeclared (first use in this function)\nThe C blocks did not compile");
+    assert.deepStrictEqual([error.file, error.line, error.message], ['C:/game/main.bs', 5, "'nope' undeclared (first use in this function)"]);
+});
+test('a missing C header', () => assert.strictEqual(parseCompilerOutput('a.bs:4:10: fatal error: x.h: No such file or directory')[0].line, 3));
+test('gcc warnings are not errors', () => assert.deepStrictEqual(parseCompilerOutput('a.bs:4:10: warning: unused'), []));
+
 const dead = (body) => lintText(`MAIN LBL m\nSET n 3\n${body}\nEND`).filter((item) => item.unnecessary).map((item) => item.line);
 test('code after BREAK is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nBREAK\nSET a 1\nENDFOR'), [4]));
 test('code after CONTINUE is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nCONTINUE\nSET a 1\nENDFOR'), [4]));

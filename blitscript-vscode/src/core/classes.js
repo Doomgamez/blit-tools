@@ -52,7 +52,9 @@ function checkStructure(document, fail) {
         const command = first.text.toUpperCase();
         const at = (message, token = first) => fail(index, token, message);
 
-        if (command === 'CLASS') {
+        if (command === 'ENDC') {
+            at('ENDC without a C');
+        } else if (command === 'CLASS') {
             const extended = tokens.length === 4 && tokens[2].text.toUpperCase() === 'EXTENDS' && NAME.test(tokens[3].text);
 
             if (inClass) at('CLASS inside a CLASS');
@@ -224,6 +226,12 @@ function checkClasses(program, document, fail) {
 
     checkStructure(document, fail);
     checkDeclarations(document, classes, fail);
+
+    for (const block of document.cBlocks) {
+        if (block.endLine < 0) {
+            fail(block.line, { start: 0, end: document.lines[block.line].source.length }, 'This C block has no ENDC');
+        }
+    }
 
     document.lines.forEach((line, index) => {
         const { tokens } = line;

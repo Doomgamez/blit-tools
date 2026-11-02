@@ -47,6 +47,7 @@ const STATEMENTS = {
     METHOD: '`METHOD name params...`: a function of a class, closed by END. `this` is the object. A method called Init runs on NEW.',
     NEW: '`NEW Class [values] -> variable`: makes an object, the values go to its Init method.',
     RETURN: '`RETURN [value]`: leaves a function or method, `CALL fn -> result` gets the value.',
+    ENDC: 'Closes a C block.',
     LBL: '`LBL name`: a jump target.',
     MAIN: '`MAIN LBL name`: where the script starts, exactly one per program.',
     FN: '`FN name params...`: a function, closed by END. Parameters are locals.',

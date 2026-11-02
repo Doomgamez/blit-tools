@@ -1,6 +1,7 @@
 'use strict';
 
 const { tokenize } = require('./tokenizer');
+const { findBlocks, readFunctions } = require('./cblocks');
 
 const sameName = (a, b) => a.toLowerCase() === b.toLowerCase();
 
@@ -164,11 +165,19 @@ function addStatement(model, line, index, state) {
 
 // one source file, no includes followed yet
 function parseDocument(text, path) {
-    const model = { path, text, lines: [], labels: [], mains: [], functions: [], constants: [], includes: [], writes: [], loops: [], classes: [] };
+    const model = { path, text, lines: [], labels: [], mains: [], functions: [], constants: [], includes: [], writes: [], loops: [], classes: [], cBlocks: [] };
     const state = { fn: null, loops: [], owner: null };
+    const sources = text.split(/\r?\n/);
 
-    text.split(/\r?\n/).forEach((source, index) => {
-        const line = Object.assign(tokenize(source), { source, fn: state.fn });
+    model.cBlocks = findBlocks(sources);
+
+    const insideC = (index) => model.cBlocks.some((block) => index >= block.line && (block.endLine < 0 || index <= block.endLine));
+
+    model.cBlocks.filter((block) => block.endLine >= 0).forEach((block) => readFunctions(sources, block, model.functions));
+
+    sources.forEach((source, index) => {
+        const c = insideC(index);
+        const line = Object.assign(tokenize(c ? '' : source), { source, fn: state.fn, c });
 
         model.lines.push(line);
 
