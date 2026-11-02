@@ -806,6 +806,287 @@
    "doc": "Color from hue 0-360, saturation and value 0.0-1.0",
    "category": "Color"
   },
+  "loadshader": {
+   "name": "LoadShader",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "fragment",
+     "variadic": false
+    }
+   ],
+   "doc": "Load a fragment shader from Engine.blfs with the built-in vertex shader, returns a shader handle, 0 if it failed (the log says why)",
+   "category": "Shaders"
+  },
+  "loadshaderex": {
+   "name": "LoadShaderEx",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "vertex",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "fragment",
+     "variadic": false
+    }
+   ],
+   "doc": "Load a vertex and a fragment shader from Engine.blfs, returns a shader handle, 0 if it failed",
+   "category": "Shaders"
+  },
+  "unloadshader": {
+   "name": "UnloadShader",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a shader",
+   "category": "Shaders"
+  },
+  "beginshadermode": {
+   "name": "BeginShaderMode",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    }
+   ],
+   "doc": "Everything drawn from here goes through this shader, until EndShaderMode or the end of the frame",
+   "category": "Shaders"
+  },
+  "endshadermode": {
+   "name": "EndShaderMode",
+   "returns": "void",
+   "params": [],
+   "doc": "Back to the built-in shader",
+   "category": "Shaders"
+  },
+  "setshaderint": {
+   "name": "SetShaderInt",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "Set an int uniform",
+   "category": "Shaders"
+  },
+  "setshaderfloat": {
+   "name": "SetShaderFloat",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "Set a float uniform",
+   "category": "Shaders"
+  },
+  "setshadervec2": {
+   "name": "SetShaderVec2",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "Set a vec2 uniform",
+   "category": "Shaders"
+  },
+  "setshadervec3": {
+   "name": "SetShaderVec3",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "Set a vec3 uniform",
+   "category": "Shaders"
+  },
+  "setshadervec4": {
+   "name": "SetShaderVec4",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "z",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "w",
+     "variadic": false
+    }
+   ],
+   "doc": "Set a vec4 uniform",
+   "category": "Shaders"
+  },
+  "setshadercolor": {
+   "name": "SetShaderColor",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Set a vec4 uniform from a color, as 0 to 1",
+   "category": "Shaders"
+  },
+  "setshadertexture": {
+   "name": "SetShaderTexture",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    }
+   ],
+   "doc": "Set a sampler2D uniform to a texture, up to 7 on top of u_texture",
+   "category": "Shaders"
+  },
+  "applyshader": {
+   "name": "ApplyShader",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    }
+   ],
+   "doc": "A new texture of the same size: this one drawn through the shader. Draw it like any other, free it with UnloadTexture",
+   "category": "Shaders"
+  },
+  "applyshaderinto": {
+   "name": "ApplyShaderInto",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "target",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "shader",
+     "variadic": false
+    }
+   ],
+   "doc": "ApplyShader into a texture you already have, of any size, for doing it every frame",
+   "category": "Shaders"
+  },
   "loadtexture": {
    "name": "LoadTexture",
    "returns": "int",

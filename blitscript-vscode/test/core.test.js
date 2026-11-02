@@ -126,6 +126,8 @@ test('outside a project assets are not checked', () => assert.deepStrictEqual(lo
 test('an unsupported audio format', () => assert.ok(loading('CALL LoadSound "door.aac" -> s').some((m) => /can't play \.aac/.test(m))));
 test('a folder in an asset name', () => assert.ok(loading('CALL LoadMusic "music/theme.ogg" -> m').some((m) => /use "theme.ogg"/.test(m))));
 test('textures are checked too', () => assert.ok(loading('CALL LoadTexture "a.png" -> t', { assets: [] }).some((m) => /not in assets/.test(m))));
+test('shaders are checked too', () => assert.ok(loading('CALL LoadShader "a.frag" -> s', { assets: [] }).some((m) => /not in assets/.test(m))));
+test('a shader that exists is fine', () => assert.deepStrictEqual(loading('CALL LoadShader "A.frag" -> s', { assets: ['a.frag'] }), []));
 test('an image name is fine for a texture', () => assert.deepStrictEqual(loading('CALL LoadTexture "a.png" -> t', { assets: ['a.png'] }), []));
 test('a variable file name is not judged', () => assert.deepStrictEqual(loading('SET n "x"\nCALL LoadSound n -> s', { assets: [] }), []));
 test('every audio function is in the API', () => {

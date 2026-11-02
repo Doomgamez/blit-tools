@@ -13,7 +13,7 @@ const HINT = 3;
 
 const NUMERIC = ['int', 'float', 'double', 'bool'];
 const AUDIO_LOADERS = ['loadsound', 'loadmusic'];
-const ASSET_LOADERS = [...AUDIO_LOADERS, 'loadtexture', 'loadmodel', 'loadscene'];
+const ASSET_LOADERS = [...AUDIO_LOADERS, 'loadtexture', 'loadmodel', 'loadscene', 'loadshader'];
 const AUDIO_FORMATS = ['wav', 'ogg', 'mp3', 'flac', 'opus', 'mod', 'xm', 's3m', 'it', 'mid', 'midi'];
 
 function report(out, line, token, severity, message, extra) {

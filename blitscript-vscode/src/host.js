@@ -104,7 +104,14 @@ function loadApi(context) {
 function projectAssetNames() {
     const project = currentProject();
 
-    return project ? listFiles(projectPaths(project).assets).map((file) => path.basename(file).toLowerCase()) : undefined;
+    if (!project) {
+        return undefined;
+    }
+
+    // the engine's own shaders go into every archive too
+    const files = listFiles(projectPaths(project).assets).concat(listFiles(path.join(project.engine, 'assets', 'shaders')));
+
+    return files.map((file) => path.basename(file).toLowerCase());
 }
 
 function findCompiler() {
