@@ -42,7 +42,7 @@ function parameterAt(fn, index) {
 function readTokens(tokens) {
     const command = tokens[0].text.toUpperCase();
 
-    if (command === 'SET' || command === 'READ') return tokens.slice(2);
+    if (['SET', 'LOCAL', 'READ', 'FOR', 'FOREACH'].includes(command)) return tokens.slice(2);
     if (command === 'MOV') return tokens.slice(2);
     if (command === 'CMP' || language.isArithmetic(command)) return tokens.slice(1);
 

@@ -83,7 +83,15 @@
             "patterns": [
                 { "name": "keyword.control.blitscript", "match": "(?i)^\\s*(END|RET)\\b" },
                 {
-                    "match": "(?i)^\\s*(SET|READ|MOV)\\s+([^\\s,/]+)",
+                    "match": "(?i)^\\s*(FOR|FOREACH)\\s+([^\\s,/]+)",
+                    "captures": {
+                        "1": { "name": "keyword.control.flow.blitscript" },
+                        "2": { "name": "variable.other.blitscript" }
+                    }
+                },
+                { "name": "keyword.control.flow.blitscript", "match": "(?i)^\\s*(ENDFOR|BREAK|CONTINUE)\\b" },
+                {
+                    "match": "(?i)^\\s*(SET|LOCAL|READ|MOV)\\s+([^\\s,/]+)",
                     "captures": {
                         "1": { "name": "keyword.other.blitscript" },
                         "2": { "name": "variable.other.blitscript" }

@@ -65,7 +65,26 @@ function addStatement(model, line, index, state) {
             }
             break;
 
+        case 'FOR':
+        case 'FOREACH': {
+            const loop = { line: index, endLine: -1 };
+            model.loops.push(loop);
+            state.loops.push(loop);
+
+            if (tokens[1]) {
+                write(tokens[1]);
+            }
+            break;
+        }
+
+        case 'ENDFOR':
+            if (state.loops.length > 0) {
+                state.loops.pop().endLine = index;
+            }
+            break;
+
         case 'SET':
+        case 'LOCAL':
         case 'READ':
             if (tokens[1]) {
                 write(tokens[1]);
@@ -87,8 +106,8 @@ function addStatement(model, line, index, state) {
 
 // one source file, no includes followed yet
 function parseDocument(text, path) {
-    const model = { path, text, lines: [], labels: [], mains: [], functions: [], constants: [], includes: [], writes: [] };
-    const state = { fn: null };
+    const model = { path, text, lines: [], labels: [], mains: [], functions: [], constants: [], includes: [], writes: [], loops: [] };
+    const state = { fn: null, loops: [] };
 
     text.split(/\r?\n/).forEach((source, index) => {
         const line = Object.assign(tokenize(source), { source, fn: state.fn });

@@ -5,6 +5,7 @@ const syntax = require('./syntax');
 const { signature } = require('./api');
 const { collect, findFunction, findConstant, findLabel } = require('./program');
 const { arrowIndex } = require('./document');
+const { checkLoops } = require('./loops');
 
 const ERROR = 0;
 const WARNING = 1;
@@ -176,12 +177,12 @@ function checkDeadCode(document, out) {
 
         const command = line.tokens[0].text.toUpperCase();
 
-        if (['LBL', 'MAIN', 'FN', 'END', 'CONST', 'INCLUDE'].includes(command)) {
+        if (['LBL', 'MAIN', 'FN', 'END', 'CONST', 'INCLUDE', 'FOR', 'FOREACH', 'ENDFOR'].includes(command)) {
             dead = false;
         } else if (dead) {
             out.push({ line: index, start: line.tokens[0].start, end: line.source.length, severity: HINT,
                        message: 'Nothing can reach this line', unnecessary: true });
-        } else if (command === 'JMP' || command === 'RET') {
+        } else if (['JMP', 'RET', 'BREAK', 'CONTINUE'].includes(command)) {
             dead = true;
         }
     });
@@ -209,6 +210,8 @@ function lint(program, api, options) {
             report(out, index, line.tokens[0], ERROR, 'Nested FN is not allowed');
         }
     });
+
+    checkLoops(document, (index, token, message) => report(out, index, token, ERROR, message));
 
     for (const include of document.includes) {
         if (!include.found) {

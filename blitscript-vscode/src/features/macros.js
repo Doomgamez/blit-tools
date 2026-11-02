@@ -37,8 +37,14 @@ const MACROS = [
     {
         label: 'for',
         detail: 'for i from 0 up to count',
-        labels: ['loop', 'endloop'],
-        body: ([loop, end]) => ['SET ${1:i} 0', `LBL ${loop}`, `    CMP $1 \${2:count}`, `    JGE ${end}`, '    $0', '    ADD $1 1', `    JMP ${loop}`, `LBL ${end}`],
+        labels: [],
+        body: () => ['FOR ${1:i} 0 ${2:count}', '    $0', 'ENDFOR'],
+    },
+    {
+        label: 'foreach',
+        detail: 'for every value of an array or a list',
+        labels: [],
+        body: () => ['FOREACH ${1:value} ${2:values}', '    $0', 'ENDFOR'],
     },
     {
         label: 'repeat',

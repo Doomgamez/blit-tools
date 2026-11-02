@@ -56,7 +56,7 @@ script. The search button finds one by name or description.
   picks a free label, so you can use them as often as you like:
   - `if`, `ifne`, `iflt`, `ifle`, `ifgt`, `ifge`: run a block if a is ==, !=, <, <=, > or >= b
   - `ifelse`: one block if a == b, another otherwise
-  - `while`, `for`, `repeat`: loops. `while` and `for` can run 0 times, `repeat` always runs at least once
+  - `for`, `foreach`, `while`, `repeat`: loops. The first three can run 0 times, `repeat` always runs at least once
   - `ifkey`, `ifpressed`: run a block if a key is held down, or went down this frame
 - **Outline, folding and snippets**: try `main`, `fn`, `mode3d` and `scene`.
 - **Color swatches and a picker** on `COLOR 24 26 32 255`.
@@ -69,6 +69,7 @@ While you type it checks for what would otherwise only show up at runtime or in 
 - unknown instructions, labels and functions, wrong argument counts and types
 - variables that are never set, and `-NAME`, since BlitScript has no unary minus
 - `RET` outside a function, nested `FN`, a second `MAIN`, duplicates, missing `INCLUDE` files, open strings
+- loops without `ENDFOR`, `BREAK` outside a loop, a `FOR` step of 0
 - in a project, assets that aren't in `assets/`, folders in asset names, and audio formats the engine can't play
 - unreachable code, faded out, the lines the compiler's optimizer removes
 

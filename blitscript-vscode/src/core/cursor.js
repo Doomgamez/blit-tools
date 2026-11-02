@@ -67,7 +67,7 @@ function contextAt(document, lineIndex, character) {
         return { kind: 'variableName' };
     }
 
-    if ((command === 'SET' || command === 'READ') && finished.length === 1) {
+    if (['SET', 'LOCAL', 'READ', 'FOR', 'FOREACH'].includes(command) && finished.length === 1) {
         return { kind: 'variableName' };
     }
 

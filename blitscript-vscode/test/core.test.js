@@ -207,7 +207,58 @@ test('macros are only offered for statements', () => {
 });
 test('the preview shows plain code', () => {
     const { documentation } = macro('\n', 'for');
-    assert.ok(/SET i 0/.test(documentation) && /ADD i 1/.test(documentation) && !documentation.includes('${'));
+    assert.ok(/FOR i 0 count/.test(documentation) && /ENDFOR/.test(documentation) && !documentation.includes('${'));
+});
+
+const loopErrors = (body) => messages(`MAIN LBL m\nSET n 3\n${body}\nEND`);
+test('a whole loop is fine', () => assert.deepStrictEqual(loopErrors('FOR i 0 n\nFOREACH v 1 2\nCONTINUE\nENDFOR\nBREAK\nENDFOR'), []));
+test('the keywords work in any case', () => assert.deepStrictEqual(loopErrors('for i 0 n\nbreak\nendfor'), []));
+test('a loop variable counts as set', () => assert.deepStrictEqual(loopErrors('FOR i 0 n\nCALL log i\nENDFOR\nFOREACH v 1 2\nCALL log v\nENDFOR'), []));
+test('LOCAL sets a variable', () => assert.deepStrictEqual(messages('MAIN LBL m\nCALL f\nEND\nFN f\nLOCAL a 1\nCALL log a\nEND'), []));
+test('a FOR reads its values', () => assert.ok(loopErrors('FOR i 0 nope\nENDFOR').some((m) => /nope is never set/.test(m))));
+test('a FOREACH reads its values', () => assert.ok(loopErrors('FOREACH v nope\nENDFOR').some((m) => /nope is never set/.test(m))));
+test('a loop without ENDFOR', () => assert.ok(loopErrors('FOR i 0 n').includes('This loop has no ENDFOR')));
+test('ENDFOR without a loop', () => assert.ok(loopErrors('ENDFOR').includes('ENDFOR without a FOR or FOREACH')));
+test('BREAK outside a loop', () => assert.ok(loopErrors('BREAK').includes('BREAK outside a loop')));
+test('CONTINUE outside a loop', () => assert.ok(loopErrors('CONTINUE').includes('CONTINUE outside a loop')));
+test('a label is not a loop for BREAK', () => assert.ok(loopErrors('LBL a\nBREAK\nJMP a').includes('BREAK outside a loop')));
+test('ENDFOR takes nothing', () => assert.ok(loopErrors('FOR i 0 n\nENDFOR x').includes('ENDFOR takes nothing after it')));
+test('FOR needs an end', () => assert.ok(loopErrors('FOR i 3\nENDFOR').some((m) => /FOR expects/.test(m))));
+test('FOR can have a step', () => assert.deepStrictEqual(loopErrors('FOR i 0 n 2\nENDFOR'), []));
+test('FOR has at most a step', () => assert.ok(loopErrors('FOR i 0 n 1 9\nENDFOR').some((m) => /FOR expects/.test(m))));
+test('a number is no loop variable', () => assert.ok(loopErrors('FOR 5 0 n\nENDFOR').some((m) => /FOR expects/.test(m))));
+test('FOR wants numbers', () => assert.ok(loopErrors('FOR i "a" n\nENDFOR').includes('FOR needs numbers, not text')));
+test('a step of 0', () => assert.ok(loopErrors('FOR i 0 n 0.0\nENDFOR').includes('A FOR step of 0 never ends')));
+test('a hex step is not 0', () => assert.deepStrictEqual(loopErrors('FOR i 0 n 0x10\nENDFOR'), []));
+test('a variable step is fine', () => assert.deepStrictEqual(loopErrors('FOR i 0 n n\nENDFOR'), []));
+test('FOREACH needs values', () => assert.ok(loopErrors('FOREACH v\nENDFOR').some((m) => /FOREACH expects/.test(m))));
+test('loops nest 16 deep', () => {
+    const nested = (count) => `${'FOR i 0 n\n'.repeat(count)}${'ENDFOR\n'.repeat(count)}`;
+    assert.deepStrictEqual(loopErrors(nested(16)), []);
+    assert.ok(loopErrors(nested(17)).includes('Loops can nest 16 deep'));
+});
+test('no FN inside a loop', () => assert.ok(messages('MAIN LBL m\nFOR i 0 3\nFN f\nEND\nENDFOR\nEND').includes('FN inside a loop')));
+test('a function can not end inside a loop', () => {
+    const found = messages('MAIN LBL m\nEND\nFN f\nFOR i 0 3\nEND\nFN g\nENDFOR\nEND');
+    assert.ok(found.includes('END before the ENDFOR of the loop on line 4'));
+    assert.ok(found.includes('ENDFOR without a FOR or FOREACH'));
+});
+test('END can sit in a loop in main', () => assert.deepStrictEqual(loopErrors('FOR i 0 n\nEND\nENDFOR'), []));
+const dead = (body) => lintText(`MAIN LBL m\nSET n 3\n${body}\nEND`).filter((item) => item.unnecessary).map((item) => item.line);
+test('code after BREAK is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nBREAK\nSET a 1\nENDFOR'), [4]));
+test('code after CONTINUE is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nCONTINUE\nSET a 1\nENDFOR'), [4]));
+test('ENDFOR makes code live again', () => assert.deepStrictEqual(dead('FOR i 0 n\nBREAK\nENDFOR\nSET a 1'), []));
+test('loops fold', () => {
+    const ranges = foldingRanges(open('MAIN LBL m\nFOR i 0 3\nFOREACH v 1 2\nENDFOR\nENDFOR\nEND').model);
+    assert.deepStrictEqual(ranges.map((range) => [range.start, range.end]).sort(), [[1, 4], [2, 3]]);
+});
+test('a loop variable is a variable name while typing', () => {
+    const { model } = open('FOR ');
+    assert.strictEqual(contextAt(model, 0, 4).kind, 'variableName');
+});
+test('hover on a loop keyword', () => {
+    const { program, model } = open('FOREACH v 1 2');
+    assert.ok(/FOREACH variable values/.test(hover(program, model, 0, 2, api).contents));
 });
 
 test('hover on a native', () => {

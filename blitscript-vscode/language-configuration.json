@@ -11,7 +11,7 @@
     ],
     "wordPattern": "-?[A-Za-z_][A-Za-z0-9_.]*|-?\\d+\\.?\\d*(?:[eE][+-]?\\d+)?(?:u64|i64|u|f|d)?",
     "indentationRules": {
-        "increaseIndentPattern": "^\\s*(?i:FN|LBL)\\b.*$",
-        "decreaseIndentPattern": "^\\s*(?i:END|LBL)\\b.*$"
+        "increaseIndentPattern": "^\\s*(?i:FN|LBL|FOR|FOREACH)\\b.*$",
+        "decreaseIndentPattern": "^\\s*(?i:END|LBL|ENDFOR)\\b.*$"
     }
 }

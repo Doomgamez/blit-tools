@@ -511,6 +511,148 @@
    "doc": "Hear PlaySoundAt from where this camera is now, call it every frame the camera moves",
    "category": "Audio"
   },
+  "array": {
+   "name": "Array",
+   "returns": "array",
+   "params": [
+    {
+     "type": "any",
+     "name": "values",
+     "variadic": true
+    }
+   ],
+   "doc": "A new array with no size limit, filled with the values given (any number, also none)",
+   "category": "Arrays"
+  },
+  "arraypush": {
+   "name": "ArrayPush",
+   "returns": "void",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    },
+    {
+     "type": "any",
+     "name": "values",
+     "variadic": true
+    }
+   ],
+   "doc": "Add values to the end",
+   "category": "Arrays"
+  },
+  "arraypop": {
+   "name": "ArrayPop",
+   "returns": "any",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    }
+   ],
+   "doc": "Take the last value off, stops the script if the array is empty",
+   "category": "Arrays"
+  },
+  "arrayget": {
+   "name": "ArrayGet",
+   "returns": "any",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "index",
+     "variadic": false
+    }
+   ],
+   "doc": "The value at an index, from 0. Also reads a variable holding a list of values",
+   "category": "Arrays"
+  },
+  "arrayset": {
+   "name": "ArraySet",
+   "returns": "void",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "index",
+     "variadic": false
+    },
+    {
+     "type": "any",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "Replace the value at an index",
+   "category": "Arrays"
+  },
+  "arrayremove": {
+   "name": "ArrayRemove",
+   "returns": "void",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "index",
+     "variadic": false
+    }
+   ],
+   "doc": "Remove the value at an index, the ones after it move down",
+   "category": "Arrays"
+  },
+  "arrayclear": {
+   "name": "ArrayClear",
+   "returns": "void",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    }
+   ],
+   "doc": "Remove every value",
+   "category": "Arrays"
+  },
+  "arrayfree": {
+   "name": "ArrayFree",
+   "returns": "void",
+   "params": [
+    {
+     "type": "array",
+     "name": "array",
+     "variadic": false
+    }
+   ],
+   "doc": "Free an array you no longer need, using it afterwards is an error. Arrays also go when the script ends",
+   "category": "Arrays"
+  },
+  "length": {
+   "name": "Length",
+   "returns": "int",
+   "params": [
+    {
+     "type": "any",
+     "name": "values",
+     "variadic": false
+    }
+   ],
+   "doc": "How many values an array or a variable holds",
+   "category": "Arrays"
+  },
   "iskeydown": {
    "name": "IsKeyDown",
    "returns": "bool",

@@ -31,13 +31,19 @@ function symbols(document) {
     return out.sort((a, b) => a.line - b.line);
 }
 
-// function bodies, runs of comment lines and what sits under a label in a loop
+// function bodies, loops, runs of comment lines and what sits under a label in a loop
 function foldingRanges(document) {
     const ranges = [];
 
     for (const fn of document.functions) {
         if (fn.endLine > fn.line) {
             ranges.push({ start: fn.line, end: fn.endLine, kind: 'region' });
+        }
+    }
+
+    for (const loop of document.loops) {
+        if (loop.endLine > loop.line) {
+            ranges.push({ start: loop.line, end: loop.endLine, kind: 'region' });
         }
     }
 

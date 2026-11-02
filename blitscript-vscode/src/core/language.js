@@ -29,12 +29,18 @@ const ARITHMETIC = {
 
 const STATEMENTS = {
     SET: '`SET name value...`: creates or updates a variable, up to 32 values. Inside a function a new name becomes a local.',
+    LOCAL: '`LOCAL name value...`: like SET, but always stays in the function, even if a global has the same name.',
     MOV: '`MOV register value`: stores one value in EAX, EBX, ECX or EDX.',
     READ: '`READ dst src index`: dst = src[index], index 0..255.',
     CALL: '`CALL fn args -> result`: calls an engine function or a script function. `-> result` is optional.',
     CMP: '`CMP a b`: compares two values, the jump after it decides.',
     RET: 'Returns from a function, END does too.',
     END: 'Stops the script, or closes a function.',
+    FOR: '`FOR variable start end [step]`: counts from start up to end, not including it, until ENDFOR. A negative step counts down.',
+    FOREACH: '`FOREACH variable values`: runs once for every value of an array, a list or the values written here, until ENDFOR.',
+    ENDFOR: 'Closes a FOR or FOREACH.',
+    BREAK: 'Leaves the innermost loop.',
+    CONTINUE: 'Goes on with the next turn of the innermost loop.',
     LBL: '`LBL name`: a jump target.',
     MAIN: '`MAIN LBL name`: where the script starts, exactly one per program.',
     FN: '`FN name params...`: a function, closed by END. Parameters are locals.',
