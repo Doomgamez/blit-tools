@@ -49,7 +49,13 @@ script. The search button finds one by name or description.
 - **Go to definition, references and rename** for labels, functions, constants and variables, through `INCLUDE`s.
   Labels and functions ignore case and variables don't, like the compiler. A parameter stays inside its function.
   Engine functions and the generated `engine.bs` can't be renamed.
-- **Outline, folding and snippets**: try `main`, `fn`, `loop`, `if`, `ifelse`, `key`, `mode3d` and `scene`.
+- **Macros**: type one at the start of a line and press Enter to write it out, Tab moves between its values. Each one
+  picks a free label, so you can use them as often as you like:
+  - `if`, `ifne`, `iflt`, `ifle`, `ifgt`, `ifge`: run a block if a is ==, !=, <, <=, > or >= b
+  - `ifelse`: one block if a == b, another otherwise
+  - `while`, `for`, `repeat`: loops. `while` and `for` can run 0 times, `repeat` always runs at least once
+  - `ifkey`, `ifpressed`: run a block if a key is held down, or went down this frame
+- **Outline, folding and snippets**: try `main`, `fn`, `mode3d` and `scene`.
 - **Color swatches and a picker** on `COLOR 24 26 32 255`.
 - **Parameter names in front of arguments**, turn on `blitscript.inlayHints.parameterNames`.
 

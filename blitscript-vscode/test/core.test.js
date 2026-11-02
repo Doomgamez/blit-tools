@@ -165,6 +165,35 @@ test('INCLUDE completes files', () => {
     assert.deepStrictEqual(labels(complete(program, model, 0, 9, api, files)), ['engine.bs']);
 });
 
+const macro = (source, name) => {
+    const { program, model, files } = open(source);
+    return complete(program, model, source.split('\n').length - 1, 0, api, files).find((item) => item.label === name);
+};
+
+test('macros come first at the start of a line', () => {
+    const { program, model, files } = open('\n');
+    const names = complete(program, model, 0, 0, api, files).sort((a, b) => (a.sortText || a.label).localeCompare(b.sortText || b.label)).map((item) => item.label);
+    assert.ok(names.indexOf('if') < names.indexOf('ADD'));
+});
+test('a macro inserts real BlitScript', () => assert.ok(/^CMP .*\nJNE endif\n[\s\S]*LBL endif$/.test(macro('\n', 'if').snippet)));
+test('a macro avoids a label in use', () => assert.ok(/JNE endif2/.test(macro('MAIN LBL m\nLBL endif\nEND\n', 'if').snippet)));
+test('a macro avoids labels in any case', () => assert.ok(/JNE endif2/.test(macro('MAIN LBL m\nLBL ENDIF\nEND\n', 'if').snippet)));
+test('a macro skips every used number', () => assert.ok(/JNE endif3/.test(macro('MAIN LBL m\nLBL endif\nLBL endif2\nEND\n', 'if').snippet)));
+test('a macro sees labels in included files', () => {
+    const files = memoryFiles({ 'test.bs': 'INCLUDE "other.bs"\n', 'other.bs': 'LBL endif\n' });
+    const program = loadProgram(path.resolve('/virtual/test.bs'), files);
+    const item = complete(program, program.documents.get(program.entry), 1, 0, api, files).find((entry) => entry.label === 'if');
+    assert.ok(/JNE endif2/.test(item.snippet));
+});
+test('macros are only offered for statements', () => {
+    const { program, model, files } = open('MAIN LBL m\nCALL \nEND');
+    assert.ok(!complete(program, model, 1, 5, api, files).some((item) => item.kind === 'snippet'));
+});
+test('the preview shows plain code', () => {
+    const { documentation } = macro('\n', 'for');
+    assert.ok(/SET i 0/.test(documentation) && /ADD i 1/.test(documentation) && !documentation.includes('${'));
+});
+
 test('hover on a native', () => {
     const { program, model } = open('MAIN LBL m\nCALL SetVSync true\nEND');
     assert.ok(/void SetVSync\(bool enabled\)/.test(hover(program, model, 1, 7, api).contents));

@@ -16,6 +16,7 @@ const SELECTOR = { language: 'blitscript' };
 
 const COMPLETION_KINDS = {
     keyword: vscode.CompletionItemKind.Keyword,
+    snippet: vscode.CompletionItemKind.Snippet,
     native: vscode.CompletionItemKind.Function,
     function: vscode.CompletionItemKind.Method,
     label: vscode.CompletionItemKind.Reference,

@@ -4,6 +4,7 @@ const language = require('../core/language');
 const { collect } = require('../core/program');
 const { contextAt } = require('../core/cursor');
 const { signature } = require('../core/api');
+const { macroItems } = require('./macros');
 
 function keywordItems() {
     return Object.keys(language.KEYWORDS).map((name) => ({
@@ -75,7 +76,7 @@ function complete(program, document, lineIndex, character, api, files) {
     const line = document.lines[lineIndex];
 
     switch (context.kind) {
-        case 'statement': return keywordItems();
+        case 'statement': return macroItems(program).concat(keywordItems());
         case 'function': return functionItems(program, api);
         case 'label': return labelItems(program);
         case 'include': return includeItems(document, files);

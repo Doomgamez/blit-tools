@@ -178,6 +178,34 @@ async function run() {
         assert.ok(/cheatsheet\.txt$/.test(vscode.window.activeTextEditor.document.fileName));
     });
 
+    await check('typing if and accepting it writes the macro', async () => {
+        const file = path.join(root, 'blitscript', 'macro.bs');
+
+        fs.writeFileSync(file, 'MAIN LBL main\n\nEND\n');
+
+        const macroDocument = await vscode.workspace.openTextDocument(file);
+        const macroEditor = await vscode.window.showTextDocument(macroDocument);
+        const typeMacro = async (line) => {
+            macroEditor.selection = new vscode.Selection(line, 0, line, 0);
+            await execute('type', { text: 'if' });
+            await execute('editor.action.triggerSuggest');
+            await sleep(1200);
+            await execute('acceptSelectedSuggestion');
+            await sleep(300);
+        };
+
+        await typeMacro(1);
+        await execute('leaveSnippet');
+        assert.ok(/CMP a b\r?\nJNE endif\r?\n[\s\S]*LBL endif/.test(macroDocument.getText()), macroDocument.getText());
+
+        // a second one has to pick another label, or the script wouldn't compile
+        await editor.document.save();
+        await macroEditor.edit((edit) => edit.insert(new vscode.Position(macroDocument.lineCount - 1, 0), '\n'));
+        await typeMacro(macroDocument.lineCount - 1);
+        await execute('leaveSnippet');
+        assert.ok(/JNE endif2/.test(macroDocument.getText()), macroDocument.getText());
+    });
+
     await check('the API tree and sidebar are registered', async () => {
         await execute('workbench.view.extension.blitEngine');
         await sleep(1000);
