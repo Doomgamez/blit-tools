@@ -37,7 +37,8 @@ On Windows the engine builds with MSYS2's MinGW and SDL2. It's found in `C:\msys
 `blitscript.toolchainPath` if yours is elsewhere. CMake has to be on your PATH.
 
 **Tools:** right-click a `.glb` for **Inspect glTF Model**, which runs `gltf-inspector`, and use **Open Build in BLITFS
-Viewer** to look inside the archive. The viewer needs `pyfltk`, and `blitscript.pythonPath` sets the Python to use.
+Viewer** to look inside the archive. The viewer needs `pyfltk`. Both use the `python` on your PATH, not the toolchain's,
+and `blitscript.pythonPath` sets another one.
 
 **Engine API:** the sidebar lists every engine function by category, clicking one writes its `CALL` into the open
 script. The search button finds one by name or description.

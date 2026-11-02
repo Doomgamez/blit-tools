@@ -26,6 +26,32 @@ function runProcess(command, args, options, log) {
     });
 }
 
+// a window that outlives VS Code. nobody sees its output, so if it fails onFailure gets the reason
+function startDetached(command, args, options, onFailure) {
+    const child = spawn(command, args, { cwd: options.cwd, env: options.env, detached: true, stdio: ['ignore', 'ignore', 'pipe'] });
+    let errors = '';
+    let reported = false;
+
+    // a command that can't start gives both events
+    const fail = (reason) => {
+        if (!reported) {
+            reported = true;
+            onFailure(reason);
+        }
+    };
+
+    child.on('error', (error) => fail(error.message));
+    child.stderr.on('data', (data) => { errors += data; });
+    child.on('close', (code) => {
+        if (code) {
+            fail(errors.trim().split(/\r?\n/).pop() || `it exited with code ${code}`);
+        }
+    });
+
+    child.stderr.unref();
+    child.unref();
+}
+
 async function runStep(step, env, log) {
     switch (step.kind) {
         case 'run':
@@ -87,4 +113,4 @@ async function runSteps(steps, env, log, onStep) {
     return true;
 }
 
-module.exports = { runSteps, runProcess };
+module.exports = { runSteps, runProcess, startDetached };

@@ -35,7 +35,8 @@ END
 $settings = @{ 'blitscript.compilerPath' = "$compilerFolder\blitscriptc.exe" } | ConvertTo-Json
 [IO.File]::WriteAllText("$workspace\.vscode\settings.json", $settings)
 
-$env:PATH = "C:\msys64\mingw64\bin;$env:PATH"
+# last, so python stays the one a normal PATH gives
+$env:PATH = "$env:PATH;C:\msys64\mingw64\bin"
 $env:ENGINE_FOLDER = $engine
 $env:TOOLS_FOLDER = $tools
 $env:PROJECTS_FOLDER = "$work\projects"

@@ -10,6 +10,7 @@ const path = require('path');
 const layout = require('../src/project/layout');
 const { createProject, templateList } = require('../src/project/create');
 const { buildPath, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles } = require('../src/project/build');
+const { startDetached } = require('../src/project/runner');
 
 const [engine, tools] = process.argv.slice(2);
 const work = fs.mkdtempSync(path.join(os.tmpdir(), 'blit-project-'));
@@ -175,6 +176,31 @@ test('a Unix shell leaves the Windows build PATH', () => {
     }
 });
 
-fs.rmSync(work, { recursive: true, force: true });
-console.log(`${passed} passed, ${failed} failed`);
-process.exit(failed === 0 ? 0 : 1);
+// what startDetached reported, in order, once it had time to report everything
+function detached(command, args) {
+    return new Promise((resolve) => {
+        const reasons = [];
+
+        startDetached(command, args, { cwd: work, env: process.env }, (reason) => reasons.push(reason));
+        setTimeout(() => resolve(reasons), 1000);
+    });
+}
+
+const script = (source) => ['-e', source];
+
+async function detachedTests() {
+    const check = (name, got, wanted) => test(name, () => assert.deepStrictEqual(got, wanted));
+
+    check('a tool that works stays quiet', await detached(process.execPath, script('process.exit(0)')), []);
+    check('a tool that crashes says why', await detached(process.execPath, script('console.error("first\\nNo module named fltk"); process.exit(1)')), ['No module named fltk']);
+    check('a silent crash still reports', await detached(process.execPath, script('process.exit(3)')), ['it exited with code 3']);
+
+    const missing = await detached(path.join(work, 'no-such-python.exe'), []);
+    test('a missing python reports once', () => assert.ok(missing.length === 1 && /ENOENT/.test(missing[0]), JSON.stringify(missing)));
+}
+
+detachedTests().then(() => {
+    fs.rmSync(work, { recursive: true, force: true });
+    console.log(`${passed} passed, ${failed} failed`);
+    process.exit(failed === 0 ? 0 : 1);
+});

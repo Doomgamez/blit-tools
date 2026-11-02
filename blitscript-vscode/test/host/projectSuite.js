@@ -133,6 +133,37 @@ async function run() {
         assert.strictEqual(await execute('blitscript.inspectModel', vscode.Uri.file(inProject('assets', 'house.glb'))), true);
     });
 
+    await check('the Python tools skip the toolchain', async () => {
+        const tools = path.join(path.dirname(process.env.RESULTS_FILE), 'fake-tools');
+        const toolchain = 'C:\\msys64\\mingw64\\bin';
+        const made = (name) => path.join(tools, `${name}.txt`);
+        const record = (name) => `import sys\nopen(${JSON.stringify(made(name))}, 'w').write(sys.executable)\n`;
+
+        for (const name of ['gltf-inspector', 'blitfs-viewer']) {
+            fs.mkdirSync(path.join(tools, name), { recursive: true });
+            fs.writeFileSync(path.join(tools, name, 'main.py'), record(name));
+        }
+
+        const realTools = session.tools;
+        session.tools = () => tools;
+
+        try {
+            assert.strictEqual(await execute('blitscript.inspectModel', vscode.Uri.file(inProject('assets', 'house.glb'))), true);
+            await execute('blitscript.openArchive');
+
+            for (let i = 0; i < 50 && !fs.existsSync(made('blitfs-viewer')); i++) {
+                await sleep(100);
+            }
+
+            for (const name of ['gltf-inspector', 'blitfs-viewer']) {
+                const python = fs.readFileSync(made(name), 'utf8');
+                assert.ok(!python.toLowerCase().startsWith(toolchain.toLowerCase()), `${name} ran with ${python}`);
+            }
+        } finally {
+            session.tools = realTools;
+        }
+    });
+
     await check('a missing asset is flagged and clears once it exists', async () => {
         const file = inProject('scripts', 'audio.bs');
         const sound = inProject('assets', 'door.wav');

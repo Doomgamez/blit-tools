@@ -6,7 +6,7 @@ const { spawn } = require('child_process');
 const vscode = require('vscode');
 const { readProject, projectPaths, checkEngine, checkTools } = require('./layout');
 const { buildPath, findToolchain, engineSteps, projectSteps, engineComplete } = require('./build');
-const { runSteps, runProcess } = require('./runner');
+const { runSteps, runProcess, startDetached } = require('./runner');
 
 // the open project and what's running for it, the sidebar draws itself from this
 class ProjectSession {
@@ -175,6 +175,8 @@ class ProjectSession {
         }
     }
 
+    // the tools get the plain environment too: with the toolchain first on the PATH, python
+    // would be the toolchain's own, which doesn't have the packages they need
     python() {
         return vscode.workspace.getConfiguration('blitscript').get('pythonPath') || 'python';
     }
@@ -203,8 +205,7 @@ class ProjectSession {
         this.output.show(true);
         this.log(`> Inspecting ${path.basename(file)}`);
 
-        const { env } = this.env();
-        return runProcess(this.python(), [path.join(folder, 'main.py'), file], { cwd: folder, env }, (text) => this.log(text));
+        return runProcess(this.python(), [path.join(folder, 'main.py'), file], { cwd: folder, env: process.env }, (text) => this.log(text));
     }
 
     openArchive() {
@@ -223,10 +224,11 @@ class ProjectSession {
         }
 
         const folder = path.join(tools, 'blitfs-viewer');
-        const viewer = spawn(this.python(), [path.join(folder, 'main.py'), archive], { cwd: folder, env: this.env().env, detached: true, stdio: 'ignore' });
+        const python = this.python();
 
-        viewer.on('error', (error) => vscode.window.showErrorMessage(`Blit Engine: could not start the viewer: ${error.message}`));
-        viewer.unref();
+        startDetached(python, [path.join(folder, 'main.py'), archive], { cwd: folder, env: process.env }, (reason) => {
+            vscode.window.showErrorMessage(`Blit Engine: the viewer failed with ${python}: ${reason}. blitscript.pythonPath sets the Python to use.`);
+        });
     }
 
     dispose() {
