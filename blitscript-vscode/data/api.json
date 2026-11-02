@@ -806,6 +806,498 @@
    "doc": "Color from hue 0-360, saturation and value 0.0-1.0",
    "category": "Color"
   },
+  "checkcollisionrects": {
+   "name": "CheckCollisionRects",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "rect",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Do two rectangles overlap? Touching edges don't count",
+   "category": "Collision"
+  },
+  "checkcollisionpointrect": {
+   "name": "CheckCollisionPointRect",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "point",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "rect",
+     "variadic": false
+    }
+   ],
+   "doc": "Is a point inside a rectangle?",
+   "category": "Collision"
+  },
+  "checkcollisioncircles": {
+   "name": "CheckCollisionCircles",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "centerA",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radiusA",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "centerB",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radiusB",
+     "variadic": false
+    }
+   ],
+   "doc": "Do two circles overlap?",
+   "category": "Collision"
+  },
+  "checkcollisioncirclerect": {
+   "name": "CheckCollisionCircleRect",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "rect",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a circle overlap a rectangle?",
+   "category": "Collision"
+  },
+  "getrectpushout": {
+   "name": "GetRectPushOut",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "rect",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "The shortest move that takes a out of b, zero if they don't overlap. Add it to a's position to stop at a wall",
+   "category": "Collision"
+  },
+  "checkcollisionboxes": {
+   "name": "CheckCollisionBoxes",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "minA",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "maxA",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "minB",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "maxB",
+     "variadic": false
+    }
+   ],
+   "doc": "Do two axis aligned boxes overlap? Each is its lowest and highest corner",
+   "category": "Collision"
+  },
+  "checkcollisionpointbox": {
+   "name": "CheckCollisionPointBox",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "point",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMax",
+     "variadic": false
+    }
+   ],
+   "doc": "Is a point inside a box?",
+   "category": "Collision"
+  },
+  "checkcollisionspheres": {
+   "name": "CheckCollisionSpheres",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "centerA",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radiusA",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "centerB",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radiusB",
+     "variadic": false
+    }
+   ],
+   "doc": "Do two spheres overlap?",
+   "category": "Collision"
+  },
+  "checkcollisionboxsphere": {
+   "name": "CheckCollisionBoxSphere",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "boxMin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMax",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a box overlap a sphere?",
+   "category": "Collision"
+  },
+  "getboxpushout": {
+   "name": "GetBoxPushOut",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "minA",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "maxA",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "minB",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "maxB",
+     "variadic": false
+    }
+   ],
+   "doc": "The shortest move that takes box a out of box b, zero if they don't overlap",
+   "category": "Collision"
+  },
+  "getrayboxdistance": {
+   "name": "GetRayBoxDistance",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "origin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "direction",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMax",
+     "variadic": false
+    }
+   ],
+   "doc": "How far along a ray a box is, -1 if it misses, 0 if the ray starts inside",
+   "category": "Collision"
+  },
+  "checkcollisionboxmodel": {
+   "name": "CheckCollisionBoxModel",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "boxMin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMax",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a box touch the triangles of a model placed like DrawModel?",
+   "category": "Mesh collision"
+  },
+  "checkcollisionspheremodel": {
+   "name": "CheckCollisionSphereModel",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a sphere touch the triangles of a model?",
+   "category": "Mesh collision"
+  },
+  "getraymodeldistance": {
+   "name": "GetRayModelDistance",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "origin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "direction",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "Distance along a ray to the nearest triangle of a model, -1 if it misses",
+   "category": "Mesh collision"
+  },
+  "getspherepushmodel": {
+   "name": "GetSpherePushModel",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "The move that takes a sphere out of a model, zero if it's clear. Add it to a position to stop at walls",
+   "category": "Mesh collision"
+  },
+  "checkcollisionboxscene": {
+   "name": "CheckCollisionBoxScene",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "boxMin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMax",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a box touch a scene? Moved nodes collide where they are now",
+   "category": "Mesh collision"
+  },
+  "checkcollisionspherescene": {
+   "name": "CheckCollisionSphereScene",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a sphere touch a scene?",
+   "category": "Mesh collision"
+  },
+  "getrayscenedistance": {
+   "name": "GetRaySceneDistance",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "origin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "direction",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "Distance along a ray to the nearest triangle of a scene, -1 if it misses",
+   "category": "Mesh collision"
+  },
+  "getspherepushscene": {
+   "name": "GetSpherePushScene",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "The move that takes a sphere out of a scene, zero if it's clear",
+   "category": "Mesh collision"
+  },
   "loadshader": {
    "name": "LoadShader",
    "returns": "int",
