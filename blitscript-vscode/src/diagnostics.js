@@ -5,7 +5,7 @@ const vscode = require('vscode');
 const { loadProgram } = require('./core/program');
 const { lint } = require('./core/linter');
 const { compile } = require('./compiler');
-const { files, findCompiler } = require('./host');
+const { files, findCompiler, projectAssetNames } = require('./host');
 
 const LINT_DELAY = 250;
 
@@ -23,6 +23,7 @@ function lintOptions() {
         unknownVariables: settings.get('unknownVariables'),
         customNatives: settings.get('customNatives'),
         exposedVariables: settings.get('exposedVariables'),
+        assets: projectAssetNames(),
     };
 }
 

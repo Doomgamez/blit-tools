@@ -151,6 +151,12 @@ test('a stray manifest in assets can not fight the generated one', () => {
     assert.strictEqual(packList(made).filter((file) => path.basename(file) === 'manifest.txt').length, 1);
     assert.ok(packList(made).find((file) => path.basename(file) === 'manifest.txt').includes('build'));
 });
+test('audio goes into the archive', () => {
+    const made = layout.readProject(path.join(work, 'Walk'));
+    fs.mkdirSync(path.join(made.root, 'assets', 'audio'), { recursive: true });
+    fs.writeFileSync(path.join(made.root, 'assets', 'audio', 'door.ogg'), 'x');
+    assert.ok(packList(made).some((file) => path.basename(file) === 'door.ogg'));
+});
 test('assets in subfolders are found', () => {
     const made = layout.readProject(path.join(work, 'Walk'));
     fs.mkdirSync(path.join(made.root, 'assets', 'deep', 'er'), { recursive: true });

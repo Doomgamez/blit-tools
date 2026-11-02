@@ -133,6 +133,34 @@ async function run() {
         assert.strictEqual(await execute('blitscript.inspectModel', vscode.Uri.file(inProject('assets', 'house.glb'))), true);
     });
 
+    await check('a missing asset is flagged and clears once it exists', async () => {
+        const file = inProject('scripts', 'audio.bs');
+        const sound = inProject('assets', 'door.wav');
+
+        fs.writeFileSync(file, 'MAIN LBL main\nCALL LoadSound "door.wav" -> door\nEND\n');
+
+        const document = await vscode.workspace.openTextDocument(file);
+        await vscode.window.showTextDocument(document);
+
+        const flagged = () => vscode.languages.getDiagnostics(document.uri).some((item) => /not in assets/.test(item.message));
+
+        for (let i = 0; i < 30 && !flagged(); i++) {
+            await sleep(100);
+        }
+
+        assert.ok(flagged(), 'never flagged');
+
+        fs.writeFileSync(sound, 'RIFF');
+        await vscode.window.activeTextEditor.edit((edit) => edit.insert(new vscode.Position(2, 0), '// x\n'));
+
+        for (let i = 0; i < 30 && flagged(); i++) {
+            await sleep(100);
+        }
+
+        fs.rmSync(sound);
+        assert.ok(!flagged(), 'never cleared');
+    });
+
     await check('a moved engine folder is reported', async () => {
         const local = inProject('blit.local.json');
         const saved = fs.readFileSync(local, 'utf8');

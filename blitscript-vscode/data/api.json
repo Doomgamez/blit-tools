@@ -232,6 +232,285 @@
    "doc": "Height of the monitor the window is on, in pixels",
    "category": "Window"
   },
+  "loadsound": {
+   "name": "LoadSound",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "file",
+     "variadic": false
+    }
+   ],
+   "doc": "Load a short sound from Engine.blfs (wav, ogg, mp3, flac, ...), returns a handle (0 if it failed)",
+   "category": "Audio"
+  },
+  "unloadsound": {
+   "name": "UnloadSound",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a sound, it stops if it's playing",
+   "category": "Audio"
+  },
+  "playsound": {
+   "name": "PlaySound",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    }
+   ],
+   "doc": "Play a sound once, a sound can overlap itself",
+   "category": "Audio"
+  },
+  "playsoundex": {
+   "name": "PlaySoundEx",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "volume",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "pan",
+     "variadic": false
+    }
+   ],
+   "doc": "Play a sound once at volume 0 to 1, pan -1 is left, 0 center, 1 right",
+   "category": "Audio"
+  },
+  "playsoundat": {
+   "name": "PlaySoundAt",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "range",
+     "variadic": false
+    }
+   ],
+   "doc": "Play a sound from a place in the world, it fades with distance and is silent past range. Hears from SetAudioListener",
+   "category": "Audio"
+  },
+  "loopsound": {
+   "name": "LoopSound",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    }
+   ],
+   "doc": "Play a sound over and over until StopSound",
+   "category": "Audio"
+  },
+  "stopsound": {
+   "name": "StopSound",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    }
+   ],
+   "doc": "Stop every copy of a sound that's playing",
+   "category": "Audio"
+  },
+  "issoundplaying": {
+   "name": "IsSoundPlaying",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    }
+   ],
+   "doc": "True while any copy of a sound is playing",
+   "category": "Audio"
+  },
+  "setsoundvolume": {
+   "name": "SetSoundVolume",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "sound",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "volume",
+     "variadic": false
+    }
+   ],
+   "doc": "Volume from 0 to 1 for this sound, also for copies already playing",
+   "category": "Audio"
+  },
+  "loadmusic": {
+   "name": "LoadMusic",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "file",
+     "variadic": false
+    }
+   ],
+   "doc": "Prepare a long track from Engine.blfs, it's streamed so it costs little memory. Returns a handle (0 if it failed)",
+   "category": "Audio"
+  },
+  "unloadmusic": {
+   "name": "UnloadMusic",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "music",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a track, it stops if it's playing",
+   "category": "Audio"
+  },
+  "playmusic": {
+   "name": "PlayMusic",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "music",
+     "variadic": false
+    },
+    {
+     "type": "bool",
+     "name": "loop",
+     "variadic": false
+    }
+   ],
+   "doc": "Start a track, replacing the one playing. One track plays at a time",
+   "category": "Audio"
+  },
+  "pausemusic": {
+   "name": "PauseMusic",
+   "returns": "void",
+   "params": [],
+   "doc": "Pause the music, ResumeMusic continues it",
+   "category": "Audio"
+  },
+  "resumemusic": {
+   "name": "ResumeMusic",
+   "returns": "void",
+   "params": [],
+   "doc": "Continue paused music",
+   "category": "Audio"
+  },
+  "stopmusic": {
+   "name": "StopMusic",
+   "returns": "void",
+   "params": [],
+   "doc": "Stop the music",
+   "category": "Audio"
+  },
+  "fadeoutmusic": {
+   "name": "FadeOutMusic",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "seconds",
+     "variadic": false
+    }
+   ],
+   "doc": "Fade the music out and stop it",
+   "category": "Audio"
+  },
+  "ismusicplaying": {
+   "name": "IsMusicPlaying",
+   "returns": "bool",
+   "params": [],
+   "doc": "True while music is playing, false while paused",
+   "category": "Audio"
+  },
+  "seekmusic": {
+   "name": "SeekMusic",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "seconds",
+     "variadic": false
+    }
+   ],
+   "doc": "Jump to a time in the music, not every format can",
+   "category": "Audio"
+  },
+  "setmusicvolume": {
+   "name": "SetMusicVolume",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "volume",
+     "variadic": false
+    }
+   ],
+   "doc": "Music volume from 0 to 1",
+   "category": "Audio"
+  },
+  "setmastervolume": {
+   "name": "SetMasterVolume",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "volume",
+     "variadic": false
+    }
+   ],
+   "doc": "Volume from 0 to 1 on top of every other volume",
+   "category": "Audio"
+  },
+  "setaudiolistener": {
+   "name": "SetAudioListener",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Hear PlaySoundAt from where this camera is now, call it every frame the camera moves",
+   "category": "Audio"
+  },
   "iskeydown": {
    "name": "IsKeyDown",
    "returns": "bool",

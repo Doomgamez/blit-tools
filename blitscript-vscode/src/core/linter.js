@@ -11,6 +11,9 @@ const WARNING = 1;
 const HINT = 3;
 
 const NUMERIC = ['int', 'float', 'double', 'bool'];
+const AUDIO_LOADERS = ['loadsound', 'loadmusic'];
+const ASSET_LOADERS = [...AUDIO_LOADERS, 'loadtexture', 'loadmodel', 'loadscene'];
+const AUDIO_FORMATS = ['wav', 'ogg', 'mp3', 'flac', 'opus', 'mod', 'xm', 's3m', 'it', 'mid', 'midi'];
 
 function report(out, line, token, severity, message, extra) {
     out.push(Object.assign({ line, start: token.start, end: token.end, severity, message }, extra));
@@ -49,6 +52,26 @@ function checkArgumentTypes(fn, args, line, out) {
     });
 }
 
+// these fail when the game runs, in a place that's easy to miss
+function checkAssetArgument(native, args, line, options, out) {
+    const token = args.length > 0 ? args[0].first : null;
+
+    if (!ASSET_LOADERS.includes(native.name.toLowerCase()) || !token || !token.quoted) {
+        return;
+    }
+
+    const name = token.text;
+    const extension = name.includes('.') ? name.slice(name.lastIndexOf('.') + 1).toLowerCase() : '';
+
+    if (/[\\/]/.test(name)) {
+        report(out, line, token, WARNING, `The archive keeps file names only: use "${name.split(/[\\/]/).pop()}"`);
+    } else if (AUDIO_LOADERS.includes(native.name.toLowerCase()) && !AUDIO_FORMATS.includes(extension)) {
+        report(out, line, token, WARNING, `The engine can't play .${extension || '(no extension)'}: use ${AUDIO_FORMATS.slice(0, 4).join(', ')} or another format it knows`);
+    } else if (options.assets && !options.assets.includes(name.toLowerCase())) {
+        report(out, line, token, WARNING, `${name} is not in assets/, it will fail to load`);
+    }
+}
+
 function checkCall(tokens, index, program, api, options, out) {
     const name = tokens[1];
 
@@ -84,6 +107,7 @@ function checkCall(tokens, index, program, api, options, out) {
     }
 
     checkArgumentTypes(native, args, index, out);
+    checkAssetArgument(native, args, index, options, out);
 
     if (arrowIndex(tokens) >= 0 && native.returns === 'void') {
         report(out, index, name, WARNING, `${native.name} returns nothing, the result is always null`);

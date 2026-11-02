@@ -20,7 +20,7 @@ MyGame/
     blit.project.json   the name and entry script, commit this
     blit.local.json     where the engine and tools are on this computer, git-ignored
     scripts/main.bs     your game
-    assets/             your models, textures and shaders
+    assets/             your models, textures, shaders and audio
     .blit/engine/       the engine, built here so its repository stays clean
     build/              the game, ready to zip and ship
 ```
@@ -69,6 +69,7 @@ While you type it checks for what would otherwise only show up at runtime or in 
 - unknown instructions, labels and functions, wrong argument counts and types
 - variables that are never set, and `-NAME`, since BlitScript has no unary minus
 - `RET` outside a function, nested `FN`, a second `MAIN`, duplicates, missing `INCLUDE` files, open strings
+- in a project, assets that aren't in `assets/`, folders in asset names, and audio formats the engine can't play
 - unreachable code, faded out, the lines the compiler's optimizer removes
 
 When you save it runs `blitscriptc` and puts its errors on their lines. The status bar shows the code size, click it to

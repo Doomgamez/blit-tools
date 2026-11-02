@@ -5,6 +5,7 @@ const path = require('path');
 const vscode = require('vscode');
 const { parseCheatsheet, parseConstants } = require('./core/api');
 const { readProject, projectPaths, executable } = require('./project/layout');
+const { listFiles } = require('./project/build');
 
 function samePath(a, b) {
     return process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b;
@@ -99,6 +100,13 @@ function loadApi(context) {
     return api;
 }
 
+// the names a script can load in this project, undefined outside a project where nobody can tell
+function projectAssetNames() {
+    const project = currentProject();
+
+    return project ? listFiles(projectPaths(project).assets).map((file) => path.basename(file).toLowerCase()) : undefined;
+}
+
 function findCompiler() {
     const configured = vscode.workspace.getConfiguration('blitscript').get('compilerPath');
     const name = executable('blitscriptc');
@@ -116,4 +124,4 @@ function findCompiler() {
     return findInWorkspace([`build/${name}`, `blitscriptc/${name}`, name]);
 }
 
-module.exports = { files, loadApi, findCompiler, cheatsheetPath };
+module.exports = { files, loadApi, findCompiler, cheatsheetPath, projectAssetNames };

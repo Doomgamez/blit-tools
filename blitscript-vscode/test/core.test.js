@@ -117,6 +117,22 @@ test('exposed variables are allowed', () => assert.deepStrictEqual(messages('MAI
 test('unary minus is explained', () => assert.ok(messages('MAIN LBL m\nCONST K 1\nSET a 1\nMUL a -K\nEND').some((m) => /no unary minus/.test(m))));
 test('negative numbers are numbers', () => assert.deepStrictEqual(messages('MAIN LBL m\nSET a -1.5e3\nMUL a -0x10\nEND'), []));
 test('number suffixes', () => assert.deepStrictEqual(messages('MAIN LBL m\nSET a 1u\nSET b 2i64\nSET c 3u64\nSET d 2.5d\nSET e 3f\nEND'), []));
+const loading = (line, options) => messages(`MAIN LBL m\n${line}\nEND`, {}, options);
+
+test('a known audio file is fine', () => assert.deepStrictEqual(loading('CALL LoadSound "door.ogg" -> s', { assets: ['door.ogg'] }), []));
+test('asset names ignore case', () => assert.deepStrictEqual(loading('CALL LoadMusic "Theme.MP3" -> m', { assets: ['theme.mp3'] }), []));
+test('an audio file missing from assets', () => assert.ok(loading('CALL LoadSound "door.ogg" -> s', { assets: ['other.ogg'] }).some((m) => /not in assets/.test(m))));
+test('outside a project assets are not checked', () => assert.deepStrictEqual(loading('CALL LoadSound "door.ogg" -> s'), []));
+test('an unsupported audio format', () => assert.ok(loading('CALL LoadSound "door.aac" -> s').some((m) => /can't play \.aac/.test(m))));
+test('a folder in an asset name', () => assert.ok(loading('CALL LoadMusic "music/theme.ogg" -> m').some((m) => /use "theme.ogg"/.test(m))));
+test('textures are checked too', () => assert.ok(loading('CALL LoadTexture "a.png" -> t', { assets: [] }).some((m) => /not in assets/.test(m))));
+test('an image name is fine for a texture', () => assert.deepStrictEqual(loading('CALL LoadTexture "a.png" -> t', { assets: ['a.png'] }), []));
+test('a variable file name is not judged', () => assert.deepStrictEqual(loading('SET n "x"\nCALL LoadSound n -> s', { assets: [] }), []));
+test('every audio function is in the API', () => {
+    ['loadsound', 'playsound', 'playsoundat', 'loopsound', 'loadmusic', 'playmusic', 'fadeoutmusic', 'setmastervolume', 'setaudiolistener']
+        .forEach((name) => assert.ok(api.functions[name], name));
+});
+
 test('dead code is marked and only that', () => {
     const items = lintText('MAIN LBL m\nJMP a\nSET b 1\nLBL a\nSET c 1\nEND').filter((item) => item.unnecessary);
     assert.deepStrictEqual(items.map((item) => item.line), [2]);
