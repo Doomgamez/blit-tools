@@ -653,6 +653,50 @@
    "doc": "How many values an array or a variable holds",
    "category": "Arrays"
   },
+  "classname": {
+   "name": "ClassName",
+   "returns": "string",
+   "params": [
+    {
+     "type": "any",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "The class of an object, empty for anything else",
+   "category": "Classes"
+  },
+  "isinstance": {
+   "name": "IsInstance",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "any",
+     "name": "value",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "class",
+     "variadic": false
+    }
+   ],
+   "doc": "Is this an object of that class, or of one that extends it?",
+   "category": "Classes"
+  },
+  "deleteobject": {
+   "name": "DeleteObject",
+   "returns": "void",
+   "params": [
+    {
+     "type": "any",
+     "name": "object",
+     "variadic": false
+    }
+   ],
+   "doc": "Free an object you no longer need, using it afterwards is an error. Objects also go when the script ends",
+   "category": "Classes"
+  },
   "iskeydown": {
    "name": "IsKeyDown",
    "returns": "bool",

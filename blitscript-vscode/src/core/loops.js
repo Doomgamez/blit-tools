@@ -68,7 +68,7 @@ function checkLoops(document, fail) {
             } else if (open.length === 0) {
                 at(first, `${command} outside a loop`);
             }
-        } else if (command === 'FN') {
+        } else if (command === 'FN' || command === 'METHOD') {
             if (open.length > 0) {
                 at(first, 'FN inside a loop');
             }

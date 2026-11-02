@@ -21,6 +21,42 @@ function addFunction(model, line, tokens, index) {
     return fn;
 }
 
+function addClass(model, tokens, index) {
+    const extended = tokens.length === 4 ? tokens[3] : undefined;
+    const item = {
+        name: tokens[1] ? tokens[1].text : '',
+        token: tokens[1] || tokens[0],
+        parentName: extended ? extended.text : '',
+        parentToken: extended,
+        fields: [],
+        methods: [],
+        line: index,
+        endLine: -1,
+    };
+
+    model.classes.push(item);
+    return item;
+}
+
+// a method isn't called by its name alone, so it stays out of model.functions
+function addMethod(tokens, index, owner) {
+    const fn = {
+        name: tokens[1] ? tokens[1].text : '',
+        token: tokens[1] || tokens[0],
+        params: [{ name: 'this', token: tokens[0] }, ...tokens.slice(2).map((token) => ({ name: token.text, token }))],
+        parameters: Math.max(tokens.length - 2, 0),
+        owner,
+        line: index,
+        endLine: -1,
+    };
+
+    if (owner) {
+        owner.methods.push(fn);
+    }
+
+    return fn;
+}
+
 function addStatement(model, line, index, state) {
     const { tokens } = line;
     const command = tokens[0].text.toUpperCase();
@@ -43,6 +79,27 @@ function addStatement(model, line, index, state) {
 
         case 'FN':
             state.fn = addFunction(model, line, tokens, index);
+            break;
+
+        case 'CLASS':
+            state.owner = addClass(model, tokens, index);
+            break;
+
+        case 'ENDCLASS':
+            if (state.owner) {
+                state.owner.endLine = index;
+                state.owner = null;
+            }
+            break;
+
+        case 'FIELD':
+            if (state.owner && tokens[1]) {
+                state.owner.fields.push({ name: tokens[1].text, token: tokens[1], line: index });
+            }
+            break;
+
+        case 'METHOD':
+            state.fn = addMethod(tokens, index, state.owner);
             break;
 
         case 'END':
@@ -91,7 +148,8 @@ function addStatement(model, line, index, state) {
             }
             break;
 
-        case 'CALL': {
+        case 'CALL':
+        case 'NEW': {
             const arrow = arrowIndex(tokens);
             if (arrow >= 0 && tokens[arrow + 1]) {
                 write(tokens[arrow + 1]);
@@ -106,8 +164,8 @@ function addStatement(model, line, index, state) {
 
 // one source file, no includes followed yet
 function parseDocument(text, path) {
-    const model = { path, text, lines: [], labels: [], mains: [], functions: [], constants: [], includes: [], writes: [], loops: [] };
-    const state = { fn: null, loops: [] };
+    const model = { path, text, lines: [], labels: [], mains: [], functions: [], constants: [], includes: [], writes: [], loops: [], classes: [] };
+    const state = { fn: null, loops: [], owner: null };
 
     text.split(/\r?\n/).forEach((source, index) => {
         const line = Object.assign(tokenize(source), { source, fn: state.fn });

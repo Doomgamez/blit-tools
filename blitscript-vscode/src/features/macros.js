@@ -47,6 +47,12 @@ const MACROS = [
         body: () => ['FOREACH ${1:value} ${2:values}', '    $0', 'ENDFOR'],
     },
     {
+        label: 'class',
+        detail: 'a class with a field and an Init',
+        labels: [],
+        body: () => ['CLASS ${1:Name}', '    FIELD ${2:position} ${3:VEC3 0 0 0}', '', '    METHOD Init', '        $0', '    END', 'ENDCLASS'],
+    },
+    {
         label: 'repeat',
         detail: 'run a block count times, at least once',
         labels: ['loop'],

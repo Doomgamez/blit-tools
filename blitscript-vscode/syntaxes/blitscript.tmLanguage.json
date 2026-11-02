@@ -9,6 +9,8 @@
         { "include": "#label" },
         { "include": "#jump" },
         { "include": "#function" },
+        { "include": "#class" },
+        { "include": "#method" },
         { "include": "#constant-definition" },
         { "include": "#call" },
         { "include": "#instruction" },
@@ -65,6 +67,45 @@
                 { "name": "variable.parameter.blitscript", "match": "[^\\s,/]+" }
             ]
         },
+        "class": {
+            "patterns": [
+                {
+                    "match": "(?i)^\\s*(CLASS)\\s+([^\\s,/]+)(?:\\s+(EXTENDS)\\s+([^\\s,/]+))?",
+                    "captures": {
+                        "1": { "name": "storage.type.class.blitscript" },
+                        "2": { "name": "entity.name.type.class.blitscript" },
+                        "3": { "name": "storage.modifier.extends.blitscript" },
+                        "4": { "name": "entity.other.inherited-class.blitscript" }
+                    }
+                },
+                { "name": "storage.type.class.blitscript", "match": "(?i)^\\s*ENDCLASS\\b" },
+                {
+                    "match": "(?i)^\\s*(FIELD)\\s+([^\\s,/]+)",
+                    "captures": {
+                        "1": { "name": "storage.modifier.blitscript" },
+                        "2": { "name": "variable.other.property.blitscript" }
+                    }
+                },
+                {
+                    "match": "(?i)^\\s*(NEW)\\s+([^\\s,/]+)",
+                    "captures": {
+                        "1": { "name": "keyword.other.new.blitscript" },
+                        "2": { "name": "entity.name.type.class.blitscript" }
+                    }
+                }
+            ]
+        },
+        "method": {
+            "begin": "(?i)^\\s*(METHOD)\\s+([^\\s,/]+)",
+            "beginCaptures": {
+                "1": { "name": "storage.type.function.blitscript" },
+                "2": { "name": "entity.name.function.blitscript" }
+            },
+            "end": "$|(?=//)",
+            "patterns": [
+                { "name": "variable.parameter.blitscript", "match": "[^\\s,/]+" }
+            ]
+        },
         "constant-definition": {
             "match": "(?i)^\\s*(CONST)\\s+([^\\s,/]+)",
             "captures": {
@@ -81,7 +122,7 @@
         },
         "instruction": {
             "patterns": [
-                { "name": "keyword.control.blitscript", "match": "(?i)^\\s*(END|RET)\\b" },
+                { "name": "keyword.control.blitscript", "match": "(?i)^\\s*(END|RET|RETURN)\\b" },
                 {
                     "match": "(?i)^\\s*(FOR|FOREACH)\\s+([^\\s,/]+)",
                     "captures": {
@@ -94,7 +135,12 @@
                     "match": "(?i)^\\s*(SET|LOCAL|READ|MOV)\\s+([^\\s,/]+)",
                     "captures": {
                         "1": { "name": "keyword.other.blitscript" },
-                        "2": { "name": "variable.other.blitscript" }
+                        "2": {
+                            "name": "variable.other.blitscript",
+                            "patterns": [
+                                { "name": "variable.language.this.blitscript", "match": "\\b(this|super)\\b" }
+                            ]
+                        }
                     }
                 },
                 { "name": "keyword.operator.arithmetic.blitscript", "match": "(?i)^\\s*(ADD|SUB|MUL|DIV|MOD)\\b" },
@@ -108,6 +154,7 @@
                 { "name": "storage.type.blitscript", "match": "(?i)\\b(VEC[234]|IVEC[234]|UVEC[234]|QUAT|RECT|COLOR|MAT4)\\b" },
                 { "name": "variable.language.register.blitscript", "match": "(?i)\\b(EAX|EBX|ECX|EDX)\\b" },
                 { "name": "constant.language.blitscript", "match": "\\b(true|false|null)\\b" },
+                { "name": "variable.language.this.blitscript", "match": "\\b(this|super)\\b" },
                 { "name": "constant.numeric.hex.blitscript", "match": "(?i)(?<![\\w.])[+-]?0x[0-9a-f]+(u64|i64|u)?\\b" },
                 { "name": "constant.numeric.blitscript", "match": "(?i)(?<![\\w.])[+-]?(\\d+\\.?\\d*|\\.\\d+)(e[+-]?\\d+)?(u64|i64|u|f|d)?\\b" },
                 { "name": "variable.other.constant.blitscript", "match": "\\b[A-Z][A-Z0-9_]+\\b" },

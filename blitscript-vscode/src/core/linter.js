@@ -6,6 +6,7 @@ const { signature } = require('./api');
 const { collect, findFunction, findConstant, findLabel } = require('./program');
 const { arrowIndex } = require('./document');
 const { checkLoops } = require('./loops');
+const { checkClasses } = require('./classes');
 
 const ERROR = 0;
 const WARNING = 1;
@@ -76,7 +77,8 @@ function checkAssetArgument(native, args, line, options, out) {
 function checkCall(tokens, index, program, api, options, out) {
     const name = tokens[1];
 
-    if (!name) {
+    // methods are checked with the classes
+    if (!name || syntax.isDotted(name)) {
         return;
     }
 
@@ -123,6 +125,16 @@ function isKnownVariable(name, line, program, api, written, options) {
 
 function checkReads(line, index, program, api, written, options, out) {
     for (const token of syntax.readTokens(line.tokens)) {
+        if (syntax.isDotted(token)) {
+            const base = token.text.split('.')[0];
+
+            if (base !== 'super' && !isKnownVariable(base, line, program, api, written, options)) {
+                report(out, index, token, WARNING, `${base} is never set: the script stops here when it runs`);
+            }
+
+            continue;
+        }
+
         if (syntax.isLiteral(token) || isKnownVariable(token.text, line, program, api, written, options)) {
             continue;
         }
@@ -177,12 +189,12 @@ function checkDeadCode(document, out) {
 
         const command = line.tokens[0].text.toUpperCase();
 
-        if (['LBL', 'MAIN', 'FN', 'END', 'CONST', 'INCLUDE', 'FOR', 'FOREACH', 'ENDFOR'].includes(command)) {
+        if (['LBL', 'MAIN', 'FN', 'END', 'CONST', 'INCLUDE', 'CLASS', 'ENDCLASS', 'METHOD', 'FOR', 'FOREACH', 'ENDFOR'].includes(command)) {
             dead = false;
         } else if (dead) {
             out.push({ line: index, start: line.tokens[0].start, end: line.source.length, severity: HINT,
                        message: 'Nothing can reach this line', unnecessary: true });
-        } else if (['JMP', 'RET', 'BREAK', 'CONTINUE'].includes(command)) {
+        } else if (['JMP', 'RETURN', 'RET', 'BREAK', 'CONTINUE'].includes(command)) {
             dead = true;
         }
     });
@@ -212,6 +224,7 @@ function lint(program, api, options) {
     });
 
     checkLoops(document, (index, token, message) => report(out, index, token, ERROR, message));
+    checkClasses(program, document, (index, token, message) => report(out, index, token, ERROR, message));
 
     for (const include of document.includes) {
         if (!include.found) {

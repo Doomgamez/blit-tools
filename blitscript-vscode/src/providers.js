@@ -30,6 +30,8 @@ const COMPLETION_KINDS = {
 const SYMBOL_KINDS = {
     entry: vscode.SymbolKind.Event,
     function: vscode.SymbolKind.Function,
+    class: vscode.SymbolKind.Class,
+    method: vscode.SymbolKind.Method,
     label: vscode.SymbolKind.Key,
     constant: vscode.SymbolKind.Constant,
 };

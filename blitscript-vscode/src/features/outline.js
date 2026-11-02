@@ -18,6 +18,28 @@ function symbols(document) {
         });
     }
 
+    for (const item of document.classes) {
+        out.push({
+            name: item.name,
+            detail: item.parentName ? `extends ${item.parentName}` : 'class',
+            kind: 'class',
+            line: item.line,
+            endLine: item.endLine >= 0 ? item.endLine : item.line,
+            token: item.token,
+        });
+
+        for (const method of item.methods) {
+            out.push({
+                name: `${item.name}.${method.name}`,
+                detail: method.params.slice(1).map((param) => param.name).join(' '),
+                kind: 'method',
+                line: method.line,
+                endLine: method.endLine >= 0 ? method.endLine : method.line,
+                token: method.token,
+            });
+        }
+    }
+
     for (const label of document.labels) {
         if (!document.mains.some((main) => main.line === label.line)) {
             out.push({ name: label.name, detail: 'label', kind: 'label', line: label.line, endLine: label.line, token: label.token });
@@ -38,6 +60,14 @@ function foldingRanges(document) {
     for (const fn of document.functions) {
         if (fn.endLine > fn.line) {
             ranges.push({ start: fn.line, end: fn.endLine, kind: 'region' });
+        }
+    }
+
+    const blocks = document.classes.flatMap((item) => [item, ...item.methods]);
+
+    for (const block of blocks) {
+        if (block.endLine > block.line) {
+            ranges.push({ start: block.line, end: block.endLine, kind: 'region' });
         }
     }
 

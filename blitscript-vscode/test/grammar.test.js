@@ -79,6 +79,21 @@ const CASES = [
     ['INCLUDE "engine.bs"', 'INCLUDE', 'keyword.control.import'],
     ['INCLUDE "engine.bs"', 'engine', 'string.quoted'],
     ['END', 'END', 'keyword.control'],
+    ['CLASS Boss EXTENDS Enemy', 'CLASS', 'storage.type.class'],
+    ['CLASS Boss EXTENDS Enemy', 'Boss', 'entity.name.type.class'],
+    ['CLASS Boss EXTENDS Enemy', 'EXTENDS', 'storage.modifier.extends'],
+    ['CLASS Boss EXTENDS Enemy', 'Enemy', 'entity.other.inherited-class'],
+    ['ENDCLASS', 'ENDCLASS', 'storage.type.class'],
+    ['    FIELD health 100', 'FIELD', 'storage.modifier'],
+    ['    FIELD health 100', 'health', 'variable.other.property'],
+    ['    FIELD health 100', '100', 'constant.numeric'],
+    ['    METHOD Hit amount', 'METHOD', 'storage.type.function'],
+    ['    METHOD Hit amount', 'Hit', 'entity.name.function'],
+    ['    METHOD Hit amount', 'amount', 'variable.parameter'],
+    ['NEW Enemy 5 -> e', 'NEW', 'keyword.other.new'],
+    ['NEW Enemy 5 -> e', 'Enemy', 'entity.name.type.class'],
+    ['RETURN x', 'RETURN', 'keyword.control'],
+    ['SET this.health 5', 'this', 'variable.language.this'],
 ];
 
 loadGrammar().then((grammar) => {

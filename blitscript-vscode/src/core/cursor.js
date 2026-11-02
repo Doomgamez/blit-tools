@@ -25,6 +25,11 @@ function classify(tokens, index) {
     if (command === 'LBL' || language.isJump(command)) return 'label';
     if (command === 'MAIN') return index === 2 ? 'label' : 'keyword';
     if (command === 'FN') return index === 1 ? 'function' : 'variable';
+    if (command === 'METHOD') return index === 1 ? 'method' : 'variable';
+    if (command === 'CLASS' || command === 'ENDCLASS') return 'class';
+    if (command === 'FIELD' && index === 1) return 'field';
+    if (command === 'NEW' && index === 1) return 'class';
+    if (command === 'CALL' && index === 1 && token.text.includes('.')) return 'method';
     if (command === 'CONST') return index === 1 ? 'constant' : 'value';
     if (command === 'CALL' && index === 1) return 'function';
     if (token.text === '->') return 'arrow';
@@ -57,6 +62,8 @@ function contextAt(document, lineIndex, character) {
 
     const command = finished[0].text.toUpperCase();
 
+    if (['CLASS', 'ENDCLASS', 'METHOD'].includes(command) || (command === 'FIELD' && finished.length === 1)) return { kind: 'none' };
+    if (command === 'NEW' && arrowIndex(finished) >= 0) return { kind: 'variableName' };
     if (command === 'CONST' || command === 'FN' || command === 'INCLUDE') return { kind: finished.length === 1 && command === 'INCLUDE' ? 'include' : 'none' };
     if (command === 'LBL' || (command === 'MAIN' && finished.length >= 2)) return { kind: 'none' };
     if (command === 'MAIN') return { kind: 'mainLabel' };

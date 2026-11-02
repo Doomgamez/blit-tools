@@ -38,17 +38,26 @@ function parameterAt(fn, index) {
     return last && last.variadic ? last : undefined;
 }
 
+// e.health, e.position.x: not a number, not text
+const isDotted = (token) => !token.quoted && /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+$/.test(token.text);
+
 // the plain words of a statement that read a value, not the ones that name something
 function readTokens(tokens) {
     const command = tokens[0].text.toUpperCase();
+    // SET e.health 5 reads e to find the object
+    const stored = (token) => (token && isDotted(token) ? [token] : []);
 
-    if (['SET', 'LOCAL', 'READ', 'FOR', 'FOREACH'].includes(command)) return tokens.slice(2);
+    if (['SET', 'LOCAL', 'READ', 'FOR', 'FOREACH'].includes(command)) return [...stored(tokens[1]), ...tokens.slice(2)];
     if (command === 'MOV') return tokens.slice(2);
     if (command === 'CMP' || language.isArithmetic(command)) return tokens.slice(1);
+    if (command === 'RETURN') return tokens.slice(1);
 
-    if (command === 'CALL') {
+    if (command === 'CALL' || command === 'NEW') {
         const arrow = arrowIndex(tokens);
-        return tokens.slice(2, arrow >= 0 ? arrow : tokens.length);
+        const values = tokens.slice(2, arrow >= 0 ? arrow : tokens.length);
+        const named = command === 'CALL' ? stored(tokens[1]) : [];
+
+        return [...named, ...values, ...(arrow >= 0 ? stored(tokens[arrow + 1]) : [])];
     }
 
     return [];
@@ -59,4 +68,4 @@ function isLiteral(token) {
            language.isRegister(token.text) || language.constructorArity(token.text) !== undefined;
 }
 
-module.exports = { callArguments, functionArguments, parameterAt, readTokens, isLiteral };
+module.exports = { callArguments, functionArguments, parameterAt, readTokens, isLiteral, isDotted };

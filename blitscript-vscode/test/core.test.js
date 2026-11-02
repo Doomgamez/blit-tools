@@ -246,6 +246,75 @@ test('a function can not end inside a loop', () => {
     assert.ok(found.includes('ENDFOR without a FOR or FOREACH'));
 });
 test('END can sit in a loop in main', () => assert.deepStrictEqual(loopErrors('FOR i 0 n\nEND\nENDFOR'), []));
+const ENEMY = 'CLASS Enemy\nFIELD health 100\nFIELD position VEC3 0 0 0\nMETHOD Init hp\nSET this.health hp\nEND\nMETHOD Hit amount\nSUB this.health amount\nRETURN this.health\nEND\nENDCLASS\n';
+const BOSS = 'CLASS Boss EXTENDS Enemy\nFIELD armor 5\nMETHOD Init\nSET this.armor 9\nCALL super.Hit 1\nEND\nENDCLASS\n';
+const inMain = (body, classes = ENEMY + BOSS) => messages(`MAIN LBL m\n${body}\nEND\n${classes}`);
+test('a class is fine', () => assert.deepStrictEqual(inMain('NEW Enemy 5 -> e\nCALL e.Hit 1\nCALL e.Hit 1 -> left\nCALL log e.health left'), []));
+test('fields and parts of vectors read and store', () => assert.deepStrictEqual(inMain('NEW Enemy 5 -> e\nSET e.position.y 3\nADD e.health 1\nCMP e.position.x 2\nCALL Vector3Add e.position e.position -> e.position'), []));
+test('a variable holding a vector has parts', () => assert.deepStrictEqual(messages('MAIN LBL m\nSET v VEC3 1 2 3\nSET v.x 5\nCALL log v.y\nEND'), []));
+test('a field of something never set', () => assert.ok(inMain('CALL log nope.health').some((m) => /nope is never set/.test(m))));
+test('storing into a field of something never set', () => assert.ok(inMain('SET nope.health 1').some((m) => /nope is never set/.test(m))));
+test('a method of something never set', () => assert.ok(inMain('CALL nope.Hit 1').some((m) => /nope is never set/.test(m))));
+test('NEW sets its variable', () => assert.ok(!inMain('NEW Boss -> b\nCALL log b').some((m) => /never set/.test(m))));
+test('NEW reads its values', () => assert.ok(inMain('NEW Enemy nope -> e').some((m) => /nope is never set/.test(m))));
+test('RETURN reads its value', () => assert.ok(messages('MAIN LBL m\nEND\nFN f\nRETURN nope\nEND').some((m) => /nope is never set/.test(m))));
+test('this is known in a method', () => assert.deepStrictEqual(inMain('NEW Boss -> b'), []));
+test('an unknown class', () => assert.ok(inMain('NEW Zombie -> z').includes("There's no class called Zombie")));
+test('NEW without a variable', () => assert.ok(inMain('NEW Boss').some((m) => /NEW expects/.test(m))));
+test('NEW counts the values of Init', () => assert.ok(inMain('NEW Enemy -> e').includes("Enemy takes 1 values when it's made, this gives 0")));
+test('a VEC3 is one value for NEW', () => assert.deepStrictEqual(inMain('NEW P VEC3 1 2 3 -> p', 'CLASS P\nMETHOD Init at\nEND\nENDCLASS\n'), []));
+test('Init is inherited', () => assert.ok(inMain('NEW Kid 5 -> k', 'CLASS P\nMETHOD Init v\nEND\nENDCLASS\nCLASS Kid EXTENDS P\nENDCLASS\n').length === 0));
+test('a method no class has', () => assert.ok(inMain('NEW Boss -> b\nCALL b.Nope').includes('No class has a method Nope with 0 parameters')));
+test('a method with the wrong count', () => assert.ok(inMain('NEW Boss -> b\nCALL b.Hit').includes('No class has a method Hit with 0 parameters')));
+test('methods ignore case', () => assert.deepStrictEqual(inMain('NEW Boss -> b\nCALL b.hit 1'), []));
+test('this. checks fields', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nFIELD a\nMETHOD f\nCALL log this.b\nEND\nENDCLASS').includes('A has no field b')));
+test('this. sees inherited fields', () => assert.deepStrictEqual(inMain('', `${ENEMY}CLASS Kid EXTENDS Enemy\nMETHOD f\nCALL log this.health\nEND\nENDCLASS\n`), []));
+test('fields are case sensitive', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nFIELD a\nMETHOD f\nCALL log this.A\nEND\nENDCLASS').includes('A has no field A')));
+test('super needs a parent', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nMETHOD f\nCALL super.f\nEND\nENDCLASS').some((m) => /super is for/.test(m))));
+test('super needs the method', () => assert.ok(inMain('', `${ENEMY}CLASS Kid EXTENDS Enemy\nMETHOD f\nCALL super.Nope\nEND\nENDCLASS\n`).some((m) => /Enemy has no method Nope/.test(m))));
+test('a class without ENDCLASS', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nFIELD a').includes('CLASS A has no ENDCLASS')));
+test('ENDCLASS alone', () => assert.ok(messages('MAIN LBL m\nEND\nENDCLASS').includes('ENDCLASS without a CLASS')));
+test('ENDCLASS in a method', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nMETHOD f\nENDCLASS').includes('ENDCLASS before the END of a method')));
+test('FIELD outside', () => assert.ok(messages('MAIN LBL m\nEND\nFIELD a').includes('FIELD outside a CLASS')));
+test('METHOD outside', () => assert.ok(messages('MAIN LBL m\nEND\nMETHOD a\nEND').includes('METHOD outside a CLASS')));
+test('code in a class', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nSET a 1\nENDCLASS').includes('Only FIELD and METHOD go in a CLASS')));
+test('FN in a class', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nFN f\nEND\nENDCLASS').includes('FN inside a CLASS, use METHOD')));
+test('two classes', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A\nENDCLASS\nCLASS a\nENDCLASS').includes('There are two classes called a')));
+test('an unknown parent', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A EXTENDS Z\nENDCLASS').some((m) => /A extends Z/.test(m))));
+test('a class extending itself', () => assert.ok(messages('MAIN LBL m\nEND\nCLASS A EXTENDS B\nENDCLASS\nCLASS B EXTENDS A\nENDCLASS').some((m) => /extends itself/.test(m))));
+test('a repeated field', () => assert.ok(inMain('', 'CLASS A\nFIELD a\nFIELD a\nENDCLASS\n').includes('A already has a field called a')));
+test('a field of a parent repeated', () => assert.ok(inMain('', `${ENEMY}CLASS Kid EXTENDS Enemy\nFIELD health\nENDCLASS\n`).some((m) => /repeats the field health/.test(m))));
+test('a repeated method', () => assert.ok(inMain('', 'CLASS A\nMETHOD f\nEND\nMETHOD F\nEND\nENDCLASS\n').includes('A already has a method called F')));
+test('this is no parameter', () => assert.ok(inMain('', 'CLASS A\nMETHOD f this\nEND\nENDCLASS\n').some((m) => /this can't be a parameter/.test(m))));
+test('RETURN outside a function', () => assert.ok(messages('MAIN LBL m\nRETURN 1\nEND').includes('RETURN outside a function')));
+test('RETURN in a function is fine', () => assert.deepStrictEqual(messages('MAIN LBL m\nCALL f -> x\nCALL log x\nEND\nFN f\nRETURN 1\nEND'), []));
+test('a field is no loop variable', () => assert.ok(inMain('NEW Boss -> b\nFOR b.armor 0 3\nENDFOR').some((m) => /needs a plain variable/.test(m))));
+test('FOREACH over a field is fine', () => assert.deepStrictEqual(inMain('NEW Boss -> b\nFOREACH v b.armor\nCALL log v\nENDFOR'), []));
+test('a loop in a method', () => assert.deepStrictEqual(inMain('', 'CLASS A\nMETHOD f\nFOR i 0 3\nENDFOR\nEND\nENDCLASS\n'), []));
+test('an open loop in a method', () => assert.ok(inMain('', 'CLASS A\nMETHOD f\nFOR i 0 3\nEND\nENDCLASS\n').some((m) => /END before the ENDFOR/.test(m))));
+test('classes in an include', () => {
+    const items = messages('INCLUDE "c.bs"\nMAIN LBL m\nNEW Enemy 1 -> e\nCALL e.Hit 2\nEND', { 'c.bs': ENEMY });
+    assert.deepStrictEqual(items, []);
+});
+test('code after RETURN is dead', () => assert.deepStrictEqual(lintText('MAIN LBL m\nEND\nFN f\nRETURN 1\nSET a 1\nEND').filter((item) => item.unnecessary).map((item) => item.line), [4]));
+test('classes and methods are in the outline', () => {
+    const names = symbols(open(`MAIN LBL m\nEND\n${ENEMY}`).model).map((item) => item.name);
+    assert.ok(names.includes('Enemy') && names.includes('Enemy.Hit'));
+});
+test('classes and methods fold', () => {
+    const ranges = foldingRanges(open(`MAIN LBL m\nEND\n${ENEMY}`).model).map((range) => range.start);
+    assert.ok(ranges.includes(2) && ranges.includes(5));
+});
+test('hover on a class keyword', () => {
+    const { program, model } = open('NEW Enemy -> e');
+    assert.ok(/NEW Class/.test(hover(program, model, 0, 1, api).contents));
+});
+test('the class macro', () => assert.ok(/CLASS Name/.test(macro('\n', 'class').documentation)));
+test('a variable name after NEW ->', () => {
+    const { model } = open('NEW Enemy -> ');
+    assert.strictEqual(contextAt(model, 0, 13).kind, 'variableName');
+});
+
 const dead = (body) => lintText(`MAIN LBL m\nSET n 3\n${body}\nEND`).filter((item) => item.unnecessary).map((item) => item.line);
 test('code after BREAK is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nBREAK\nSET a 1\nENDFOR'), [4]));
 test('code after CONTINUE is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nCONTINUE\nSET a 1\nENDFOR'), [4]));
