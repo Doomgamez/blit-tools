@@ -1,0 +1,91 @@
+{
+    "Program": {
+        "prefix": "main",
+        "description": "A script with a frame loop",
+        "body": [
+            "INCLUDE \"engine.bs\"",
+            "",
+            "MAIN LBL main",
+            "",
+            "LBL frame",
+            "    CALL ClearBackground BLACK",
+            "    $0",
+            "    CALL WaitFrame",
+            "    JMP frame",
+            "",
+            "END"
+        ]
+    },
+    "Function": {
+        "prefix": "fn",
+        "description": "A script function",
+        "body": [
+            "FN ${1:name} ${2:params}",
+            "    $0",
+            "END"
+        ]
+    },
+    "Countdown loop": {
+        "prefix": "loop",
+        "description": "Repeat a block, SUB sets the flags for JNE",
+        "body": [
+            "SET ${1:count} ${2:10}",
+            "LBL ${3:loop}",
+            "    $0",
+            "    SUB $1 1",
+            "    JNE $3"
+        ]
+    },
+    "If": {
+        "prefix": "if",
+        "description": "Run a block only if a == b",
+        "body": [
+            "CMP ${1:a} ${2:b}",
+            "JNE ${3:skip}",
+            "    $0",
+            "LBL $3"
+        ]
+    },
+    "If else": {
+        "prefix": "ifelse",
+        "description": "Run one of two blocks",
+        "body": [
+            "CMP ${1:a} ${2:b}",
+            "JNE ${3:otherwise}",
+            "    $4",
+            "    JMP ${5:done}",
+            "LBL $3",
+            "    $0",
+            "LBL $5"
+        ]
+    },
+    "Key pressed": {
+        "prefix": "key",
+        "description": "Run a block while a key is down",
+        "body": [
+            "CALL IsKeyDown ${1:KEY_SPACE} -> ${2:down}",
+            "CMP $2 true",
+            "JNE ${3:notDown}",
+            "    $0",
+            "LBL $3"
+        ]
+    },
+    "3D block": {
+        "prefix": "mode3d",
+        "description": "Draw through a 3D camera",
+        "body": [
+            "CALL BeginMode3D ${1:camera}",
+            "    $0",
+            "CALL EndMode3D"
+        ]
+    },
+    "Scene": {
+        "prefix": "scene",
+        "description": "Load a glTF level and a camera",
+        "body": [
+            "CALL CreateCamera3D VEC3 0 1.6 5, VEC3 0 1.6 0, 60 -> ${1:camera}",
+            "CALL LoadScene \"${2:level.glb}\" -> ${3:scene}",
+            "$0"
+        ]
+    }
+}

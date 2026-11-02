@@ -1,0 +1,3280 @@
+{
+ "functions": {
+  "log": {
+   "name": "log",
+   "returns": "void",
+   "params": [
+    {
+     "type": "any",
+     "name": "values",
+     "variadic": true
+    }
+   ],
+   "doc": "Print each argument as a line in the log (on screen + terminal)",
+   "category": "Core"
+  },
+  "waitframe": {
+   "name": "WaitFrame",
+   "returns": "void",
+   "params": [],
+   "doc": "End this frame: everything drawn so far is shown, the script continues next frame",
+   "category": "Core"
+  },
+  "clearbackground": {
+   "name": "ClearBackground",
+   "returns": "void",
+   "params": [
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Clear the screen (and depth) to a color, later frames clear to it too",
+   "category": "Core"
+  },
+  "getframetime": {
+   "name": "GetFrameTime",
+   "returns": "float",
+   "params": [],
+   "doc": "Seconds the last frame took (use it to make movement frame rate independent)",
+   "category": "Core"
+  },
+  "gettime": {
+   "name": "GetTime",
+   "returns": "double",
+   "params": [],
+   "doc": "Seconds since the engine started",
+   "category": "Core"
+  },
+  "getfps": {
+   "name": "GetFPS",
+   "returns": "int",
+   "params": [],
+   "doc": "Current frames per second (smoothed)",
+   "category": "Core"
+  },
+  "getscreenwidth": {
+   "name": "GetScreenWidth",
+   "returns": "int",
+   "params": [],
+   "doc": "Window width in pixels",
+   "category": "Core"
+  },
+  "getscreenheight": {
+   "name": "GetScreenHeight",
+   "returns": "int",
+   "params": [],
+   "doc": "Window height in pixels",
+   "category": "Core"
+  },
+  "quit": {
+   "name": "Quit",
+   "returns": "void",
+   "params": [],
+   "doc": "Close the game after this frame",
+   "category": "Core"
+  },
+  "setvsync": {
+   "name": "SetVSync",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "enabled",
+     "variadic": false
+    }
+   ],
+   "doc": "Wait for the monitor before showing a frame (on by default). Off = no tearing protection, fps is not tied to the refresh rate",
+   "category": "Core"
+  },
+  "settargetfps": {
+   "name": "SetTargetFPS",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "fps",
+     "variadic": false
+    }
+   ],
+   "doc": "Cap the frame rate, 0 = no cap (default). Turn vsync off too if the cap is above the monitor's refresh rate",
+   "category": "Core"
+  },
+  "iskeydown": {
+   "name": "IsKeyDown",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "key",
+     "variadic": false
+    }
+   ],
+   "doc": "Key is held down (KEY_W, KEY_SPACE, ...)",
+   "category": "Input"
+  },
+  "iskeypressed": {
+   "name": "IsKeyPressed",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "key",
+     "variadic": false
+    }
+   ],
+   "doc": "Key went down this frame",
+   "category": "Input"
+  },
+  "iskeyreleased": {
+   "name": "IsKeyReleased",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "key",
+     "variadic": false
+    }
+   ],
+   "doc": "Key went up this frame",
+   "category": "Input"
+  },
+  "ismousebuttondown": {
+   "name": "IsMouseButtonDown",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "button",
+     "variadic": false
+    }
+   ],
+   "doc": "Mouse button is held (MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE)",
+   "category": "Input"
+  },
+  "ismousebuttonpressed": {
+   "name": "IsMouseButtonPressed",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "button",
+     "variadic": false
+    }
+   ],
+   "doc": "Mouse button went down this frame",
+   "category": "Input"
+  },
+  "ismousebuttonreleased": {
+   "name": "IsMouseButtonReleased",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "button",
+     "variadic": false
+    }
+   ],
+   "doc": "Mouse button went up this frame",
+   "category": "Input"
+  },
+  "getmouseposition": {
+   "name": "GetMousePosition",
+   "returns": "vec2",
+   "params": [],
+   "doc": "Mouse position in window pixels",
+   "category": "Input"
+  },
+  "getmousedelta": {
+   "name": "GetMouseDelta",
+   "returns": "vec2",
+   "params": [],
+   "doc": "How far the mouse moved this frame, in pixels",
+   "category": "Input"
+  },
+  "getmousewheelmove": {
+   "name": "GetMouseWheelMove",
+   "returns": "float",
+   "params": [],
+   "doc": "Mouse wheel movement this frame (positive = away from you)",
+   "category": "Input"
+  },
+  "setmousecaptured": {
+   "name": "SetMouseCaptured",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "captured",
+     "variadic": false
+    }
+   ],
+   "doc": "Hide and lock the cursor for mouse look (GetMouseDelta keeps working)",
+   "category": "Input"
+  },
+  "fade": {
+   "name": "Fade",
+   "returns": "color",
+   "params": [
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "alpha",
+     "variadic": false
+    }
+   ],
+   "doc": "Same color with alpha 0.0-1.0",
+   "category": "Color"
+  },
+  "colorfromhsv": {
+   "name": "ColorFromHSV",
+   "returns": "color",
+   "params": [
+    {
+     "type": "float",
+     "name": "hue",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "saturation",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "value",
+     "variadic": false
+    }
+   ],
+   "doc": "Color from hue 0-360, saturation and value 0.0-1.0",
+   "category": "Color"
+  },
+  "loadtexture": {
+   "name": "LoadTexture",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "file",
+     "variadic": false
+    }
+   ],
+   "doc": "Load an image (png, jpg, bmp, tga) from Engine.blfs, returns a texture handle (0 if it failed)",
+   "category": "Texture"
+  },
+  "unloadtexture": {
+   "name": "UnloadTexture",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a texture",
+   "category": "Texture"
+  },
+  "gettexturesize": {
+   "name": "GetTextureSize",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    }
+   ],
+   "doc": "Texture width and height in pixels",
+   "category": "Texture"
+  },
+  "settexturefilter": {
+   "name": "SetTextureFilter",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "filter",
+     "variadic": false
+    }
+   ],
+   "doc": "FILTER_NEAREST (pixel art), FILTER_LINEAR or FILTER_MIPMAP (default)",
+   "category": "Texture"
+  },
+  "settexturewrap": {
+   "name": "SetTextureWrap",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "wrap",
+     "variadic": false
+    }
+   ],
+   "doc": "WRAP_REPEAT (default), WRAP_CLAMP or WRAP_MIRROR",
+   "category": "Texture"
+  },
+  "drawline": {
+   "name": "DrawLine",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "x1",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y1",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "x2",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y2",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Line between two points, 1 pixel thick",
+   "category": "Shapes 2D"
+  },
+  "drawlinev": {
+   "name": "DrawLineV",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "start",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "end",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Line between two points, 1 pixel thick",
+   "category": "Shapes 2D"
+  },
+  "drawlineex": {
+   "name": "DrawLineEx",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "start",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "end",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "thickness",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Line with a thickness",
+   "category": "Shapes 2D"
+  },
+  "drawrectangle": {
+   "name": "DrawRectangle",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "width",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "height",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Filled rectangle, x/y is the top-left corner",
+   "category": "Shapes 2D"
+  },
+  "drawrectanglerec": {
+   "name": "DrawRectangleRec",
+   "returns": "void",
+   "params": [
+    {
+     "type": "rect",
+     "name": "rect",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Filled rectangle",
+   "category": "Shapes 2D"
+  },
+  "drawrectanglepro": {
+   "name": "DrawRectanglePro",
+   "returns": "void",
+   "params": [
+    {
+     "type": "rect",
+     "name": "rect",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "origin",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "rotation",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Rotated rectangle, origin is the pivot relative to its top-left, rotation in degrees",
+   "category": "Shapes 2D"
+  },
+  "drawrectanglelines": {
+   "name": "DrawRectangleLines",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "width",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "height",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Rectangle outline, 1 pixel",
+   "category": "Shapes 2D"
+  },
+  "drawrectanglelinesex": {
+   "name": "DrawRectangleLinesEx",
+   "returns": "void",
+   "params": [
+    {
+     "type": "rect",
+     "name": "rect",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "thickness",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Rectangle outline with a thickness (drawn inside the rect)",
+   "category": "Shapes 2D"
+  },
+  "drawcircle": {
+   "name": "DrawCircle",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Filled circle",
+   "category": "Shapes 2D"
+  },
+  "drawcirclev": {
+   "name": "DrawCircleV",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Filled circle",
+   "category": "Shapes 2D"
+  },
+  "drawcirclelines": {
+   "name": "DrawCircleLines",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Circle outline",
+   "category": "Shapes 2D"
+  },
+  "drawtriangle": {
+   "name": "DrawTriangle",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "b",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "c",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Filled triangle (any winding)",
+   "category": "Shapes 2D"
+  },
+  "drawtext": {
+   "name": "DrawText",
+   "returns": "void",
+   "params": [
+    {
+     "type": "any",
+     "name": "text",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "fontSize",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw text with the default font, numbers and vectors are printed too",
+   "category": "Text"
+  },
+  "drawtext3d": {
+   "name": "DrawText3D",
+   "returns": "void",
+   "params": [
+    {
+     "type": "any",
+     "name": "text",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "size",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Text in the 3D world (inside BeginMode3D): centered on position, faces the camera, hidden by things in front of it. size = line height in world units, draw it after the solid things",
+   "category": "Text"
+  },
+  "measuretext": {
+   "name": "MeasureText",
+   "returns": "int",
+   "params": [
+    {
+     "type": "any",
+     "name": "text",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "fontSize",
+     "variadic": false
+    }
+   ],
+   "doc": "Width in pixels DrawText would use",
+   "category": "Text"
+  },
+  "textformat": {
+   "name": "TextFormat",
+   "returns": "string",
+   "params": [
+    {
+     "type": "string",
+     "name": "format",
+     "variadic": false
+    },
+    {
+     "type": "any",
+     "name": "values",
+     "variadic": true
+    }
+   ],
+   "doc": "printf-style text: %d %i %u %x %c %f %.2f %e %g %s (any value) %%, a vector fills several number placeholders",
+   "category": "Text"
+  },
+  "drawtexture": {
+   "name": "DrawTexture",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw a texture at its own size, WHITE tint keeps its colors",
+   "category": "Textures 2D"
+  },
+  "drawtexturev": {
+   "name": "DrawTextureV",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw a texture at its own size",
+   "category": "Textures 2D"
+  },
+  "drawtextureex": {
+   "name": "DrawTextureEx",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "rotation",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw a texture rotated (degrees, around its top-left) and scaled",
+   "category": "Textures 2D"
+  },
+  "drawtexturerec": {
+   "name": "DrawTextureRec",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "source",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw part of a texture (sprite sheets), negative source width/height flips it",
+   "category": "Textures 2D"
+  },
+  "drawtexturepro": {
+   "name": "DrawTexturePro",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "source",
+     "variadic": false
+    },
+    {
+     "type": "rect",
+     "name": "dest",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "origin",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "rotation",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw part of a texture into any rectangle, rotated around origin",
+   "category": "Textures 2D"
+  },
+  "createcamera2d": {
+   "name": "CreateCamera2D",
+   "returns": "int",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "offset",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "target",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "rotation",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "zoom",
+     "variadic": false
+    }
+   ],
+   "doc": "Create a 2D camera: target (world) is shown at offset (screen), returns a handle",
+   "category": "Camera 2D"
+  },
+  "setcamera2dtarget": {
+   "name": "SetCamera2DTarget",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "target",
+     "variadic": false
+    }
+   ],
+   "doc": "World point the camera looks at",
+   "category": "Camera 2D"
+  },
+  "setcamera2doffset": {
+   "name": "SetCamera2DOffset",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "offset",
+     "variadic": false
+    }
+   ],
+   "doc": "Screen point the target appears at (usually the screen center)",
+   "category": "Camera 2D"
+  },
+  "setcamera2drotation": {
+   "name": "SetCamera2DRotation",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "rotation",
+     "variadic": false
+    }
+   ],
+   "doc": "Rotation in degrees",
+   "category": "Camera 2D"
+  },
+  "setcamera2dzoom": {
+   "name": "SetCamera2DZoom",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "zoom",
+     "variadic": false
+    }
+   ],
+   "doc": "Zoom, 1.0 is no zoom",
+   "category": "Camera 2D"
+  },
+  "getcamera2dtarget": {
+   "name": "GetCamera2DTarget",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Current target",
+   "category": "Camera 2D"
+  },
+  "getcamera2dzoom": {
+   "name": "GetCamera2DZoom",
+   "returns": "float",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Current zoom",
+   "category": "Camera 2D"
+  },
+  "beginmode2d": {
+   "name": "BeginMode2D",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw the following 2D calls through this camera",
+   "category": "Camera 2D"
+  },
+  "endmode2d": {
+   "name": "EndMode2D",
+   "returns": "void",
+   "params": [],
+   "doc": "Back to screen-space 2D",
+   "category": "Camera 2D"
+  },
+  "getscreentoworld2d": {
+   "name": "GetScreenToWorld2D",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Screen pixel to world position (e.g. mouse to world)",
+   "category": "Camera 2D"
+  },
+  "getworldtoscreen2d": {
+   "name": "GetWorldToScreen2D",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "World position to screen pixel",
+   "category": "Camera 2D"
+  },
+  "createcamera3d": {
+   "name": "CreateCamera3D",
+   "returns": "int",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "target",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "fovy",
+     "variadic": false
+    }
+   ],
+   "doc": "Create a perspective camera looking at target, fovy in degrees, returns a handle",
+   "category": "Camera 3D"
+  },
+  "setcameraposition": {
+   "name": "SetCameraPosition",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    }
+   ],
+   "doc": "Move the camera (keeps the direction it faces)",
+   "category": "Camera 3D"
+  },
+  "setcameratarget": {
+   "name": "SetCameraTarget",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "target",
+     "variadic": false
+    }
+   ],
+   "doc": "Turn the camera to look at a point",
+   "category": "Camera 3D"
+  },
+  "setcamerafovy": {
+   "name": "SetCameraFovy",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "fovy",
+     "variadic": false
+    }
+   ],
+   "doc": "Vertical field of view in degrees",
+   "category": "Camera 3D"
+  },
+  "getcameraposition": {
+   "name": "GetCameraPosition",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Camera position",
+   "category": "Camera 3D"
+  },
+  "getcameratarget": {
+   "name": "GetCameraTarget",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "A point 1 unit in front of the camera",
+   "category": "Camera 3D"
+  },
+  "getcameraforward": {
+   "name": "GetCameraForward",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Direction the camera faces (length 1)",
+   "category": "Camera 3D"
+  },
+  "getcameraright": {
+   "name": "GetCameraRight",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Camera's right direction, flat on the ground (length 1)",
+   "category": "Camera 3D"
+  },
+  "movecamera": {
+   "name": "MoveCamera",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "forward",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "right",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "up",
+     "variadic": false
+    }
+   ],
+   "doc": "Move along the camera's own axes (up is world up)",
+   "category": "Camera 3D"
+  },
+  "walkcamera": {
+   "name": "WalkCamera",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "forward",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "right",
+     "variadic": false
+    }
+   ],
+   "doc": "Move along the ground: looking up or down doesn't change the height",
+   "category": "Camera 3D"
+  },
+  "rotatecamera": {
+   "name": "RotateCamera",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "yaw",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "pitch",
+     "variadic": false
+    }
+   ],
+   "doc": "Turn by degrees: yaw left/right, pitch up/down (clamped to +-89)",
+   "category": "Camera 3D"
+  },
+  "updatecamerafree": {
+   "name": "UpdateCameraFree",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Free-fly controls: WASD, space/ctrl up/down, shift fast, hold right mouse to look",
+   "category": "Camera 3D"
+  },
+  "beginmode3d": {
+   "name": "BeginMode3D",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw the following calls in 3D through this camera",
+   "category": "Camera 3D"
+  },
+  "endmode3d": {
+   "name": "EndMode3D",
+   "returns": "void",
+   "params": [],
+   "doc": "Back to screen-space 2D (draw your HUD after this)",
+   "category": "Camera 3D"
+  },
+  "getworldtoscreen": {
+   "name": "GetWorldToScreen",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    }
+   ],
+   "doc": "Screen pixel of a 3D point (far off screen if it's behind the camera)",
+   "category": "Camera 3D"
+  },
+  "drawcube": {
+   "name": "DrawCube",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "size",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Solid cube centered on position",
+   "category": "Shapes 3D"
+  },
+  "drawcubewires": {
+   "name": "DrawCubeWires",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "size",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Cube edges",
+   "category": "Shapes 3D"
+  },
+  "drawcubetexture": {
+   "name": "DrawCubeTexture",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "texture",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "size",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Cube with a texture on every face",
+   "category": "Shapes 3D"
+  },
+  "drawsphere": {
+   "name": "DrawSphere",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Solid sphere",
+   "category": "Shapes 3D"
+  },
+  "drawplane": {
+   "name": "DrawPlane",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "size",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Flat rectangle on the ground (XZ), facing up",
+   "category": "Shapes 3D"
+  },
+  "drawgrid": {
+   "name": "DrawGrid",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "slices",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "spacing",
+     "variadic": false
+    }
+   ],
+   "doc": "Grid on the ground centered on the origin",
+   "category": "Shapes 3D"
+  },
+  "drawline3d": {
+   "name": "DrawLine3D",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "start",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "end",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Line in 3D",
+   "category": "Shapes 3D"
+  },
+  "loadmodel": {
+   "name": "LoadModel",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "file",
+     "variadic": false
+    }
+   ],
+   "doc": "Load a glTF model (.glb, or .gltf with its .bin/images) from Engine.blfs, returns a handle (0 if it failed)",
+   "category": "Models"
+  },
+  "unloadmodel": {
+   "name": "UnloadModel",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a model and its textures",
+   "category": "Models"
+  },
+  "drawmodel": {
+   "name": "DrawModel",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw a model, WHITE tint keeps its colors",
+   "category": "Models"
+  },
+  "drawmodelex": {
+   "name": "DrawModelEx",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "axis",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "angle",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "scale",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw a model rotated by angle degrees around axis, scaled per axis",
+   "category": "Models"
+  },
+  "getmodelboundsmin": {
+   "name": "GetModelBoundsMin",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    }
+   ],
+   "doc": "Smallest corner of the model's bounding box (model space)",
+   "category": "Models"
+  },
+  "getmodelboundsmax": {
+   "name": "GetModelBoundsMax",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    }
+   ],
+   "doc": "Largest corner of the model's bounding box (model space)",
+   "category": "Models"
+  },
+  "createmodelinstance": {
+   "name": "CreateModelInstance",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "model",
+     "variadic": false
+    }
+   ],
+   "doc": "A copy of a model with its own node poses, returns a handle (0 if it failed), UnloadModel frees its instances too",
+   "category": "Model instances"
+  },
+  "destroymodelinstance": {
+   "name": "DestroyModelInstance",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    }
+   ],
+   "doc": "Free an instance, its model stays loaded",
+   "category": "Model instances"
+  },
+  "drawmodelinstance": {
+   "name": "DrawModelInstance",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw an instance with its current node poses, WHITE tint keeps its colors",
+   "category": "Model instances"
+  },
+  "drawmodelinstanceex": {
+   "name": "DrawModelInstanceEx",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "axis",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "angle",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "scale",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "tint",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw an instance rotated by angle degrees around axis, scaled per axis",
+   "category": "Model instances"
+  },
+  "findmodelnode": {
+   "name": "FindModelNode",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    }
+   ],
+   "doc": "Find a node of the default scene by its glTF name or a path like \"Left/Door\", returns a handle (0 if there is none), logs when the name is missing or not unique",
+   "category": "Model instances"
+  },
+  "findmodelnodeat": {
+   "name": "FindModelNodeAt",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "index",
+     "variadic": false
+    }
+   ],
+   "doc": "The index-th node (from 0, in scene order) with this name or path, returns a handle (0 if there is none)",
+   "category": "Model instances"
+  },
+  "countmodelnodes": {
+   "name": "CountModelNodes",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    }
+   ],
+   "doc": "How many nodes have this name or path",
+   "category": "Model instances"
+  },
+  "getnodeboundsmin": {
+   "name": "GetNodeBoundsMin",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Smallest corner of the node's own mesh in the node's space, a good source for a pivot",
+   "category": "Model instances"
+  },
+  "getnodeboundsmax": {
+   "name": "GetNodeBoundsMax",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Largest corner of the node's own mesh in the node's space",
+   "category": "Model instances"
+  },
+  "getnodepivot": {
+   "name": "GetNodePivot",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "The point of the node's mesh it rotates and scales around",
+   "category": "Model instances"
+  },
+  "setnodepivot": {
+   "name": "SetNodePivot",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "pivot",
+     "variadic": false
+    }
+   ],
+   "doc": "Rotate and scale around this point of the node's mesh, like a door's hinge. The node stays where it is, GetNodePosition can change to make up for it",
+   "category": "Model instances"
+  },
+  "getnodeposition": {
+   "name": "GetNodePosition",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Node position relative to its parent",
+   "category": "Model instances"
+  },
+  "setnodeposition": {
+   "name": "SetNodePosition",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    }
+   ],
+   "doc": "Move a node relative to its parent, its children follow",
+   "category": "Model instances"
+  },
+  "getnoderotation": {
+   "name": "GetNodeRotation",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Node rotation as degrees around x, y and z, matches SetNodeRotationEuler",
+   "category": "Model instances"
+  },
+  "setnoderotation": {
+   "name": "SetNodeRotation",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "axis",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "angle",
+     "variadic": false
+    }
+   ],
+   "doc": "Replace a node's rotation with angle degrees around axis, it turns around its pivot",
+   "category": "Model instances"
+  },
+  "setnoderotationeuler": {
+   "name": "SetNodeRotationEuler",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "degrees",
+     "variadic": false
+    }
+   ],
+   "doc": "Replace a node's rotation: roll around z, then pitch around x, then yaw around y",
+   "category": "Model instances"
+  },
+  "rotatenode": {
+   "name": "RotateNode",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "axis",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "angle",
+     "variadic": false
+    }
+   ],
+   "doc": "Add angle degrees around axis to a node's current rotation",
+   "category": "Model instances"
+  },
+  "getnodescale": {
+   "name": "GetNodeScale",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Node scale relative to its parent",
+   "category": "Model instances"
+  },
+  "setnodescale": {
+   "name": "SetNodeScale",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "Scale a node relative to its parent",
+   "category": "Model instances"
+  },
+  "getnodeworldposition": {
+   "name": "GetNodeWorldPosition",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Node position relative to the model, with every parent applied (before DrawModelInstance places it)",
+   "category": "Model instances"
+  },
+  "setcamerafromnode": {
+   "name": "SetCameraFromNode",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "camera",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Put a 3D camera at a node, looking down the node's -Z like a glTF camera",
+   "category": "Model instances"
+  },
+  "loadscene": {
+   "name": "LoadScene",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "file",
+     "variadic": false
+    }
+   ],
+   "doc": "Load a glTF file that is the level, returns an instance handle (0 if it failed) so every node function works on it",
+   "category": "Scenes"
+  },
+  "unloadscene": {
+   "name": "UnloadScene",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a scene, its model and every other instance of that model",
+   "category": "Scenes"
+  },
+  "drawscene": {
+   "name": "DrawScene",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw a scene where its nodes are, use it inside BeginMode3D",
+   "category": "Scenes"
+  },
+  "getsceneroot": {
+   "name": "GetSceneRoot",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "scene",
+     "variadic": false
+    }
+   ],
+   "doc": "Node handle of the first root of the scene, moving it moves everything under it",
+   "category": "Scenes"
+  },
+  "getdrawcalls": {
+   "name": "GetDrawCalls",
+   "returns": "int",
+   "params": [],
+   "doc": "Draw calls of the last 3D or 2D block, read it after EndMode3D/EndMode2D",
+   "category": "Render stats"
+  },
+  "getmeshbinds": {
+   "name": "GetMeshBinds",
+   "returns": "int",
+   "params": [],
+   "doc": "How many times a mesh was bound in the last block, copies of a mesh in one model share a bind",
+   "category": "Render stats"
+  },
+  "gettexturebinds": {
+   "name": "GetTextureBinds",
+   "returns": "int",
+   "params": [],
+   "doc": "How many times a texture was bound in the last block",
+   "category": "Render stats"
+  },
+  "getculledobjects": {
+   "name": "GetCulledObjects",
+   "returns": "int",
+   "params": [],
+   "doc": "Model nodes skipped in the last block because they were outside the camera's view",
+   "category": "Render stats"
+  },
+  "setfrustumculling": {
+   "name": "SetFrustumCulling",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "enabled",
+     "variadic": false
+    }
+   ],
+   "doc": "Skip model nodes outside the camera's view (on by default), turn it off to compare",
+   "category": "Render stats"
+  },
+  "sin": {
+   "name": "Sin",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "radians",
+     "variadic": false
+    }
+   ],
+   "doc": "Sine",
+   "category": "Math"
+  },
+  "cos": {
+   "name": "Cos",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "radians",
+     "variadic": false
+    }
+   ],
+   "doc": "Cosine",
+   "category": "Math"
+  },
+  "tan": {
+   "name": "Tan",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "radians",
+     "variadic": false
+    }
+   ],
+   "doc": "Tangent",
+   "category": "Math"
+  },
+  "atan2": {
+   "name": "Atan2",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    }
+   ],
+   "doc": "Angle of (x, y) in radians",
+   "category": "Math"
+  },
+  "sqrt": {
+   "name": "Sqrt",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    }
+   ],
+   "doc": "Square root",
+   "category": "Math"
+  },
+  "pow": {
+   "name": "Pow",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    }
+   ],
+   "doc": "x to the power of y",
+   "category": "Math"
+  },
+  "abs": {
+   "name": "Abs",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    }
+   ],
+   "doc": "Absolute value",
+   "category": "Math"
+  },
+  "floor": {
+   "name": "Floor",
+   "returns": "int",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    }
+   ],
+   "doc": "Round down to an int",
+   "category": "Math"
+  },
+  "ceil": {
+   "name": "Ceil",
+   "returns": "int",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    }
+   ],
+   "doc": "Round up to an int",
+   "category": "Math"
+  },
+  "round": {
+   "name": "Round",
+   "returns": "int",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    }
+   ],
+   "doc": "Round to the nearest int",
+   "category": "Math"
+  },
+  "min": {
+   "name": "Min",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Smaller of two numbers",
+   "category": "Math"
+  },
+  "max": {
+   "name": "Max",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Larger of two numbers",
+   "category": "Math"
+  },
+  "clamp": {
+   "name": "Clamp",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "value",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "min",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "max",
+     "variadic": false
+    }
+   ],
+   "doc": "Keep a value inside a range",
+   "category": "Math"
+  },
+  "lerp": {
+   "name": "Lerp",
+   "returns": "float",
+   "params": [
+    {
+     "type": "float",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "b",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "t",
+     "variadic": false
+    }
+   ],
+   "doc": "Blend from a (t=0) to b (t=1)",
+   "category": "Math"
+  },
+  "getrandomvalue": {
+   "name": "GetRandomValue",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "min",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "max",
+     "variadic": false
+    }
+   ],
+   "doc": "Random int, min and max included",
+   "category": "Math"
+  },
+  "vector2": {
+   "name": "Vector2",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    }
+   ],
+   "doc": "Make a vec2 from numbers or variables",
+   "category": "Vectors"
+  },
+  "vector3": {
+   "name": "Vector3",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "float",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "y",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "z",
+     "variadic": false
+    }
+   ],
+   "doc": "Make a vec3 from numbers or variables",
+   "category": "Vectors"
+  },
+  "getx": {
+   "name": "GetX",
+   "returns": "float",
+   "params": [
+    {
+     "type": "any",
+     "name": "vector",
+     "variadic": false
+    }
+   ],
+   "doc": "x of a vector (r of a color, x of a rect)",
+   "category": "Vectors"
+  },
+  "gety": {
+   "name": "GetY",
+   "returns": "float",
+   "params": [
+    {
+     "type": "any",
+     "name": "vector",
+     "variadic": false
+    }
+   ],
+   "doc": "y of a vector (g of a color, y of a rect)",
+   "category": "Vectors"
+  },
+  "getz": {
+   "name": "GetZ",
+   "returns": "float",
+   "params": [
+    {
+     "type": "any",
+     "name": "vector",
+     "variadic": false
+    }
+   ],
+   "doc": "z of a vec3/vec4 (b of a color, width of a rect)",
+   "category": "Vectors"
+  },
+  "getw": {
+   "name": "GetW",
+   "returns": "float",
+   "params": [
+    {
+     "type": "any",
+     "name": "vector",
+     "variadic": false
+    }
+   ],
+   "doc": "w of a vec4/quat (a of a color, height of a rect)",
+   "category": "Vectors"
+  },
+  "vector2add": {
+   "name": "Vector2Add",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "a + b",
+   "category": "Vectors"
+  },
+  "vector2subtract": {
+   "name": "Vector2Subtract",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "a - b",
+   "category": "Vectors"
+  },
+  "vector2scale": {
+   "name": "Vector2Scale",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "v",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "v * scale",
+   "category": "Vectors"
+  },
+  "vector2length": {
+   "name": "Vector2Length",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "v",
+     "variadic": false
+    }
+   ],
+   "doc": "Length",
+   "category": "Vectors"
+  },
+  "vector2normalize": {
+   "name": "Vector2Normalize",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "v",
+     "variadic": false
+    }
+   ],
+   "doc": "Same direction, length 1 (zero stays zero)",
+   "category": "Vectors"
+  },
+  "vector2distance": {
+   "name": "Vector2Distance",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Distance between two points",
+   "category": "Vectors"
+  },
+  "vector2lerp": {
+   "name": "Vector2Lerp",
+   "returns": "vec2",
+   "params": [
+    {
+     "type": "vec2",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec2",
+     "name": "b",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "t",
+     "variadic": false
+    }
+   ],
+   "doc": "Blend from a to b",
+   "category": "Vectors"
+  },
+  "vector3add": {
+   "name": "Vector3Add",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "a + b",
+   "category": "Vectors"
+  },
+  "vector3subtract": {
+   "name": "Vector3Subtract",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "a - b",
+   "category": "Vectors"
+  },
+  "vector3scale": {
+   "name": "Vector3Scale",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "v",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "scale",
+     "variadic": false
+    }
+   ],
+   "doc": "v * scale",
+   "category": "Vectors"
+  },
+  "vector3length": {
+   "name": "Vector3Length",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "v",
+     "variadic": false
+    }
+   ],
+   "doc": "Length",
+   "category": "Vectors"
+  },
+  "vector3normalize": {
+   "name": "Vector3Normalize",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "v",
+     "variadic": false
+    }
+   ],
+   "doc": "Same direction, length 1 (zero stays zero)",
+   "category": "Vectors"
+  },
+  "vector3distance": {
+   "name": "Vector3Distance",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Distance between two points",
+   "category": "Vectors"
+  },
+  "vector3dot": {
+   "name": "Vector3Dot",
+   "returns": "float",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Dot product",
+   "category": "Vectors"
+  },
+  "vector3cross": {
+   "name": "Vector3Cross",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "b",
+     "variadic": false
+    }
+   ],
+   "doc": "Cross product",
+   "category": "Vectors"
+  },
+  "vector3lerp": {
+   "name": "Vector3Lerp",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "a",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "b",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "t",
+     "variadic": false
+    }
+   ],
+   "doc": "Blend from a to b",
+   "category": "Vectors"
+  }
+ },
+ "constants": {
+  "LIGHTGRAY": {
+   "name": "LIGHTGRAY",
+   "value": "COLOR 200 200 200 255",
+   "category": "Colors"
+  },
+  "GRAY": {
+   "name": "GRAY",
+   "value": "COLOR 130 130 130 255",
+   "category": "Colors"
+  },
+  "DARKGRAY": {
+   "name": "DARKGRAY",
+   "value": "COLOR 80 80 80 255",
+   "category": "Colors"
+  },
+  "YELLOW": {
+   "name": "YELLOW",
+   "value": "COLOR 253 249 0 255",
+   "category": "Colors"
+  },
+  "GOLD": {
+   "name": "GOLD",
+   "value": "COLOR 255 203 0 255",
+   "category": "Colors"
+  },
+  "ORANGE": {
+   "name": "ORANGE",
+   "value": "COLOR 255 161 0 255",
+   "category": "Colors"
+  },
+  "PINK": {
+   "name": "PINK",
+   "value": "COLOR 255 109 194 255",
+   "category": "Colors"
+  },
+  "RED": {
+   "name": "RED",
+   "value": "COLOR 230 41 55 255",
+   "category": "Colors"
+  },
+  "MAROON": {
+   "name": "MAROON",
+   "value": "COLOR 190 33 55 255",
+   "category": "Colors"
+  },
+  "GREEN": {
+   "name": "GREEN",
+   "value": "COLOR 0 228 48 255",
+   "category": "Colors"
+  },
+  "LIME": {
+   "name": "LIME",
+   "value": "COLOR 0 158 47 255",
+   "category": "Colors"
+  },
+  "DARKGREEN": {
+   "name": "DARKGREEN",
+   "value": "COLOR 0 117 44 255",
+   "category": "Colors"
+  },
+  "SKYBLUE": {
+   "name": "SKYBLUE",
+   "value": "COLOR 102 191 255 255",
+   "category": "Colors"
+  },
+  "BLUE": {
+   "name": "BLUE",
+   "value": "COLOR 0 121 241 255",
+   "category": "Colors"
+  },
+  "DARKBLUE": {
+   "name": "DARKBLUE",
+   "value": "COLOR 0 82 172 255",
+   "category": "Colors"
+  },
+  "PURPLE": {
+   "name": "PURPLE",
+   "value": "COLOR 200 122 255 255",
+   "category": "Colors"
+  },
+  "VIOLET": {
+   "name": "VIOLET",
+   "value": "COLOR 135 60 190 255",
+   "category": "Colors"
+  },
+  "DARKPURPLE": {
+   "name": "DARKPURPLE",
+   "value": "COLOR 112 31 126 255",
+   "category": "Colors"
+  },
+  "BEIGE": {
+   "name": "BEIGE",
+   "value": "COLOR 211 176 131 255",
+   "category": "Colors"
+  },
+  "BROWN": {
+   "name": "BROWN",
+   "value": "COLOR 127 106 79 255",
+   "category": "Colors"
+  },
+  "DARKBROWN": {
+   "name": "DARKBROWN",
+   "value": "COLOR 76 63 47 255",
+   "category": "Colors"
+  },
+  "WHITE": {
+   "name": "WHITE",
+   "value": "COLOR 255 255 255 255",
+   "category": "Colors"
+  },
+  "BLACK": {
+   "name": "BLACK",
+   "value": "COLOR 0 0 0 255",
+   "category": "Colors"
+  },
+  "BLANK": {
+   "name": "BLANK",
+   "value": "COLOR 0 0 0 0",
+   "category": "Colors"
+  },
+  "MAGENTA": {
+   "name": "MAGENTA",
+   "value": "COLOR 255 0 255 255",
+   "category": "Colors"
+  },
+  "RAYWHITE": {
+   "name": "RAYWHITE",
+   "value": "COLOR 245 245 245 255",
+   "category": "Colors"
+  },
+  "KEY_A": {
+   "name": "KEY_A",
+   "value": "4",
+   "category": "Keys"
+  },
+  "KEY_B": {
+   "name": "KEY_B",
+   "value": "5",
+   "category": "Keys"
+  },
+  "KEY_C": {
+   "name": "KEY_C",
+   "value": "6",
+   "category": "Keys"
+  },
+  "KEY_D": {
+   "name": "KEY_D",
+   "value": "7",
+   "category": "Keys"
+  },
+  "KEY_E": {
+   "name": "KEY_E",
+   "value": "8",
+   "category": "Keys"
+  },
+  "KEY_F": {
+   "name": "KEY_F",
+   "value": "9",
+   "category": "Keys"
+  },
+  "KEY_G": {
+   "name": "KEY_G",
+   "value": "10",
+   "category": "Keys"
+  },
+  "KEY_H": {
+   "name": "KEY_H",
+   "value": "11",
+   "category": "Keys"
+  },
+  "KEY_I": {
+   "name": "KEY_I",
+   "value": "12",
+   "category": "Keys"
+  },
+  "KEY_J": {
+   "name": "KEY_J",
+   "value": "13",
+   "category": "Keys"
+  },
+  "KEY_K": {
+   "name": "KEY_K",
+   "value": "14",
+   "category": "Keys"
+  },
+  "KEY_L": {
+   "name": "KEY_L",
+   "value": "15",
+   "category": "Keys"
+  },
+  "KEY_M": {
+   "name": "KEY_M",
+   "value": "16",
+   "category": "Keys"
+  },
+  "KEY_N": {
+   "name": "KEY_N",
+   "value": "17",
+   "category": "Keys"
+  },
+  "KEY_O": {
+   "name": "KEY_O",
+   "value": "18",
+   "category": "Keys"
+  },
+  "KEY_P": {
+   "name": "KEY_P",
+   "value": "19",
+   "category": "Keys"
+  },
+  "KEY_Q": {
+   "name": "KEY_Q",
+   "value": "20",
+   "category": "Keys"
+  },
+  "KEY_R": {
+   "name": "KEY_R",
+   "value": "21",
+   "category": "Keys"
+  },
+  "KEY_S": {
+   "name": "KEY_S",
+   "value": "22",
+   "category": "Keys"
+  },
+  "KEY_T": {
+   "name": "KEY_T",
+   "value": "23",
+   "category": "Keys"
+  },
+  "KEY_U": {
+   "name": "KEY_U",
+   "value": "24",
+   "category": "Keys"
+  },
+  "KEY_V": {
+   "name": "KEY_V",
+   "value": "25",
+   "category": "Keys"
+  },
+  "KEY_W": {
+   "name": "KEY_W",
+   "value": "26",
+   "category": "Keys"
+  },
+  "KEY_X": {
+   "name": "KEY_X",
+   "value": "27",
+   "category": "Keys"
+  },
+  "KEY_Y": {
+   "name": "KEY_Y",
+   "value": "28",
+   "category": "Keys"
+  },
+  "KEY_Z": {
+   "name": "KEY_Z",
+   "value": "29",
+   "category": "Keys"
+  },
+  "KEY_0": {
+   "name": "KEY_0",
+   "value": "39",
+   "category": "Keys"
+  },
+  "KEY_1": {
+   "name": "KEY_1",
+   "value": "30",
+   "category": "Keys"
+  },
+  "KEY_2": {
+   "name": "KEY_2",
+   "value": "31",
+   "category": "Keys"
+  },
+  "KEY_3": {
+   "name": "KEY_3",
+   "value": "32",
+   "category": "Keys"
+  },
+  "KEY_4": {
+   "name": "KEY_4",
+   "value": "33",
+   "category": "Keys"
+  },
+  "KEY_5": {
+   "name": "KEY_5",
+   "value": "34",
+   "category": "Keys"
+  },
+  "KEY_6": {
+   "name": "KEY_6",
+   "value": "35",
+   "category": "Keys"
+  },
+  "KEY_7": {
+   "name": "KEY_7",
+   "value": "36",
+   "category": "Keys"
+  },
+  "KEY_8": {
+   "name": "KEY_8",
+   "value": "37",
+   "category": "Keys"
+  },
+  "KEY_9": {
+   "name": "KEY_9",
+   "value": "38",
+   "category": "Keys"
+  },
+  "KEY_SPACE": {
+   "name": "KEY_SPACE",
+   "value": "44",
+   "category": "Keys"
+  },
+  "KEY_ENTER": {
+   "name": "KEY_ENTER",
+   "value": "40",
+   "category": "Keys"
+  },
+  "KEY_ESCAPE": {
+   "name": "KEY_ESCAPE",
+   "value": "41",
+   "category": "Keys"
+  },
+  "KEY_BACKSPACE": {
+   "name": "KEY_BACKSPACE",
+   "value": "42",
+   "category": "Keys"
+  },
+  "KEY_TAB": {
+   "name": "KEY_TAB",
+   "value": "43",
+   "category": "Keys"
+  },
+  "KEY_LEFT": {
+   "name": "KEY_LEFT",
+   "value": "80",
+   "category": "Keys"
+  },
+  "KEY_RIGHT": {
+   "name": "KEY_RIGHT",
+   "value": "79",
+   "category": "Keys"
+  },
+  "KEY_UP": {
+   "name": "KEY_UP",
+   "value": "82",
+   "category": "Keys"
+  },
+  "KEY_DOWN": {
+   "name": "KEY_DOWN",
+   "value": "81",
+   "category": "Keys"
+  },
+  "KEY_LEFT_SHIFT": {
+   "name": "KEY_LEFT_SHIFT",
+   "value": "225",
+   "category": "Keys"
+  },
+  "KEY_RIGHT_SHIFT": {
+   "name": "KEY_RIGHT_SHIFT",
+   "value": "229",
+   "category": "Keys"
+  },
+  "KEY_LEFT_CONTROL": {
+   "name": "KEY_LEFT_CONTROL",
+   "value": "224",
+   "category": "Keys"
+  },
+  "KEY_RIGHT_CONTROL": {
+   "name": "KEY_RIGHT_CONTROL",
+   "value": "228",
+   "category": "Keys"
+  },
+  "KEY_LEFT_ALT": {
+   "name": "KEY_LEFT_ALT",
+   "value": "226",
+   "category": "Keys"
+  },
+  "KEY_RIGHT_ALT": {
+   "name": "KEY_RIGHT_ALT",
+   "value": "230",
+   "category": "Keys"
+  },
+  "KEY_F1": {
+   "name": "KEY_F1",
+   "value": "58",
+   "category": "Keys"
+  },
+  "KEY_F2": {
+   "name": "KEY_F2",
+   "value": "59",
+   "category": "Keys"
+  },
+  "KEY_F3": {
+   "name": "KEY_F3",
+   "value": "60",
+   "category": "Keys"
+  },
+  "KEY_F4": {
+   "name": "KEY_F4",
+   "value": "61",
+   "category": "Keys"
+  },
+  "KEY_F5": {
+   "name": "KEY_F5",
+   "value": "62",
+   "category": "Keys"
+  },
+  "KEY_F6": {
+   "name": "KEY_F6",
+   "value": "63",
+   "category": "Keys"
+  },
+  "KEY_F7": {
+   "name": "KEY_F7",
+   "value": "64",
+   "category": "Keys"
+  },
+  "KEY_F8": {
+   "name": "KEY_F8",
+   "value": "65",
+   "category": "Keys"
+  },
+  "KEY_F9": {
+   "name": "KEY_F9",
+   "value": "66",
+   "category": "Keys"
+  },
+  "KEY_F10": {
+   "name": "KEY_F10",
+   "value": "67",
+   "category": "Keys"
+  },
+  "KEY_F11": {
+   "name": "KEY_F11",
+   "value": "68",
+   "category": "Keys"
+  },
+  "KEY_F12": {
+   "name": "KEY_F12",
+   "value": "69",
+   "category": "Keys"
+  },
+  "MOUSE_LEFT": {
+   "name": "MOUSE_LEFT",
+   "value": "1",
+   "category": "Mouse"
+  },
+  "MOUSE_MIDDLE": {
+   "name": "MOUSE_MIDDLE",
+   "value": "2",
+   "category": "Mouse"
+  },
+  "MOUSE_RIGHT": {
+   "name": "MOUSE_RIGHT",
+   "value": "3",
+   "category": "Mouse"
+  },
+  "FILTER_NEAREST": {
+   "name": "FILTER_NEAREST",
+   "value": "0",
+   "category": "Textures"
+  },
+  "FILTER_LINEAR": {
+   "name": "FILTER_LINEAR",
+   "value": "1",
+   "category": "Textures"
+  },
+  "FILTER_MIPMAP": {
+   "name": "FILTER_MIPMAP",
+   "value": "2",
+   "category": "Textures"
+  },
+  "WRAP_REPEAT": {
+   "name": "WRAP_REPEAT",
+   "value": "0",
+   "category": "Textures"
+  },
+  "WRAP_CLAMP": {
+   "name": "WRAP_CLAMP",
+   "value": "1",
+   "category": "Textures"
+  },
+  "WRAP_MIRROR": {
+   "name": "WRAP_MIRROR",
+   "value": "2",
+   "category": "Textures"
+  },
+  "PI": {
+   "name": "PI",
+   "value": "3.141592654",
+   "category": "Math"
+  },
+  "DEG2RAD": {
+   "name": "DEG2RAD",
+   "value": "0.017453293",
+   "category": "Math"
+  },
+  "RAD2DEG": {
+   "name": "RAD2DEG",
+   "value": "57.295779513",
+   "category": "Math"
+  }
+ }
+}

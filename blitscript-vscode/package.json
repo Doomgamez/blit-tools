@@ -1,0 +1,239 @@
+{
+    "name": "blitscript",
+    "displayName": "BlitScript and Blit Engine",
+    "description": "BlitScript language support and Blit Engine projects: create, build and run games, browse the engine API, and get completion, navigation, linting and compile errors.",
+    "version": "0.2.0",
+    "publisher": "doomgamez",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.85.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Linters",
+        "Snippets"
+    ],
+    "main": "./src/extension.js",
+    "activationEvents": [],
+    "contributes": {
+        "languages": [
+            {
+                "id": "blitscript",
+                "aliases": [
+                    "BlitScript",
+                    "bs"
+                ],
+                "extensions": [
+                    ".bs"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "blitscript",
+                "scopeName": "source.blitscript",
+                "path": "./syntaxes/blitscript.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "blitscript",
+                "path": "./snippets/blitscript.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "blitscript.compile",
+                "title": "Compile This File",
+                "category": "BlitScript",
+                "icon": "$(play)"
+            },
+            {
+                "command": "blitscript.openCheatsheet",
+                "title": "Open the API Cheatsheet",
+                "category": "BlitScript"
+            },
+            {
+                "command": "blitscript.reloadApi",
+                "title": "Reload the Engine API",
+                "category": "BlitScript"
+            },
+            {
+                "command": "blitscript.newProject",
+                "title": "New Project",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.buildProject",
+                "title": "Build",
+                "category": "Blit Engine",
+                "icon": "$(package)"
+            },
+            {
+                "command": "blitscript.runProject",
+                "title": "Build and Run",
+                "category": "Blit Engine",
+                "icon": "$(run)"
+            },
+            {
+                "command": "blitscript.stopProject",
+                "title": "Stop the Game",
+                "category": "Blit Engine",
+                "icon": "$(debug-stop)"
+            },
+            {
+                "command": "blitscript.buildEngine",
+                "title": "Rebuild the Engine",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.openArchive",
+                "title": "Open the Build in the BLITFS Viewer",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.inspectModel",
+                "title": "Inspect glTF Model",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.searchApi",
+                "title": "Find an Engine Function",
+                "category": "Blit Engine",
+                "icon": "$(search)"
+            },
+            {
+                "command": "blitscript.chooseEngine",
+                "title": "Change the Engine Folder",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.chooseTools",
+                "title": "Change the Tools Folder",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.createProject",
+                "title": "Create Project (internal)",
+                "category": "Blit Engine"
+            },
+            {
+                "command": "blitscript.insertFunction",
+                "title": "Insert Engine Function (internal)",
+                "category": "Blit Engine"
+            }
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "command": "blitscript.compile",
+                    "when": "editorLangId == blitscript",
+                    "group": "navigation"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "blitscript.searchApi",
+                    "when": "view == blitEngine.api",
+                    "group": "navigation"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "blitscript.inspectModel",
+                    "when": "resourceExtname == .glb || resourceExtname == .gltf",
+                    "group": "navigation"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "blitscript.createProject",
+                    "when": "false"
+                },
+                {
+                    "command": "blitscript.insertFunction",
+                    "when": "false"
+                }
+            ]
+        },
+        "configuration": {
+            "title": "BlitScript",
+            "properties": {
+                "blitscript.compilerPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to blitscriptc. Empty looks for it in the workspace, under build/ and blitscriptc/."
+                },
+                "blitscript.compileOnSave": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Run blitscriptc when a file is saved and show its errors."
+                },
+                "blitscript.cheatsheetPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to docs/cheatsheet.txt. Empty looks for it in the workspace, then uses the copy in the extension."
+                },
+                "blitscript.lint.unknownVariables": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Warn about variables that are read but never set."
+                },
+                "blitscript.lint.customNatives": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Engine functions the cheatsheet doesn't list, so they aren't reported as unknown."
+                },
+                "blitscript.lint.exposedVariables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": [],
+                    "description": "Variables the engine exposes with BlitVM_ExposeVariable, so they aren't reported as never set."
+                },
+                "blitscript.inlayHints.parameterNames": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show parameter names in front of CALL arguments."
+                },
+                "blitscript.toolchainPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Folder with gcc and the SDL libraries, used to build and run projects. Empty uses C:\\msys64\\mingw64\\bin on Windows when it exists."
+                },
+                "blitscript.pythonPath": {
+                    "type": "string",
+                    "default": "python",
+                    "description": "Python used to run the tools in blit-tools."
+                }
+            }
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "blitEngine",
+                    "title": "Blit Engine",
+                    "icon": "media/blit.svg"
+                }
+            ]
+        },
+        "views": {
+            "blitEngine": [
+                {
+                    "type": "webview",
+                    "id": "blitEngine.project",
+                    "name": "Project"
+                },
+                {
+                    "id": "blitEngine.api",
+                    "name": "Engine API"
+                }
+            ]
+        }
+    }
+}

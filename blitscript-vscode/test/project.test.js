@@ -1,0 +1,155 @@
+'use strict';
+
+// node test/project.test.js <engine repo> <blit-tools repo>
+// the project logic with no editor, creating real projects in a temp folder
+
+const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const layout = require('../src/project/layout');
+const { createProject, templateList } = require('../src/project/create');
+const { buildPath, engineSteps, projectSteps, packList, listFiles } = require('../src/project/build');
+
+const [engine, tools] = process.argv.slice(2);
+const work = fs.mkdtempSync(path.join(os.tmpdir(), 'blit-project-'));
+
+let passed = 0;
+let failed = 0;
+
+function test(name, body) {
+    try {
+        body();
+        passed++;
+    } catch (error) {
+        failed++;
+        console.log(`FAIL ${name}\n     ${error.message.split('\n').slice(0, 5).join('\n     ')}`);
+    }
+}
+
+const values = (extra) => Object.assign({ name: 'Game', location: work, template: 'empty', engine, tools }, extra);
+const read = (...parts) => fs.readFileSync(path.join(...parts), 'utf8');
+
+test('correct values pass', () => assert.ok(layout.validate(values()).ok));
+test('an empty name fails', () => assert.ok(layout.validate(values({ name: ' ' })).errors.name));
+test('a path in the name fails', () => assert.ok(layout.validate(values({ name: '../evil' })).errors.name));
+test('a trailing space fails on Windows', () => assert.ok(layout.validate(values({ name: 'Game ' })).errors.name));
+test('reserved names fail', () => assert.ok(layout.validate(values({ name: 'CON' })).errors.name));
+test('spaces and dashes are fine', () => assert.strictEqual(layout.validate(values({ name: 'My Game-2' })).errors.name, null));
+test('a missing location fails', () => assert.ok(layout.validate(values({ location: path.join(work, 'nope') })).errors.location));
+test('no engine folder fails', () => assert.ok(/Choose/.test(layout.validate(values({ engine: '' })).errors.engine)));
+test('no tools folder fails', () => assert.ok(/Choose/.test(layout.validate(values({ tools: '' })).errors.tools)));
+test('the tools folder is not an engine', () => assert.ok(/isn't the homeinvasionsdl/.test(layout.checkEngine(tools))));
+test('the engine folder is not the tools', () => assert.ok(/isn't the blit-tools/.test(layout.checkTools(engine))));
+test('a file is not a folder', () => assert.ok(layout.checkEngine(path.join(engine, 'CMakeLists.txt'))));
+
+test('there are three templates', () => assert.deepStrictEqual(templateList().map((item) => item.id), ['empty', 'twoD', 'threeD']));
+
+let root;
+
+test('a project is created', () => {
+    root = createProject(values({ name: 'Empty Game' }));
+    assert.ok(fs.existsSync(path.join(root, 'scripts', 'main.bs')));
+    assert.ok(fs.existsSync(path.join(root, 'scripts', 'engine.bs')));
+});
+test('the same name is refused the second time', () => assert.throws(() => createProject(values({ name: 'Empty Game' })), /already exists/));
+test('nothing is created from bad values', () => {
+    assert.throws(() => createProject(values({ name: 'Bad', engine: tools })));
+    assert.ok(!fs.existsSync(path.join(work, 'Bad')));
+});
+test('an unknown template is refused', () => {
+    assert.throws(() => createProject(values({ name: 'NoTemplate', template: 'x' })));
+    assert.ok(!fs.existsSync(path.join(work, 'NoTemplate')));
+});
+test('folders stay out of the shared project file', () => {
+    assert.deepStrictEqual(JSON.parse(read(root, layout.PROJECT_FILE)), { name: 'Empty Game', main: 'scripts/main.bs' });
+    assert.strictEqual(JSON.parse(read(root, layout.LOCAL_FILE)).engine, engine);
+});
+test('this computer\'s file and generated files are ignored', () => {
+    const ignored = read(root, '.gitignore');
+    ['build/', '.blit/', layout.LOCAL_FILE, 'scripts/engine.bs'].forEach((entry) => assert.ok(ignored.includes(entry), entry));
+});
+test('the project reads back', () => {
+    const project = layout.readProject(root);
+    assert.strictEqual(project.name, 'Empty Game');
+    assert.strictEqual(project.tools, tools);
+});
+test('a folder without a project reads as none', () => assert.strictEqual(layout.readProject(work), null));
+test('a broken project file reads as none', () => {
+    const folder = path.join(work, 'broken');
+    fs.mkdirSync(folder);
+    fs.writeFileSync(path.join(folder, layout.PROJECT_FILE), '{ nope');
+    assert.strictEqual(layout.readProject(folder), null);
+});
+test('a clone without local folders still reads', () => {
+    const folder = path.join(work, 'clone');
+    fs.mkdirSync(folder);
+    fs.writeFileSync(path.join(folder, layout.PROJECT_FILE), '{"name":"Clone"}');
+    const project = layout.readProject(folder);
+    assert.strictEqual(project.engine, '');
+    assert.strictEqual(project.main, 'scripts/main.bs');
+});
+
+test('the 3D template brings its assets', () => {
+    const made = createProject(values({ name: 'Walk', template: 'threeD' }));
+    assert.deepStrictEqual(fs.readdirSync(path.join(made, 'assets')).sort(), ['checker.png', 'house.glb']);
+    assert.ok(/LoadScene "house.glb"/.test(read(made, 'scripts', 'main.bs')));
+});
+test('the 2D template includes engine.bs from its own folder', () => {
+    const made = createProject(values({ name: 'Flat', template: 'twoD' }));
+    assert.ok(/INCLUDE "engine.bs"/.test(read(made, 'scripts', 'main.bs')));
+    assert.ok(!read(made, 'scripts', 'main.bs').includes('../engine.bs'));
+});
+
+test('the engine builds inside the project, not the engine repo', () => {
+    const project = layout.readProject(root);
+    const configure = engineSteps(project, 'C:\\msys64\\mingw64\\bin')[0];
+    assert.strictEqual(configure.args[configure.args.indexOf('-B') + 1], path.join(root, '.blit', 'engine'));
+});
+test('the build runs in order', () => {
+    const steps = projectSteps(layout.readProject(root)).map((step) => step.kind);
+    assert.deepStrictEqual(steps, ['folder', 'copy', 'run', 'write', 'remove', 'pack']);
+});
+test('the archive holds script, manifest, shaders and the font', () => {
+    const names = packList(layout.readProject(root)).map((file) => path.basename(file));
+    ['main.blit', 'manifest.txt', 'basic.vert', 'basic.frag', 'arial.ttf'].forEach((name) => assert.ok(names.includes(name), name));
+});
+test('project assets go in and come first', () => {
+    const made = layout.readProject(path.join(work, 'Walk'));
+    const names = packList(made).map((file) => path.basename(file));
+    assert.ok(names.indexOf('house.glb') < names.indexOf('basic.vert'));
+});
+test('a project shader replaces the engine one', () => {
+    const made = layout.readProject(path.join(work, 'Walk'));
+    fs.writeFileSync(path.join(made.root, 'assets', 'basic.frag'), '// mine');
+    const files = packList(made).filter((file) => path.basename(file) === 'basic.frag');
+    assert.strictEqual(files.length, 1);
+    assert.ok(files[0].startsWith(made.root));
+});
+test('a stray manifest in assets can not fight the generated one', () => {
+    const made = layout.readProject(path.join(work, 'Walk'));
+    fs.writeFileSync(path.join(made.root, 'assets', 'manifest.txt'), 'Main-Script: other.blit\n');
+    assert.strictEqual(packList(made).filter((file) => path.basename(file) === 'manifest.txt').length, 1);
+    assert.ok(packList(made).find((file) => path.basename(file) === 'manifest.txt').includes('build'));
+});
+test('assets in subfolders are found', () => {
+    const made = layout.readProject(path.join(work, 'Walk'));
+    fs.mkdirSync(path.join(made.root, 'assets', 'deep', 'er'), { recursive: true });
+    fs.writeFileSync(path.join(made.root, 'assets', 'deep', 'er', 'file.txt'), 'x');
+    assert.ok(listFiles(path.join(made.root, 'assets')).some((file) => file.endsWith('file.txt')));
+});
+test('pack paths use forward slashes', () => {
+    const step = projectSteps(layout.readProject(root)).find((item) => item.kind === 'pack');
+    assert.ok(step.files().every((file) => !file.includes('\\')));
+    assert.ok(!step.archive.includes('\\'));
+});
+test('a Unix shell leaves the Windows build PATH', () => {
+    if (process.platform === 'win32') {
+        const value = buildPath('C:\\Windows;C:\\Program Files\\Git\\usr\\bin;C:\\msys64\\usr\\bin;C:\\Program Files\\Git\\bin', 'C:\\tool');
+        assert.strictEqual(value, 'C:\\tool;C:\\Windows');
+    }
+});
+
+fs.rmSync(work, { recursive: true, force: true });
+console.log(`${passed} passed, ${failed} failed`);
+process.exit(failed === 0 ? 0 : 1);
