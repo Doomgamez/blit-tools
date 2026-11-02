@@ -94,6 +94,7 @@ const CASES = [
     ['NEW Enemy 5 -> e', 'NEW', 'keyword.other.new'],
     ['NEW Enemy 5 -> e', 'Enemy', 'entity.name.type.class'],
     ['RETURN x', 'RETURN', 'keyword.control'],
+    ['ONCE', 'ONCE', 'keyword.control.import'],
     ['C', 'C', 'keyword.control'],
     ['C // some code', 'C', 'keyword.control'],
     ['SET this.health 5', 'this', 'variable.language.this'],

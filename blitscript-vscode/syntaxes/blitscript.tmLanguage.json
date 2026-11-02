@@ -135,6 +135,7 @@
         "instruction": {
             "patterns": [
                 { "name": "keyword.control.blitscript", "match": "(?i)^\\s*(END|RET|RETURN)\\b" },
+                { "name": "keyword.control.import.blitscript", "match": "(?i)^\\s*ONCE\\b" },
                 {
                     "match": "(?i)^\\s*(FOR|FOREACH)\\s+([^\\s,/]+)",
                     "captures": {

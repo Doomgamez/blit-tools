@@ -52,6 +52,7 @@ const STATEMENTS = {
     MAIN: '`MAIN LBL name`: where the script starts, exactly one per program.',
     FN: '`FN name params...`: a function, closed by END. Parameters are locals.',
     CONST: '`CONST NAME value`: replaced at compile time, costs nothing at runtime.',
+    ONCE: 'At the top of a file: an INCLUDE of this file after the first does nothing, like `#pragma once`.',
     INCLUDE: '`INCLUDE "file.bs"`: pastes another file in here, the path is relative to this file.',
 };
 

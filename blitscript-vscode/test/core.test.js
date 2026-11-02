@@ -342,6 +342,12 @@ test('gcc errors land on the script line', () => {
 test('a missing C header', () => assert.strictEqual(parseCompilerOutput('a.bs:4:10: fatal error: x.h: No such file or directory')[0].line, 3));
 test('gcc warnings are not errors', () => assert.deepStrictEqual(parseCompilerOutput('a.bs:4:10: warning: unused'), []));
 
+test('ONCE at the top is fine', () => assert.deepStrictEqual(messages('// a comment\n\nONCE\nMAIN LBL m\nEND'), []));
+test('ONCE in any case', () => assert.deepStrictEqual(messages('once\nMAIN LBL m\nEND'), []));
+test('ONCE after a statement', () => assert.ok(messages('MAIN LBL m\nONCE\nEND').includes('ONCE goes above everything else in a file')));
+test('ONCE takes nothing', () => assert.ok(messages('ONCE x\nMAIN LBL m\nEND').includes('ONCE takes nothing after it')));
+test('a C block is not a statement for ONCE', () => assert.deepStrictEqual(messages('C\nint a(void) { return 1; }\nENDC\nONCE\nMAIN LBL m\nEND'), []));
+
 const dead = (body) => lintText(`MAIN LBL m\nSET n 3\n${body}\nEND`).filter((item) => item.unnecessary).map((item) => item.line);
 test('code after BREAK is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nBREAK\nSET a 1\nENDFOR'), [4]));
 test('code after CONTINUE is dead', () => assert.deepStrictEqual(dead('FOR i 0 n\nCONTINUE\nSET a 1\nENDFOR'), [4]));

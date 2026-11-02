@@ -73,6 +73,7 @@ While you type it checks for what would otherwise only show up at runtime or in 
 - variables that are never set, and `-NAME`, since BlitScript has no unary minus
 - `RET` outside a function, nested `FN`, a second `MAIN`, duplicates, missing `INCLUDE` files, open strings
 - loops without `ENDFOR`, `BREAK` outside a loop, a `FOR` step of 0
+- `ONCE` anywhere but the top of a file
 - C blocks without `ENDC`. Saving builds them with gcc, whose errors land on the line in the script
 - classes: missing `ENDCLASS`, unknown parents, repeated fields, `this.` a field that doesn't exist, methods nothing has,
   and the wrong number of values for `NEW`. Fields of other objects are only known when the script runs

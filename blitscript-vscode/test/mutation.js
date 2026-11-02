@@ -31,6 +31,7 @@ const MUTATIONS = [
     ['src/core/cblocks.js', "if (c === '/' && text[i + 1] === '/') {", "if (false) {", 'a brace in a C comment is counted'],
     ['src/core/document.js', "tokenize(c ? '' : source)", 'tokenize(source)', 'C is read as BlitScript'],
     ['src/core/compilerOutput.js', 'Number(fromC[2]) - 1', 'Number(fromC[2])', 'gcc errors land one line off'],
+    ['src/core/classes.js', 'else if (!first) fail', 'else if (false) fail', 'ONCE can go anywhere'],
     ['src/core/loops.js', 'open.length >= MAX_DEPTH', 'false', 'loops can nest too deep'],
     ['src/core/loops.js', 'open.length = 0;', '', 'an open loop leaks into the next function'],
     ['src/core/loops.js', '!isName(tokens[1])', 'false', 'a number passes as a loop variable'],

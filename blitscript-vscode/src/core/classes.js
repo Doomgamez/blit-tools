@@ -36,6 +36,25 @@ function findMethod(classes, item, name, parameters) {
     return undefined;
 }
 
+function checkOnce(document, fail) {
+    let first = true;
+
+    document.lines.forEach((line, index) => {
+        const { tokens } = line;
+
+        if (tokens.length === 0) {
+            return;
+        }
+
+        if (!tokens[0].quoted && tokens[0].text.toUpperCase() === 'ONCE') {
+            if (tokens.length !== 1) fail(index, tokens[1], 'ONCE takes nothing after it');
+            else if (!first) fail(index, tokens[0], 'ONCE goes above everything else in a file');
+        }
+
+        first = false;
+    });
+}
+
 function checkStructure(document, fail) {
     let inClass = false;
     let inMethod = false;
@@ -224,6 +243,7 @@ function checkFields(tokens, line, index, classes, fail) {
 function checkClasses(program, document, fail) {
     const classes = collect(program, 'classes');
 
+    checkOnce(document, fail);
     checkStructure(document, fail);
     checkDeclarations(document, classes, fail);
 
