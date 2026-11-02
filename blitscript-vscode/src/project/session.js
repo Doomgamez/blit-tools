@@ -5,7 +5,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const vscode = require('vscode');
 const { readProject, projectPaths, checkEngine, checkTools } = require('./layout');
-const { buildPath, findToolchain, engineSteps, projectSteps } = require('./build');
+const { buildPath, findToolchain, engineSteps, projectSteps, engineComplete } = require('./build');
 const { runSteps, runProcess } = require('./runner');
 
 // the open project and what's running for it, the sidebar draws itself from this
@@ -127,9 +127,7 @@ class ProjectSession {
         }
 
         const { toolchain, env } = this.env();
-        const paths = projectPaths(project);
-        const needsEngine = !fs.existsSync(paths.game) || !fs.existsSync(paths.compiler) || !fs.existsSync(paths.packer);
-        const steps = (needsEngine ? engineSteps(project, toolchain) : []).concat(projectSteps(project));
+        const steps = (engineComplete(project) ? [] : engineSteps(project, toolchain)).concat(projectSteps(project));
 
         return this.runWithStatus(steps, env);
     }
@@ -144,10 +142,10 @@ class ProjectSession {
             return false;
         }
 
-        const { project } = this;
-        const paths = projectPaths(project);
-        const { env } = this.env();
-        const game = spawn(paths.game, [], { cwd: paths.output, env });
+        const paths = projectPaths(this.project);
+
+        // the plain environment, without the toolchain: this is how the game runs once it's shipped
+        const game = spawn(paths.shipped, [], { cwd: paths.output, env: process.env });
 
         this.game = game;
         this.finished = new Promise((resolve) => {

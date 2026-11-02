@@ -80,6 +80,26 @@ async function run() {
         assert.ok(fs.existsSync(process.env.HOMEINVASION_SCREENSHOT), 'no screenshot');
     });
 
+    await check('the build folder runs with no toolchain', async () => {
+        const output = inProject('build');
+        const shot = path.join(output, 'shipped.bmp');
+        const system = path.join(process.env.SystemRoot, 'System32');
+
+        assert.ok(fs.existsSync(path.join(output, 'SDL2_ttf.dll')), 'no DLLs in build');
+
+        const code = await new Promise((resolve) => {
+            execFile(path.join(output, 'HomeInvasion.exe'), [], {
+                cwd: output,
+                timeout: 30000,
+                env: { PATH: `${system};${process.env.SystemRoot}`, SystemRoot: process.env.SystemRoot, HOMEINVASION_SCREENSHOT: shot },
+            }, (error) => resolve(error ? error.code : 0));
+        });
+
+        assert.strictEqual(code, 0);
+        assert.ok(fs.existsSync(shot), 'no screenshot');
+        fs.rmSync(shot);
+    });
+
     await check('a changed script reaches the game', async () => {
         const file = inProject('scripts', 'main.bs');
         fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('demo: WASD', 'PROJECT EDIT: WASD'));

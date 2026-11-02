@@ -114,6 +114,7 @@ function projectPaths(project) {
         compiler: path.join(engineBuild, executable('blitscriptc')),
         packer: path.join(engineBuild, executable('blitfs_pack')),
         game: path.join(engineBuild, executable('HomeInvasion')),
+        shipped: path.join(project.root, 'build', executable('HomeInvasion')),
         archive: path.join(project.root, 'build', 'Engine.blfs'),
     };
 }

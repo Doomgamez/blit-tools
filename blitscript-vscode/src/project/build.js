@@ -66,6 +66,28 @@ function packList(project) {
     return [compiled, manifest, ...own, ...fromEngine];
 }
 
+// the engine build puts every DLL the game needs next to it, an engine from before that has none
+function engineComplete(project) {
+    const paths = projectPaths(project);
+    const programs = [paths.game, paths.compiler, paths.packer];
+
+    if (!programs.every((file) => fs.existsSync(file))) {
+        return false;
+    }
+
+    return process.platform !== 'win32' || fs.existsSync(path.join(paths.engineBuild, 'SDL2.dll'));
+}
+
+// everything the game needs to run, so the build folder works on a computer without the toolchain
+function runtimeFiles(project) {
+    const paths = projectPaths(project);
+    const libraries = process.platform === 'win32'
+        ? fs.readdirSync(paths.engineBuild).filter((name) => name.toLowerCase().endsWith('.dll')).map((name) => path.join(paths.engineBuild, name))
+        : [];
+
+    return [paths.game, ...libraries];
+}
+
 function projectSteps(project) {
     const paths = projectPaths(project);
     const scripts = path.dirname(paths.main);
@@ -85,7 +107,12 @@ function projectSteps(project) {
         archive: slashes(paths.archive),
         cwd: paths.output,
         files: () => packList(project).map(slashes),
+    }, {
+        kind: 'runtime',
+        title: 'Copying the game and its DLLs',
+        folder: paths.output,
+        files: () => runtimeFiles(project),
     });
 }
 
-module.exports = { buildPath, findToolchain, engineSteps, projectSteps, packList, listFiles };
+module.exports = { buildPath, findToolchain, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles };

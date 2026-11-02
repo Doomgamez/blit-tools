@@ -101,6 +101,137 @@
    "doc": "Cap the frame rate, 0 = no cap (default). Turn vsync off too if the cap is above the monitor's refresh rate",
    "category": "Core"
   },
+  "setwindowtitle": {
+   "name": "SetWindowTitle",
+   "returns": "void",
+   "params": [
+    {
+     "type": "string",
+     "name": "title",
+     "variadic": false
+    }
+   ],
+   "doc": "Change the text in the window's title bar",
+   "category": "Window"
+  },
+  "setwindowsize": {
+   "name": "SetWindowSize",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "width",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "height",
+     "variadic": false
+    }
+   ],
+   "doc": "Resize the window, GetScreenWidth/Height show it from the next frame. In fullscreen it applies once fullscreen ends",
+   "category": "Window"
+  },
+  "setwindowposition": {
+   "name": "SetWindowPosition",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "x",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "y",
+     "variadic": false
+    }
+   ],
+   "doc": "Move the window, in pixels from the top-left of the desktop",
+   "category": "Window"
+  },
+  "centerwindow": {
+   "name": "CenterWindow",
+   "returns": "void",
+   "params": [],
+   "doc": "Move the window to the middle of its monitor",
+   "category": "Window"
+  },
+  "setwindowresizable": {
+   "name": "SetWindowResizable",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "resizable",
+     "variadic": false
+    }
+   ],
+   "doc": "Let the player drag the window's edges (off by default), IsWindowResized tells when they did",
+   "category": "Window"
+  },
+  "setfullscreen": {
+   "name": "SetFullscreen",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "fullscreen",
+     "variadic": false
+    }
+   ],
+   "doc": "Fill the monitor without changing its resolution, leaving it brings the window back",
+   "category": "Window"
+  },
+  "togglefullscreen": {
+   "name": "ToggleFullscreen",
+   "returns": "void",
+   "params": [],
+   "doc": "Switch between the window and fullscreen",
+   "category": "Window"
+  },
+  "isfullscreen": {
+   "name": "IsFullscreen",
+   "returns": "bool",
+   "params": [],
+   "doc": "True while the game fills the monitor",
+   "category": "Window"
+  },
+  "maximizewindow": {
+   "name": "MaximizeWindow",
+   "returns": "void",
+   "params": [],
+   "doc": "Fill the desktop, keeping the title bar. Needs SetWindowResizable on some systems",
+   "category": "Window"
+  },
+  "restorewindow": {
+   "name": "RestoreWindow",
+   "returns": "void",
+   "params": [],
+   "doc": "Undo MaximizeWindow",
+   "category": "Window"
+  },
+  "iswindowresized": {
+   "name": "IsWindowResized",
+   "returns": "bool",
+   "params": [],
+   "doc": "True for the one frame after the window changed size, redo anything laid out from the screen size then",
+   "category": "Window"
+  },
+  "getmonitorwidth": {
+   "name": "GetMonitorWidth",
+   "returns": "int",
+   "params": [],
+   "doc": "Width of the monitor the window is on, in pixels",
+   "category": "Window"
+  },
+  "getmonitorheight": {
+   "name": "GetMonitorHeight",
+   "returns": "int",
+   "params": [],
+   "doc": "Height of the monitor the window is on, in pixels",
+   "category": "Window"
+  },
   "iskeydown": {
    "name": "IsKeyDown",
    "returns": "bool",

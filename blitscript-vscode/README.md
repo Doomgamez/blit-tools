@@ -22,8 +22,11 @@ MyGame/
     scripts/main.bs     your game
     assets/             your models, textures and shaders
     .blit/engine/       the engine, built here so its repository stays clean
-    build/              Engine.blfs, packed on every build
+    build/              the game, ready to zip and ship
 ```
+
+`build/` holds everything the game needs: `HomeInvasion.exe`, `Engine.blfs` and on Windows every DLL it uses, so it runs
+on a computer without MSYS2.
 
 The sidebar shows the project's state and runs **Build and Run**, **Stop**, **Build** and **Rebuild Engine**. The first
 build compiles the engine, which takes a few minutes, later ones only take seconds. A file in `assets/` replaces an

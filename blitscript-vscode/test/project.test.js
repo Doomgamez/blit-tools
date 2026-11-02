@@ -9,7 +9,7 @@ const os = require('os');
 const path = require('path');
 const layout = require('../src/project/layout');
 const { createProject, templateList } = require('../src/project/create');
-const { buildPath, engineSteps, projectSteps, packList, listFiles } = require('../src/project/build');
+const { buildPath, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles } = require('../src/project/build');
 
 const [engine, tools] = process.argv.slice(2);
 const work = fs.mkdtempSync(path.join(os.tmpdir(), 'blit-project-'));
@@ -108,7 +108,26 @@ test('the engine builds inside the project, not the engine repo', () => {
 });
 test('the build runs in order', () => {
     const steps = projectSteps(layout.readProject(root)).map((step) => step.kind);
-    assert.deepStrictEqual(steps, ['folder', 'copy', 'run', 'write', 'remove', 'pack']);
+    assert.deepStrictEqual(steps, ['folder', 'copy', 'run', 'write', 'remove', 'pack', 'runtime']);
+});
+test('a project with no engine build is incomplete', () => assert.strictEqual(engineComplete(layout.readProject(root)), false));
+test('an engine from before the DLLs were copied gets rebuilt', () => {
+    const project = layout.readProject(root);
+    const paths = layout.projectPaths(project);
+
+    fs.mkdirSync(paths.engineBuild, { recursive: true });
+    [paths.game, paths.compiler, paths.packer].forEach((file) => fs.writeFileSync(file, ''));
+    assert.strictEqual(engineComplete(project), process.platform !== 'win32');
+
+    if (process.platform === 'win32') {
+        fs.writeFileSync(path.join(paths.engineBuild, 'SDL2.dll'), '');
+        fs.writeFileSync(path.join(paths.engineBuild, 'libfreetype-6.dll'), '');
+        assert.strictEqual(engineComplete(project), true);
+        assert.deepStrictEqual(runtimeFiles(project).map((file) => path.basename(file)).sort(),
+            ['HomeInvasion.exe', 'SDL2.dll', 'libfreetype-6.dll'].sort());
+    }
+
+    fs.rmSync(path.join(root, '.blit'), { recursive: true, force: true });
 });
 test('the archive holds script, manifest, shaders and the font', () => {
     const names = packList(layout.readProject(root)).map((file) => path.basename(file));

@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const { spawn } = require('child_process');
 
 function runProcess(command, args, options, log) {
@@ -44,6 +45,12 @@ async function runStep(step, env, log) {
 
         case 'remove':
             fs.rmSync(step.path, { force: true });
+            return true;
+
+        case 'runtime':
+            for (const file of step.files()) {
+                fs.copyFileSync(file, path.join(step.folder, path.basename(file)));
+            }
             return true;
 
         case 'pack':
