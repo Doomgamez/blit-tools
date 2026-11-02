@@ -1,10 +1,15 @@
 {
     "name": "blitscript",
-    "displayName": "BlitScript and Blit Engine",
+    "displayName": "dgz's blitscript",
     "description": "BlitScript language support and Blit Engine projects: create, build and run games, browse the engine API, and get completion, navigation, linting and compile errors.",
     "version": "0.2.0",
-    "publisher": "doomgamez",
+    "publisher": "Doomgames",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Doomgamez/blit-tools.git",
+        "directory": "blitscript-vscode"
+    },
     "engines": {
         "vscode": "^1.85.0"
     },

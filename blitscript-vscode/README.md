@@ -1,6 +1,9 @@
-# BlitScript and Blit Engine for VS Code
+# dgz's blitscript
 
 Create, build and run Blit Engine games, with full language support for BlitScript (`.bs`). It has no dependencies.
+
+> The Blit Engine isn't public yet. Editing `.bs` files works for everyone, with highlighting, completion and linting.
+> Creating, building and running projects needs a copy of the engine.
 
 ## Projects
 
