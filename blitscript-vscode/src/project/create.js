@@ -12,15 +12,19 @@ LBL frame
     CALL ClearBackground COLOR 24 26 32 255
     CALL DrawText "Hello from BlitScript" 40 40 32 RAYWHITE
 
-    CALL IsKeyPressed KEY_ESCAPE -> escape
-    CMP escape true
-    JNE next
-    CALL Quit
+    CALL quitOnEscape
 
-LBL next
     CALL WaitFrame
     JMP frame
 
+END
+
+FN quitOnEscape
+    CALL IsKeyPressed KEY_ESCAPE -> escape
+    CMP escape true
+    JNE stay
+        CALL Quit
+    LBL stay
 END
 `;
 
