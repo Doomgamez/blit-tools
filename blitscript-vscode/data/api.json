@@ -3749,6 +3749,19 @@
    "doc": "Blend from a (t=0) to b (t=1)",
    "category": "Math"
   },
+  "setseed": {
+   "name": "SetSeed",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "seed",
+     "variadic": false
+    }
+   ],
+   "doc": "Start the random numbers from here: the same seed always gives the same GetRandomValue results, on any system",
+   "category": "Math"
+  },
   "getrandomvalue": {
    "name": "GetRandomValue",
    "returns": "int",
