@@ -6,6 +6,7 @@
 #include "ui/Editor.h"
 
 bool DrawLevelSettings(Editor& editor);
+bool DrawLevelLighting(Editor& editor);
 bool DrawTransform(Editor& editor, Node& node);
 bool DrawElements(Editor& editor, Node& node);
 bool DrawNode(Editor& editor, Node& node);

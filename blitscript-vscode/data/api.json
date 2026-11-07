@@ -3563,6 +3563,73 @@
    "doc": "Node handle of the first root of the scene, moving it moves everything under it",
    "category": "Scenes"
   },
+  "setshadowcolor": {
+   "name": "SetShadowColor",
+   "returns": "void",
+   "params": [
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "What everything looks like where no light reaches: WHITE is no shadow, BLACK is pitch black (default 115 115 115). The sun and point lights add to it, up to full brightness. In 2D too",
+   "category": "Lighting"
+  },
+  "getshadowcolor": {
+   "name": "GetShadowColor",
+   "returns": "color",
+   "params": [],
+   "doc": "The shadow color",
+   "category": "Lighting"
+  },
+  "getsundirection": {
+   "name": "GetSunDirection",
+   "returns": "vec3",
+   "params": [],
+   "doc": "The way the sun shines",
+   "category": "Lighting"
+  },
+  "getsunintensity": {
+   "name": "GetSunIntensity",
+   "returns": "float",
+   "params": [],
+   "doc": "How strong the sun is, 0 when it's off",
+   "category": "Lighting"
+  },
+  "setantialiasing": {
+   "name": "SetAntialiasing",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "enabled",
+     "variadic": false
+    }
+   ],
+   "doc": "FXAA: smooths the jagged stairs along edges of everything drawn, on by default. The log overlay isn't touched",
+   "category": "Window"
+  },
+  "isantialiasing": {
+   "name": "IsAntialiasing",
+   "returns": "bool",
+   "params": [],
+   "doc": "Is FXAA on? False when the graphics driver can't do it",
+   "category": "Window"
+  },
+  "applylevellighting": {
+   "name": "ApplyLevelLighting",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    }
+   ],
+   "doc": "The lighting the level's world properties ask for (shadowColor, sun, sunColor, sunIntensity, sunDirection), LoadLevel does it already",
+   "category": "Lighting"
+  },
   "setambientlight": {
    "name": "SetAmbientLight",
    "returns": "void",
@@ -3573,7 +3640,7 @@
      "variadic": false
     }
    ],
-   "doc": "Light that reaches everything from every side (default 115 115 115, a grey)",
+   "doc": "The same as SetShadowColor",
    "category": "Lighting"
   },
   "setsunlight": {
@@ -3596,7 +3663,7 @@
      "variadic": false
     }
    ],
-   "doc": "The one directional light, direction is where it shines (down is VEC3 0 -1 0). Intensity 0 turns it off",
+   "doc": "The one directional light, direction is where it shines (down is VEC3 0 -1 0). Intensity 0 turns it off. In 2D it lights everything evenly",
    "category": "Lighting"
   },
   "createpointlight": {
@@ -3785,8 +3852,61 @@
    "name": "GetLaunchLevel",
    "returns": "string",
    "params": [],
-   "doc": "The level the game was started with (--level, the level editor's Play), empty when there is none",
+   "doc": "The level to start on: the level editor's Play (--level), the scene ChangeScene went to, else scene 0. Empty when there's none",
    "category": "Levels"
+  },
+  "changescene": {
+   "name": "ChangeScene",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "index",
+     "variadic": false
+    }
+   ],
+   "doc": "Go to the project's scene index (the level editor's Scenes panel): at the end of this frame everything loaded is freed, the lighting goes back to the default and the main script starts again on that scene's level, which LaunchLevelOr gives",
+   "category": "Scenes"
+  },
+  "getscenecount": {
+   "name": "GetSceneCount",
+   "returns": "int",
+   "params": [],
+   "doc": "How many scenes the project has",
+   "category": "Scenes"
+  },
+  "getscenename": {
+   "name": "GetSceneName",
+   "returns": "string",
+   "params": [
+    {
+     "type": "int",
+     "name": "index",
+     "variadic": false
+    }
+   ],
+   "doc": "A scene's level file, like main.blvl, empty for an index that isn't one",
+   "category": "Scenes"
+  },
+  "getcurrentscene": {
+   "name": "GetCurrentScene",
+   "returns": "int",
+   "params": [],
+   "doc": "The scene running now, -1 when the level isn't one of the scenes",
+   "category": "Scenes"
+  },
+  "getsceneindex": {
+   "name": "GetSceneIndex",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "name",
+     "variadic": false
+    }
+   ],
+   "doc": "The index of the scene with this level (cave, cave.blvl), -1 if there's none",
+   "category": "Scenes"
   },
   "unloadlevel": {
    "name": "UnloadLevel",

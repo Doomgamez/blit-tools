@@ -1,5 +1,6 @@
 // the selected node (its transform and its elements), the selected faces in face mode, or the level's own settings
 
+#include "level/LevelLighting.h"
 #include "ui/Editor.h"
 
 #include <imgui.h>
@@ -12,6 +13,50 @@ const std::vector<std::string> kKnownClasses = {
     "info_player_start", "info_target", "info_null", "info_camera", "object_script", "light_point", "prop_model",
     "ambient_sound", "func_detail", "func_collision", "func_door", "func_move", "trigger_script", "solid_2d", "sprite_2d",
 };
+
+// the level's lighting: the shadow color and the sun, kept in its world properties
+bool DrawLevelLighting(Editor& editor)
+{
+    Level& level = editor.doc.level;
+    LevelLighting lighting = ReadLevelLighting(level);
+    bool changed = false;
+
+    ImGui::SeparatorText("Lighting");
+    changed |= Color255("Shadow color", lighting.shadow);
+    HelpMark("What everything looks like where no light reaches. White: no shadow at all. Black: pitch black, only the "
+             "lights show anything. The sun and the point lights add to it, up to the surface's own color.");
+
+    changed |= ImGui::Checkbox("Sun", &lighting.sun);
+    HelpMark(level.is2D ? "In 2D the sun lights everything evenly. Turn it off for a scene lit only by its lights."
+                        : "One light from far away, the same everywhere. Turn it off for a scene lit only by its lights.");
+
+    if (lighting.sun)
+    {
+        changed |= ImGui::DragFloat("Sun strength", &lighting.sunIntensity, 0.01f, 0.0f, 4.0f, "%.2f");
+        changed |= Color255("Sun color", lighting.sunColor);
+        if (!level.is2D) changed |= ImGui::DragFloat3("Sun shines", &lighting.sunDirection.x, 0.01f, -1.0f, 1.0f, "%.2f");
+    }
+
+    if (ImGui::SmallButton("Dark"))
+    {
+        lighting.shadow = { 10, 10, 16 };
+        lighting.sun = false;
+        changed = true;
+    }
+
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Engine default"))
+    {
+        lighting = LevelLighting();
+        changed = true;
+    }
+
+    ImGui::SameLine();
+    ImGui::Checkbox("Preview", &editor.lighting);
+
+    if (changed) WriteLevelLighting(level, lighting);
+    return changed;
+}
 
 bool DrawLevelSettings(Editor& editor)
 {
@@ -26,6 +71,8 @@ bool DrawLevelSettings(Editor& editor)
         changed |= ImGui::DragFloat("Texels per metre", &level.texelsPerMetre, 1.0f, 1.0f, 1024.0f, "%.0f");
         HelpMark("How many pixels of a texture cover a metre at texture scale 1. 32 is what the old TrenchBroom maps used.");
     }
+
+    changed |= DrawLevelLighting(editor);
 
     ImGui::SeparatorText("World properties");
     ImGui::TextDisabled("Entity 0 (worldspawn): GetEntityProperty level 0 \"music\"");

@@ -82,6 +82,14 @@ bool OpenProject(const std::string& root, const Settings& settings, Project& pro
     project.engine = local.Text("engine", settings.engine);
     project.tools = local.Text("tools", settings.tools);
 
+    if (const Json* scenes = json.Find("scenes"))
+    {
+        for (size_t i = 0; scenes->IsArray() && i < scenes->items.size(); i++)
+        {
+            project.scenes.push_back(scenes->items[i].text);
+        }
+    }
+
     // a project cloned onto this computer has no local file yet
     if (!local.Find("engine") || !local.Find("tools"))
     {
@@ -94,6 +102,61 @@ bool OpenProject(const std::string& root, const Settings& settings, Project& pro
 std::vector<std::string> ListLevels(const Project& project)
 {
     return ListFiles(PathsOf(project).levels, { ".blvl" }, false);
+}
+
+std::vector<std::string> SceneOrder(const Project& project)
+{
+    std::vector<std::string> levels = ListLevels(project), ordered;
+
+    for (const std::string& listed : project.scenes)
+    {
+        std::string file = CleanPath(JoinPath(project.root, listed));
+
+        for (const std::string& level : levels)
+        {
+            if (CleanPath(level) == file && std::find(ordered.begin(), ordered.end(), level) == ordered.end())
+            {
+                ordered.push_back(level);
+            }
+        }
+    }
+
+    // the ones it doesn't list: main first, it's where a new game starts
+    std::sort(levels.begin(), levels.end(), [](const std::string& a, const std::string& b)
+    {
+        bool aMain = FileName(a) == "main.blvl", bMain = FileName(b) == "main.blvl";
+        return aMain != bMain ? aMain : a < b;
+    });
+
+    for (const std::string& level : levels)
+    {
+        if (std::find(ordered.begin(), ordered.end(), level) == ordered.end()) ordered.push_back(level);
+    }
+
+    return ordered;
+}
+
+bool SaveSceneOrder(Project& project, const std::vector<std::string>& levels)
+{
+    std::string file = JoinPath(project.root, kProjectFile), error;
+    Json json;
+
+    if (!JsonReadFile(file, json, error))
+    {
+        return false;
+    }
+
+    project.scenes.clear();
+    Json& scenes = json["scenes"] = JsonArray();
+
+    for (const std::string& level : levels)
+    {
+        std::string relative = RelativePath(level, project.root);
+        project.scenes.push_back(relative);
+        scenes.items.push_back(Json(relative));
+    }
+
+    return JsonWriteFile(file, json);
 }
 
 std::string CheckProjectName(const std::string& name)

@@ -58,6 +58,12 @@ Two rules for every phase:
 - [ ] Vectors in expressions (`position + velocity * dt`)
 - [ ] Rewrite the libraries (level2d.bs...) with them
 
+## Scenes - done
+
+- [x] Every level a scene with an index (the editor's Scenes tab orders them), `ChangeScene(index)`,
+      `GetCurrentScene`, `GetSceneCount`, `GetSceneName`, `GetSceneIndex`
+- [ ] Values that carry over from one scene to the next (Godot's autoloads)
+
 ## Phase 2 - Tile maps (TileMapLayer, TileSet)
 
 - [ ] A tile set from a sheet: tile size, separation, per-tile collision shapes

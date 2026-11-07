@@ -92,6 +92,7 @@ function readProject(root) {
         main: project.main || 'scripts/main.bs',
         engine: local.engine || '',
         tools: local.tools || '',
+        scenes: Array.isArray(project.scenes) ? project.scenes : [],
     };
 }
 

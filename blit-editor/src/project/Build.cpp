@@ -107,6 +107,22 @@ std::string CompiledLevel(const Project& project, const std::string& levelFile)
     return JoinPath(PathsOf(project).stage, FileStem(levelFile) + ".lvl.glb");
 }
 
+std::string ManifestText(const Project& project)
+{
+    std::vector<std::string> scenes = SceneOrder(project);
+    std::string text = "Main-Script: main.blit\n";
+
+    // the scenes in order, what the game's ChangeScene index counts in (homeinvasionsdl/src/Engine/Scenes.h)
+    text += "Scene-Count: " + std::to_string(scenes.size()) + "\n";
+
+    for (size_t i = 0; i < scenes.size(); i++)
+    {
+        text += "Scene-" + std::to_string(i) + ": " + FileName(scenes[i]) + "\n";
+    }
+
+    return text;
+}
+
 std::vector<std::string> PackList(const Project& project)
 {
     ProjectPaths paths = PathsOf(project);
@@ -194,7 +210,7 @@ std::vector<BuildStep> ProjectSteps(const Project& project)
     }
 
     steps.push_back({ "Writing the manifest", [=](StepContext&)
-                      { return WriteTextFile(JoinPath(paths.stage, "manifest.txt"), "Main-Script: main.blit\n"); } });
+                      { return WriteTextFile(JoinPath(paths.stage, "manifest.txt"), ManifestText(project)); } });
     steps.push_back({ "Packing Engine.blfs", [=](StepContext& c)
     {
         RemoveFile(paths.archive);

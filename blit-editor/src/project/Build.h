@@ -23,6 +23,8 @@ bool EngineComplete(const Project& project);
 
 std::vector<BuildStep> EngineSteps(const Project& project, const std::string& toolchain);
 std::vector<BuildStep> ProjectSteps(const Project& project);
+// manifest.txt: the main script and the scenes in order
+std::string ManifestText(const Project& project);
 // blitlevel on one level, into build/
 BuildStep CompileLevelStep(const Project& project, const std::string& levelFile);
 // the game on a level, the window's output goes to the log

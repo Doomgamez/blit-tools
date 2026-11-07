@@ -127,6 +127,34 @@ function runtimeFiles(project) {
     return [paths.game, ...libraries];
 }
 
+// the levels in scene order, what the game's ChangeScene index counts in (homeinvasionsdl/src/Engine/Scenes.h):
+// the ones blit.project.json lists first, then any it doesn't (main.blvl before the rest). the level editor's
+// SceneOrder does the same
+function sceneOrder(project) {
+    const levels = levelMaps(project);
+    const listed = (project.scenes || []).map((file) => path.normalize(path.join(project.root, file)));
+    const ordered = [];
+
+    for (const file of listed) {
+        const level = levels.find((candidate) => path.normalize(candidate) === file);
+        if (level && !ordered.includes(level)) ordered.push(level);
+    }
+
+    const rest = levels.filter((level) => !ordered.includes(level)).sort((a, b) => {
+        const aMain = path.basename(a) === 'main.blvl', bMain = path.basename(b) === 'main.blvl';
+        return aMain !== bMain ? (aMain ? -1 : 1) : a.localeCompare(b);
+    });
+
+    return ordered.concat(rest);
+}
+
+// manifest.txt: the main script and the scenes in order
+function manifestText(project) {
+    const scenes = sceneOrder(project);
+    return `Main-Script: main.blit\nScene-Count: ${scenes.length}\n` +
+        scenes.map((level, index) => `Scene-${index}: ${path.basename(level)}\n`).join('');
+}
+
 function projectSteps(project) {
     const paths = projectPaths(project);
     const scripts = path.dirname(paths.main);
@@ -164,7 +192,7 @@ function projectSteps(project) {
     }
 
     steps.push(
-        { kind: 'write', title: 'Writing the manifest', path: path.join(paths.stage, 'manifest.txt'), text: 'Main-Script: main.blit\n' },
+        { kind: 'write', title: 'Writing the manifest', path: path.join(paths.stage, 'manifest.txt'), text: manifestText(project) },
         { kind: 'remove', title: 'Removing the old archive', path: paths.archive },
     );
 
@@ -184,4 +212,4 @@ function projectSteps(project) {
     });
 }
 
-module.exports = { buildPath, findToolchain, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles, levelMaps };
+module.exports = { sceneOrder, manifestText, buildPath, findToolchain, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles, levelMaps };

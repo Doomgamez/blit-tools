@@ -26,7 +26,10 @@ void main()
 const char* const kLitFragment = R"(#version 120
 uniform sampler2D uTexture;
 uniform int uLighting;
-uniform float uAmbient;
+uniform int uFlat;
+uniform vec3 uShadow;
+uniform vec3 uSun;
+uniform vec3 uSunToward;
 uniform int uLightCount;
 uniform vec3 uLightPosition[8];
 uniform vec3 uLightColor[8];
@@ -40,18 +43,19 @@ void main()
     vec4 color = texture2D(uTexture, vUV) * vColor;
     if (uLighting == 1)
     {
+        // the engine's basic.frag: the shadow color, the sun and the point lights, never brighter than the surface
         vec3 n = normalize(vNormal);
-        // a soft sun from above so unlit rooms still read
-        vec3 light = vec3(uAmbient) + vec3(0.45) * max(dot(n, normalize(vec3(0.4, 1.0, 0.25))), 0.0);
+        vec3 light = uShadow + (uFlat == 1 ? uSun : uSun * max(dot(n, uSunToward), 0.0));
         for (int i = 0; i < 8; i++)
         {
             if (i >= uLightCount) break;
             vec3 toLight = uLightPosition[i] - vPosition;
-            float d = length(toLight);
-            float fade = clamp(1.0 - d / uLightRange[i], 0.0, 1.0);
-            light += uLightColor[i] * fade * fade * max(dot(n, toLight / max(d, 0.0001)), 0.0);
+            float d = uFlat == 1 ? length(toLight.xy) : length(toLight);
+            float fade = clamp(1.0 - (d * d) / (uLightRange[i] * uLightRange[i]), 0.0, 1.0);
+            float facing = uFlat == 1 ? 1.0 : max(dot(n, toLight / max(d, 0.0001)), 0.0);
+            light += uLightColor[i] * fade * fade * facing;
         }
-        color.rgb *= light;
+        color.rgb *= min(light, vec3(1.0));
     }
     gl_FragColor = color;
 }
@@ -173,7 +177,10 @@ void DrawScene(Renderer& renderer, const SceneMesh& mesh, const DrawSettings& se
     glUniformMatrix4fv(renderer.lit.Uniform("uViewProjection"), 1, GL_FALSE, settings.viewProjection.m);
     glUniform1i(renderer.lit.Uniform("uTexture"), 0);
     glUniform1i(renderer.lit.Uniform("uLighting"), settings.lighting ? 1 : 0);
-    glUniform1f(renderer.lit.Uniform("uAmbient"), settings.ambient);
+    glUniform1i(renderer.lit.Uniform("uFlat"), settings.flat ? 1 : 0);
+    glUniform3f(renderer.lit.Uniform("uShadow"), settings.shadow.x, settings.shadow.y, settings.shadow.z);
+    glUniform3f(renderer.lit.Uniform("uSun"), settings.sun.x, settings.sun.y, settings.sun.z);
+    glUniform3f(renderer.lit.Uniform("uSunToward"), settings.sunToward.x, settings.sunToward.y, settings.sunToward.z);
     SetLights(renderer, mesh, settings);
     glActiveTexture(GL_TEXTURE0);
 

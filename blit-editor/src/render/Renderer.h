@@ -1,7 +1,8 @@
 #pragma once
 
-// draws a scene mesh and lines into a framebuffer: textured triangles lit like a rough preview of the engine
-// (ambient, a sun and up to 8 point lights), then the translucent ones, then lines on top
+// draws a scene mesh and lines into a framebuffer: textured triangles lit the way the engine lights them (the shadow
+// color, a sun and up to 8 point lights, added up and never brighter than the surface, see level/LevelLighting.h),
+// then the translucent ones, then lines on top
 
 #include <vector>
 
@@ -23,8 +24,11 @@ struct DrawSettings
 {
     Mat4 viewProjection;
     Vec3 eye;                       // the nearest lights to it are used
-    bool lighting = true;           // off: full bright, how 2D levels are shown
-    float ambient = 0.35f;
+    bool lighting = true;           // off: full bright
+    bool flat = false;              // 2D: no normals, the sun everywhere, point lights by distance
+    Vec3 shadow{ 0.45f, 0.45f, 0.45f };     // 0-1, what nothing lights
+    Vec3 sun{ 0.55f, 0.55f, 0.55f };        // its color times its intensity, black for none
+    Vec3 sunToward{ 0.4f, 0.8f, 0.45f };    // toward the sun, length 1
     float background[4] = { 0.11f, 0.12f, 0.14f, 1.0f };
 };
 

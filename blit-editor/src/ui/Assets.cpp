@@ -6,6 +6,7 @@
 #include "core/Files.h"
 #include "project/Build.h"
 #include "ui/Viewport.h"
+#include "ui/Widgets.h"
 
 void DrawTextureGrid(Editor& editor)
 {
@@ -70,11 +71,25 @@ void DrawLevelList(Editor& editor)
     ImGui::SameLine();
     if (ImGui::Button("Show folder")) OpenWithSystem(PathsOf(editor.project).levels);
 
-    for (const std::string& level : editor.levels)
+    ImGui::SameLine();
+    HelpMark("The levels in scene order: ChangeScene(index) in a script goes to that scene, the game starts on 0. "
+             "The arrows move one, a new level goes at the end.");
+
+    for (size_t i = 0; i < editor.levels.size(); i++)
     {
+        const std::string level = editor.levels[i];
         bool current = level == editor.doc.path;
         std::string compiled = CompiledLevel(editor.project, level);
         bool stale = !FileExists(compiled) || IsNewer(level, compiled);
+        int move = 0;
+
+        ImGui::PushID((int)i);
+        ImGui::TextDisabled("%2d", (int)i);
+        ImGui::SameLine();
+        if (ImGui::ArrowButton("##up", ImGuiDir_Up) && i > 0) move = -1;
+        ImGui::SameLine();
+        if (ImGui::ArrowButton("##down", ImGuiDir_Down) && i + 1 < editor.levels.size()) move = 1;
+        ImGui::SameLine();
 
         if (ImGui::Selectable(FileName(level).c_str(), current, ImGuiSelectableFlags_AllowDoubleClick) &&
             ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !current)
@@ -82,8 +97,17 @@ void DrawLevelList(Editor& editor)
             Defer(editor, [&editor, level]() { WhenSaved(editor, [&editor, level]() { OpenLevelFile(editor, level); }); });
         }
 
-        ImGui::SameLine(220);
+        ImGui::SameLine(300);
         ImGui::TextDisabled("%s", stale ? "not compiled since it changed" : "compiled");
+        ImGui::PopID();
+
+        if (move)
+        {
+            std::swap(editor.levels[i], editor.levels[i + move]);
+            SaveSceneOrder(editor.project, editor.levels);
+            editor.status = "Scene order saved";
+            break;
+        }
     }
 }
 
@@ -103,7 +127,7 @@ void DrawAssets(Editor& editor)
     {
         if (ImGui::BeginTabItem("Textures")) { DrawTextureGrid(editor); ImGui::EndTabItem(); }
         if (ImGui::BeginTabItem("Models")) { DrawModelList(editor); ImGui::EndTabItem(); }
-        if (ImGui::BeginTabItem("Levels")) { DrawLevelList(editor); ImGui::EndTabItem(); }
+        if (ImGui::BeginTabItem("Scenes")) { DrawLevelList(editor); ImGui::EndTabItem(); }
         if (ImGui::BeginTabItem("Scripts")) { DrawClassList(editor); ImGui::EndTabItem(); }
         ImGui::EndTabBar();
     }

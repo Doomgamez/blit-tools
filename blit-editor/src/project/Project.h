@@ -2,7 +2,7 @@
 
 // a Blit project, the same layout the VS Code extension makes and builds (blitscript-vscode/src/project):
 //
-//   blit.project.json   name and entry script, in git
+//   blit.project.json   name, entry script and the order of the scenes, in git
 //   blit.local.json     this computer's homeinvasionsdl and blit-tools folders, not in git
 //   scripts/main.bs     the game, INCLUDE "level.bs" for level objects
 //   levels/*.blvl       levels from this editor
@@ -23,6 +23,7 @@ struct Project
     std::string main = "scripts/main.bs";
     std::string engine;
     std::string tools;
+    std::vector<std::string> scenes;    // levels in scene order, relative to the root: "levels/main.blvl"
 };
 
 // the files and folders of a project
@@ -44,6 +45,12 @@ void WriteLocal(const Project& project);
 
 // levels/*.blvl, sorted
 std::vector<std::string> ListLevels(const Project& project);
+
+// the levels in scene order, what ChangeScene's index counts in: the ones the project lists first, in its order, then
+// any it doesn't list yet (main.blvl before the rest), so every level has an index. full paths
+std::vector<std::string> SceneOrder(const Project& project);
+// a new order into blit.project.json, levels are full paths
+bool SaveSceneOrder(Project& project, const std::vector<std::string>& levels);
 // a new level's file for this name, "" when the name won't do
 std::string LevelFileFor(const Project& project, const std::string& name);
 // the classes a script element can name: CLASS X EXTENDS LevelObject in scripts/, also through other classes

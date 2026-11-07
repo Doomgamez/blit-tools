@@ -73,7 +73,7 @@ void ShutdownEditor(Editor& editor)
 
 void RefreshLists(Editor& editor)
 {
-    editor.levels = ListLevels(editor.project);
+    editor.levels = SceneOrder(editor.project);
     editor.classes = LevelObjectClasses(editor.project);
     editor.scripts = ScriptFiles(editor.project);
     editor.modelFiles = ProjectFiles(editor.project, { ".glb", ".gltf" });

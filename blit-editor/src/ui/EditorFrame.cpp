@@ -133,7 +133,7 @@ void DrawMenuBar(Editor& editor)
 
         ImGui::Separator();
         if (ImGui::MenuItem("Reset camera")) ResetCamera(editor.camera, doc.level.is2D);
-        ImGui::MenuItem("Preview lighting", nullptr, &editor.lighting, !doc.level.is2D);
+        ImGui::MenuItem("Preview lighting", nullptr, &editor.lighting);
         if (ImGui::MenuItem("Show volumes", nullptr, &editor.sceneOptions.showVolumes)) doc.version++;
         if (ImGui::MenuItem("Show icons", nullptr, &editor.sceneOptions.showIcons)) doc.version++;
         ImGui::MenuItem("ImGui demo", nullptr, &editor.showDemo);

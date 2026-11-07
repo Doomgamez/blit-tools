@@ -109,8 +109,8 @@ void DrawClassList(Editor& editor)
     GLuint picture = GetScriptIcon(editor.scriptIcon, ImGui::GetTime());
     ImTextureID image = (ImTextureID)(intptr_t)(picture ? picture : editor.textures.white);
 
-    ImGui::TextDisabled("The scripts in scripts/. Drag one onto a node to give it the script's level object class, "
-                        "or into the level for a new script object.");
+    ImGui::TextDisabled("The scripts in scripts/. Click one to open it, drag one onto a node to give it the script's "
+                        "level object class, or into the level for a new script object.");
 
     for (const ScriptFile& script : editor.scripts)
     {
@@ -122,8 +122,14 @@ void DrawClassList(Editor& editor)
 
         ImGui::BeginGroup();
         ImGui::PushID(script.file.c_str());
-        ImGui::ImageButton("##script", image, ImVec2(tile, tile), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0.18f, 0.2f, 0.24f, 1.0f),
-                           className ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.45f));
+        // a click opens the file in whatever opens .bs files (VS Code), a drag gives a node its class
+        if (ImGui::ImageButton("##script", image, ImVec2(tile, tile), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0.18f, 0.2f, 0.24f, 1.0f),
+                               className ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.45f)))
+        {
+            std::string path = JoinPath(PathsOf(editor.project).scripts, script.file);
+            OpenWithSystem(path);
+            editor.status = "Opened " + script.file;
+        }
 
         if (className && ImGui::BeginDragDropSource())
         {

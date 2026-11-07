@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 
+#include "level/LevelLighting.h"
 #include "ui/Editor.h"
 #include "ui/Viewport.h"
 
@@ -137,8 +138,16 @@ void RenderLevel(Editor& editor, const Mat4& view, const Mat4& projection)
 
     DrawSettings settings;
     settings.viewProjection = projection * view;
-    settings.eye = editor.camera.position;
-    settings.lighting = editor.lighting && !editor.doc.level.is2D;
+    settings.eye = editor.doc.level.is2D ? editor.camera.center : editor.camera.position;
+
+    // the level's own lighting, what the game will show
+    LevelLighting lighting = ReadLevelLighting(editor.doc.level);
+    Vec3 toward = Normalize(lighting.sunDirection * -1.0f);
+    settings.lighting = editor.lighting;
+    settings.flat = editor.doc.level.is2D;
+    settings.shadow = lighting.shadow / 255.0f;
+    settings.sun = lighting.sun ? lighting.sunColor / 255.0f * lighting.sunIntensity : Vec3(0, 0, 0);
+    settings.sunToward = Length(toward) > 0 ? toward : Vec3(0, 1, 0);
 
     BeginFrame(editor.renderer, editor.viewport, settings);
     DrawLines(editor.renderer, grid, settings, true);
