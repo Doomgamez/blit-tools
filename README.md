@@ -2,5 +2,6 @@
 tools for blit engine
 
 - `blitfs-viewer`: BLITFS reader/writer with a CLI and an FLTK GUI, previews images, text and audio
+- `blit-editor`: the level editor (Dear ImGui), 3D and 2D levels made of nodes and elements, builds and plays them, see its README
 - `blitscript-vscode`: BlitScript support for VS Code, see its README
 - `gltf-inspector`: shows a model's nodes and what the engine will ignore or fail on, `python main.py model.glb` (add `--strict` to fail on warnings, `--json` for a report)

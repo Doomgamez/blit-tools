@@ -63,7 +63,7 @@ function contextAt(document, lineIndex, character) {
     const command = finished[0].text.toUpperCase();
 
     if (['CLASS', 'ENDCLASS', 'METHOD'].includes(command) || (command === 'FIELD' && finished.length === 1)) return { kind: 'none' };
-    if (command === 'NEW' && arrowIndex(finished) >= 0) return { kind: 'variableName' };
+    if ((command === 'NEW' || command === 'NEWOF') && arrowIndex(finished) >= 0) return { kind: 'variableName' };
     if (command === 'CONST' || command === 'FN' || command === 'INCLUDE') return { kind: finished.length === 1 && command === 'INCLUDE' ? 'include' : 'none' };
     if (command === 'LBL' || (command === 'MAIN' && finished.length >= 2)) return { kind: 'none' };
     if (command === 'MAIN') return { kind: 'mainLabel' };

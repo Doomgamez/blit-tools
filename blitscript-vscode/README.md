@@ -21,6 +21,7 @@ MyGame/
     blit.local.json     where the engine and tools are on this computer, git-ignored
     scripts/main.bs     your game
     assets/             your models, textures, shaders and audio
+    levels/             levels from the Blit level editor (.blvl)
     .blit/engine/       the engine, built here so its repository stays clean
     build/              the game, ready to zip and ship
 ```
@@ -35,6 +36,14 @@ build.
 
 On Windows the engine builds with MSYS2's MinGW and SDL2. It's found in `C:\msys64\mingw64\bin`, set
 `blitscript.toolchainPath` if yours is elsewhere. CMake has to be on your PATH.
+
+**Levels:** make them with the Blit level editor (`blit-tools/blit-editor`), which saves `levels/name.blvl`. Every build
+compiles each one with the engine's `blitlevel`, and `LoadLevel "name.blvl"` loads it. Textures go in `assets/textures/`.
+A `name_normal.png` and `name_rough.png` next to a texture add bumps and shine. `scripts/level.bs` is refreshed on every
+build like `engine.bs`, so `INCLUDE "level.bs"` gives you `LevelObject` classes for the level's Script elements, and
+`LoadLevelSprites` for 2D levels. Right-click a level (or use the button above an open one) for **Play Level**, which builds
+and starts the game on it, the editor's **Play** does the same. The script picks the level with `LaunchLevelOr` from
+`level.bs`. The **Level editor level** template sets this up, with a room that has lights, a trigger and a door.
 
 **Tools:** right-click a `.glb` for **Inspect glTF Model**, which runs `gltf-inspector`, and use **Open Build in BLITFS
 Viewer** to look inside the archive. The viewer needs `pyfltk`. Both use the `python` on your PATH, not the toolchain's,
@@ -61,7 +70,8 @@ script. The search button finds one by name or description.
   - `ifkey`, `ifpressed`: run a block if a key is held down, or went down this frame
   - `class`: a class with a field and an `Init`
   - `cblock`: a block of C99, its functions work with `CALL`
-- **Outline, folding and snippets**: try `main`, `fn`, `mode3d` and `scene`.
+- **Outline, folding and snippets**: try `main`, `fn`, `mode3d`, `scene`, `level`, `levelobject`, `lighting` and
+  `pointlight`.
 - **Color swatches and a picker** on `COLOR 24 26 32 255`.
 - **Parameter names in front of arguments**, turn on `blitscript.inlayHints.parameterNames`.
 
@@ -76,7 +86,8 @@ While you type it checks for what would otherwise only show up at runtime or in 
 - `ONCE` anywhere but the top of a file
 - C blocks without `ENDC`. Saving builds them with gcc, whose errors land on the line in the script
 - classes: missing `ENDCLASS`, unknown parents, repeated fields, `this.` a field that doesn't exist, methods nothing has,
-  and the wrong number of values for `NEW`. Fields of other objects are only known when the script runs
+  and the wrong number of values for `NEW`. `NEWOF` takes its class as a value, so only whether some class takes
+  that many values is checked. Fields of other objects are only known when the script runs
 - in a project, assets that aren't in `assets/`, folders in asset names, and audio formats the engine can't play
 - unreachable code, faded out, the lines the compiler's optimizer removes
 

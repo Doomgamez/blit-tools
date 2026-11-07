@@ -42,5 +42,59 @@
             "CALL LoadScene \"${2:level.glb}\" -> ${3:scene}",
             "$0"
         ]
+    },
+    "Level": {
+        "prefix": "level",
+        "description": "Load a level (.blvl from the level editor, or .glb), start at its info_player_start, spawn its scripted objects. Needs INCLUDE \"level.bs\"",
+        "body": [
+            "CALL LoadLevel \"${1:level.blvl}\" -> ${2:level}",
+            "CALL GetLevelScene $2 -> ${3:scene}",
+            "CALL SpawnLevelObjects $2 -> ${4:objects}",
+            "CALL FindLevelEntity $2 \"info_player_start\" 0 -> spawn",
+            "CALL GetEntityPosition $2 spawn -> start",
+            "CALL CreateCamera3D start, VEC3 0 0 -10, 60 -> ${5:camera}",
+            "$0"
+        ]
+    },
+    "Level object": {
+        "prefix": "levelobject",
+        "description": "A class an entity's \"script\" property can name. Needs INCLUDE \"level.bs\"",
+        "body": [
+            "CLASS ${1:Name} EXTENDS LevelObject",
+            "    FIELD ${2:speed} 1.0",
+            "",
+            "    // once, after level, scene, entity, name and node are set",
+            "    METHOD Spawn",
+            "        CALL this.PropertyFloat \"$2\" 1.0 -> this.$2",
+            "    END",
+            "",
+            "    METHOD Update dt",
+            "        $0",
+            "    END",
+            "",
+            "    // a trigger's target, or the player using it",
+            "    METHOD Use other",
+            "    END",
+            "ENDCLASS"
+        ]
+    },
+    "Lighting": {
+        "prefix": "lighting",
+        "description": "Ambient light, a sun with shadows, and fog",
+        "body": [
+            "CALL SetAmbientLight COLOR ${1:40 42 55} 255",
+            "CALL SetSunLight VEC3 ${2:-0.6 -0.7 -0.4}, COLOR 255 240 220 255, ${3:0.9}",
+            "CALL SetShadows true",
+            "CALL SetFog COLOR ${4:24 26 32} 255, ${5:8} ${6:30}",
+            "$0"
+        ]
+    },
+    "Point light": {
+        "prefix": "pointlight",
+        "description": "A light that fades to nothing at its range",
+        "body": [
+            "CALL CreatePointLight VEC3 ${1:0 2 0}, COLOR ${2:255 190 110} 255, ${3:6}, ${4:1.0} -> ${5:light}",
+            "$0"
+        ]
     }
 }

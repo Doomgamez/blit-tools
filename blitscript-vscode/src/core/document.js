@@ -150,7 +150,8 @@ function addStatement(model, line, index, state) {
             break;
 
         case 'CALL':
-        case 'NEW': {
+        case 'NEW':
+        case 'NEWOF': {
             const arrow = arrowIndex(tokens);
             if (arrow >= 0 && tokens[arrow + 1]) {
                 write(tokens[arrow + 1]);

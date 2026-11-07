@@ -34,6 +34,11 @@ function registerProjectCommands(context, state, session) {
         command('blitscript.createProject', (values) => createProject(values)),
         command('blitscript.buildProject', () => session.build()),
         command('blitscript.runProject', () => session.run()),
+        command('blitscript.playLevel', async (uri) => {
+            const editor = vscode.window.activeTextEditor;
+            const map = uri ? uri.fsPath : editor && editor.document.fileName;
+            return map ? session.playLevel(map) : false;
+        }),
         command('blitscript.stopProject', () => session.stop()),
         command('blitscript.buildEngine', () => session.buildEngine()),
         command('blitscript.openArchive', () => session.openArchive()),

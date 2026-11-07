@@ -132,7 +132,8 @@ class ProjectSession {
         return this.runWithStatus(steps, env);
     }
 
-    async run() {
+    // args go to the game, playLevel passes --level
+    async run(args = []) {
         if (this.game) {
             vscode.window.showInformationMessage('Blit Engine: the game is already running.');
             return true;
@@ -145,7 +146,7 @@ class ProjectSession {
         const paths = projectPaths(this.project);
 
         // the plain environment, without the toolchain: this is how the game runs once it's shipped
-        const game = spawn(paths.shipped, [], { cwd: paths.output, env: process.env });
+        const game = spawn(paths.shipped, args, { cwd: paths.output, env: process.env });
 
         this.game = game;
         this.finished = new Promise((resolve) => {
@@ -167,6 +168,26 @@ class ProjectSession {
         game.stderr.on('data', (data) => this.log(String(data).trimEnd()));
         this.changed.fire();
         return true;
+    }
+
+    // builds (which compiles every level in levels/), then starts the game on this one. the game's script has to ask
+    // for it: GetLaunchLevel, or LaunchLevelOr from level.bs
+    async playLevel(map) {
+        const project = this.usable();
+
+        if (!project) {
+            return false;
+        }
+
+        const levels = projectPaths(project).levels;
+
+        if (path.relative(levels, path.dirname(map)) !== '' || !/\.blvl$/i.test(map)) {
+            vscode.window.showWarningMessage('Blit Engine: only levels in the project\'s levels folder are compiled, move it there to play it.');
+            return false;
+        }
+
+        // the compiled level stays in .blit/stage, --level reads it from there by its full path
+        return this.run(['--level', path.join(projectPaths(project).stage, `${path.basename(map).replace(/\.blvl$/i, '')}.lvl.glb`)]);
     }
 
     stop() {

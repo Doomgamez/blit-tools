@@ -57,17 +57,27 @@ function listFiles(folder) {
     });
 }
 
+// levels from the Blit level editor (blit-tools/blit-editor) in levels/, each becomes <name>.lvl.glb in .blit/stage,
+// is packed into Engine.blfs, and LoadLevel "name.blvl" finds it
+function levelMaps(project) {
+    return listFiles(projectPaths(project).levels).filter((file) => /\.blvl$/i.test(file));
+}
+
+const compiledLevel = (paths, map) => path.join(paths.stage, `${path.basename(map).replace(/\.blvl$/i, '')}.lvl.glb`);
+
 // the archive is flat: the first file with a name wins, so a project can replace an engine shader
 function packList(project) {
     const paths = projectPaths(project);
-    const compiled = path.join(paths.output, 'main.blit');
-    const manifest = path.join(paths.output, 'manifest.txt');
+    const compiled = path.join(paths.stage, 'main.blit');
+    const manifest = path.join(paths.stage, 'manifest.txt');
     const own = listFiles(paths.assets).filter((file) => path.basename(file).toLowerCase() !== 'manifest.txt');
+    // only the maps that still exist: a deleted map's old .lvl.glb stays out
+    const levels = levelMaps(project).map((map) => compiledLevel(paths, map)).filter((file) => fs.existsSync(file));
     const taken = new Set(own.map((file) => path.basename(file).toLowerCase()));
     const fromEngine = listFiles(path.join(project.engine, 'assets', 'shaders')).concat(path.join(project.engine, 'blitfs', 'arial.ttf'))
         .filter((file) => !taken.has(path.basename(file).toLowerCase()));
 
-    return [compiled, manifest, ...own, ...fromEngine];
+    return [compiled, manifest, ...own, ...levels, ...fromEngine];
 }
 
 // a project keeps its own build of the engine, which goes out of date when the engine repository moves on
@@ -79,7 +89,7 @@ function engineChanged(project, paths) {
     }
 
     const built = fs.statSync(stamp).mtimeMs;
-    const sources = ['src', 'blitscript', 'blitfs', 'cmake'].flatMap((folder) => listFiles(path.join(project.engine, folder)))
+    const sources = ['src', 'blitscript', 'blitfs', 'cmake', path.join('tools', 'blitlevel')].flatMap((folder) => listFiles(path.join(project.engine, folder)))
         .filter((file) => /\.(c|h|cmake)$/i.test(file))
         .concat(path.join(project.engine, 'CMakeLists.txt'));
 
@@ -90,6 +100,11 @@ function engineChanged(project, paths) {
 function engineComplete(project) {
     const paths = projectPaths(project);
     const programs = [paths.game, paths.compiler, paths.packer];
+
+    // an engine that has the level compiler builds it, a build from before it is rebuilt
+    if (fs.existsSync(path.join(project.engine, 'tools', 'blitlevel'))) {
+        programs.push(paths.mapCompiler);
+    }
 
     if (!programs.every((file) => fs.existsSync(file))) {
         return false;
@@ -115,13 +130,41 @@ function runtimeFiles(project) {
 function projectSteps(project) {
     const paths = projectPaths(project);
     const scripts = path.dirname(paths.main);
+    const levelLibrary = path.join(project.engine, 'blitscript', 'level.bs');
     const steps = [
         { kind: 'folder', title: 'Preparing the build folder', path: paths.output },
+        { kind: 'folder', title: 'Preparing the stage folder', path: paths.stage },
         { kind: 'copy', title: 'Updating engine.bs', from: path.join(project.engine, 'blitscript', 'engine.bs'), to: path.join(scripts, 'engine.bs') },
-        { kind: 'run', title: 'Compiling scripts', command: paths.compiler, args: ['-i', paths.main, '-o', path.join(paths.output, 'main.blit')], cwd: scripts },
-        { kind: 'write', title: 'Writing the manifest', path: path.join(paths.output, 'manifest.txt'), text: 'Main-Script: main.blit\n' },
-        { kind: 'remove', title: 'Removing the old archive', path: paths.archive },
     ];
+
+    // INCLUDE "level.bs" finds it next to the scripts, like engine.bs. older engines don't have it
+    if (fs.existsSync(levelLibrary)) {
+        steps.push({ kind: 'copy', title: 'Updating level.bs', from: levelLibrary, to: path.join(scripts, 'level.bs') });
+    }
+
+    const level2d = path.join(project.engine, 'blitscript', 'level2d.bs');
+
+    if (fs.existsSync(level2d)) {
+        steps.push({ kind: 'copy', title: 'Updating level2d.bs', from: level2d, to: path.join(scripts, 'level2d.bs') });
+    }
+
+    steps.push({ kind: 'run', title: 'Compiling scripts', command: paths.compiler, args: ['-i', paths.main, '-o', path.join(paths.stage, 'main.blit')], cwd: scripts });
+
+    // level textures live in assets/textures, loose ones in assets/ work too
+    for (const map of levelMaps(project)) {
+        steps.push({
+            kind: 'run',
+            title: `Compiling level ${path.basename(map)}`,
+            command: paths.mapCompiler,
+            args: ['-i', map, '-o', compiledLevel(paths, map), '-t', path.join(paths.assets, 'textures'), '-t', paths.assets],
+            cwd: project.root,
+        });
+    }
+
+    steps.push(
+        { kind: 'write', title: 'Writing the manifest', path: path.join(paths.stage, 'manifest.txt'), text: 'Main-Script: main.blit\n' },
+        { kind: 'remove', title: 'Removing the old archive', path: paths.archive },
+    );
 
     // blitfs_pack stores the file name after the last forward slash
     return steps.concat({
@@ -139,4 +182,4 @@ function projectSteps(project) {
     });
 }
 
-module.exports = { buildPath, findToolchain, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles };
+module.exports = { buildPath, findToolchain, engineSteps, projectSteps, packList, listFiles, engineComplete, runtimeFiles, levelMaps };

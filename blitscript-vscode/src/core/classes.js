@@ -194,6 +194,31 @@ function checkNew(tokens, index, classes, fail) {
     }
 }
 
+// the same checks as blitclass.c: a -> variable, and some class whose Init takes that many values
+function checkNewOf(tokens, index, classes, fail) {
+    const arrow = arrowIndex(tokens);
+
+    if (tokens.length < 2 || arrow < 2 || !tokens[arrow + 1] || tokens[arrow + 2]) {
+        fail(index, tokens[0], 'NEWOF expects: NEWOF className [values] -> variable');
+        return;
+    }
+
+    if (classes.length === 0) {
+        fail(index, tokens[0], 'NEWOF makes objects of classes, and this program has none');
+        return;
+    }
+
+    const given = callArguments(tokens).length;
+    const fits = classes.some((item) => {
+        const init = findMethod(classes, item, 'Init');
+        return (init ? init.parameters : 0) === given;
+    });
+
+    if (!fits) {
+        fail(index, tokens[0], `No class takes ${given} values when it's made, so NEWOF with ${given} can't make anything`);
+    }
+}
+
 function checkMethodCall(tokens, index, line, classes, fail) {
     const name = tokens[1];
     const parts = name.text.split('.');
@@ -264,6 +289,8 @@ function checkClasses(program, document, fail) {
 
         if (command === 'NEW') {
             checkNew(tokens, index, classes, fail);
+        } else if (command === 'NEWOF') {
+            checkNewOf(tokens, index, classes, fail);
         } else if (command === 'CALL' && tokens[1] && isDotted(tokens[1])) {
             checkMethodCall(tokens, index, line, classes, fail);
         } else if (['LOCAL', 'FOR', 'FOREACH'].includes(command) && tokens[1] && isDotted(tokens[1])) {

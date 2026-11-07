@@ -2,7 +2,7 @@
     "name": "blitscript",
     "displayName": "dgz's blitscript",
     "description": "BlitScript language support and Blit Engine projects: create, build and run games, browse the engine API, and get completion, navigation, linting and compile errors.",
-    "version": "0.11.2",
+    "version": "0.12.0",
     "publisher": "Doomgames",
     "license": "MIT",
     "repository": {
@@ -85,6 +85,12 @@
                 "icon": "$(run)"
             },
             {
+                "command": "blitscript.playLevel",
+                "title": "Play Level",
+                "category": "Blit Engine",
+                "icon": "$(play)"
+            },
+            {
                 "command": "blitscript.stopProject",
                 "title": "Stop the Game",
                 "category": "Blit Engine",
@@ -135,6 +141,11 @@
         "menus": {
             "editor/title": [
                 {
+                    "command": "blitscript.playLevel",
+                    "when": "resourceExtname == .blvl",
+                    "group": "navigation"
+                },
+                {
                     "command": "blitscript.compile",
                     "when": "editorLangId == blitscript",
                     "group": "navigation"
@@ -151,6 +162,11 @@
                 {
                     "command": "blitscript.inspectModel",
                     "when": "resourceExtname == .glb || resourceExtname == .gltf",
+                    "group": "navigation"
+                },
+                {
+                    "command": "blitscript.playLevel",
+                    "when": "resourceExtname == .blvl",
                     "group": "navigation"
                 }
             ],

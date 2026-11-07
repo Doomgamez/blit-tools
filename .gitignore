@@ -222,3 +222,6 @@ __marimo__/
 # built extension packages and test models
 *.vsix
 *.glb
+
+# the level editor's build
+blit-editor/build/

@@ -52,9 +52,10 @@ function readTokens(tokens) {
     if (command === 'CMP' || language.isArithmetic(command)) return tokens.slice(1);
     if (command === 'RETURN') return tokens.slice(1);
 
-    if (command === 'CALL' || command === 'NEW') {
+    if (command === 'CALL' || command === 'NEW' || command === 'NEWOF') {
         const arrow = arrowIndex(tokens);
-        const values = tokens.slice(2, arrow >= 0 ? arrow : tokens.length);
+        // NEWOF's class is a value too
+        const values = tokens.slice(command === 'NEWOF' ? 1 : 2, arrow >= 0 ? arrow : tokens.length);
         const named = command === 'CALL' ? stored(tokens[1]) : [];
 
         return [...named, ...values, ...(arrow >= 0 ? stored(tokens[arrow + 1]) : [])];

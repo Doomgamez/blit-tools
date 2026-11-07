@@ -93,6 +93,7 @@ const CASES = [
     ['    METHOD Hit amount', 'amount', 'variable.parameter'],
     ['NEW Enemy 5 -> e', 'NEW', 'keyword.other.new'],
     ['NEW Enemy 5 -> e', 'Enemy', 'entity.name.type.class'],
+    ['NEWOF kind 5 -> e', 'NEWOF', 'keyword.other.new'],
     ['RETURN x', 'RETURN', 'keyword.control'],
     ['ONCE', 'ONCE', 'keyword.control.import'],
     ['C', 'C', 'keyword.control'],

@@ -264,6 +264,11 @@ test('NEW without a variable', () => assert.ok(inMain('NEW Boss').some((m) => /N
 test('NEW counts the values of Init', () => assert.ok(inMain('NEW Enemy -> e').includes("Enemy takes 1 values when it's made, this gives 0")));
 test('a VEC3 is one value for NEW', () => assert.deepStrictEqual(inMain('NEW P VEC3 1 2 3 -> p', 'CLASS P\nMETHOD Init at\nEND\nENDCLASS\n'), []));
 test('Init is inherited', () => assert.ok(inMain('NEW Kid 5 -> k', 'CLASS P\nMETHOD Init v\nEND\nENDCLASS\nCLASS Kid EXTENDS P\nENDCLASS\n').length === 0));
+test('NEWOF with a class name in a variable', () => assert.deepStrictEqual(inMain('SET kind "Enemy"\nNEWOF kind 5 -> e\nCALL log e'), []));
+test('NEWOF sets its variable and reads its class', () => assert.ok(inMain('NEWOF nope -> e').some((m) => /nope is never set/.test(m))));
+test('NEWOF without a variable', () => assert.ok(inMain('NEWOF "Enemy" 5').some((m) => /NEWOF expects/.test(m))));
+test('NEWOF with a count no class takes', () => assert.ok(inMain('NEWOF "Enemy" 1 2 3 -> e').some((m) => /No class takes 3 values/.test(m))));
+test('NEWOF without classes', () => assert.ok(inMain('NEWOF "Enemy" -> e', '').some((m) => /has none/.test(m))));
 test('a method no class has', () => assert.ok(inMain('NEW Boss -> b\nCALL b.Nope').includes('No class has a method Nope with 0 parameters')));
 test('a method with the wrong count', () => assert.ok(inMain('NEW Boss -> b\nCALL b.Hit').includes('No class has a method Hit with 0 parameters')));
 test('methods ignore case', () => assert.deepStrictEqual(inMain('NEW Boss -> b\nCALL b.hit 1'), []));

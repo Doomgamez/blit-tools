@@ -44,7 +44,7 @@ test('the tools folder is not an engine', () => assert.ok(/isn't the homeinvasio
 test('the engine folder is not the tools', () => assert.ok(/isn't the blit-tools/.test(layout.checkTools(engine))));
 test('a file is not a folder', () => assert.ok(layout.checkEngine(path.join(engine, 'CMakeLists.txt'))));
 
-test('there are three templates', () => assert.deepStrictEqual(templateList().map((item) => item.id), ['empty', 'twoD', 'threeD']));
+test('there are four templates', () => assert.deepStrictEqual(templateList().map((item) => item.id), ['empty', 'twoD', 'threeD', 'level']));
 
 let root;
 
@@ -109,7 +109,61 @@ test('the engine builds inside the project, not the engine repo', () => {
 });
 test('the build runs in order', () => {
     const steps = projectSteps(layout.readProject(root)).map((step) => step.kind);
-    assert.deepStrictEqual(steps, ['folder', 'copy', 'run', 'write', 'remove', 'pack', 'runtime']);
+    assert.deepStrictEqual(steps, ['folder', 'folder', 'copy', 'copy', 'copy', 'run', 'write', 'remove', 'pack', 'runtime']);
+});
+test('level.bs is refreshed next to engine.bs', () => {
+    const copy = projectSteps(layout.readProject(root)).filter((step) => step.kind === 'copy')[1];
+    assert.strictEqual(path.basename(copy.to), 'level.bs');
+    assert.ok(fs.existsSync(path.join(root, 'scripts', 'level.bs')), 'created with the project');
+});
+test('the level editor template brings its level, textures and detail maps', () => {
+    const made = createProject(values({ name: 'Room', template: 'level' }));
+    assert.ok(fs.existsSync(path.join(made, 'levels', 'testmap.blvl')));
+    assert.ok(fs.existsSync(path.join(made, 'assets', 'models', 'house.glb')));
+    ['checker', 'panel', 'panel_normal', 'panel_rough', 'clip'].forEach((name) =>
+        assert.ok(fs.existsSync(path.join(made, 'assets', 'textures', `${name}.png`)), name));
+    assert.ok(/INCLUDE "level.bs"/.test(read(made, 'scripts', 'main.bs')));
+    assert.ok(!read(made, 'scripts', 'main.bs').includes('../level.bs'));
+    assert.ok(/scripts\/level.bs/.test(read(made, '.gitignore')));
+});
+test('each level is compiled after the scripts, with both texture folders', () => {
+    const project = layout.readProject(path.join(work, 'Room'));
+    const steps = projectSteps(project);
+    const map = steps.find((step) => /Compiling level/.test(step.title));
+    const paths = layout.projectPaths(project);
+
+    assert.ok(map, 'a level step');
+    assert.strictEqual(map.command, paths.mapCompiler);
+    assert.strictEqual(path.basename(map.args[map.args.indexOf('-o') + 1]), 'testmap.lvl.glb');
+    assert.deepStrictEqual(map.args.filter((arg, i) => map.args[i - 1] === '-t'), [path.join(paths.assets, 'textures'), paths.assets]);
+    assert.ok(steps.indexOf(map) > steps.findIndex((step) => step.title === 'Compiling scripts'));
+});
+test('only .blvl files in levels/ are levels', () => {
+    const project = layout.readProject(path.join(work, 'Room'));
+    const stray = path.join(layout.projectPaths(project).levels, 'old.map');
+
+    fs.writeFileSync(stray, '');
+    const titles = projectSteps(project).map((step) => step.title);
+    fs.rmSync(stray);
+
+    assert.ok(titles.includes('Compiling level testmap.blvl'));
+    assert.ok(!titles.some((title) => /old\.map/.test(title)));
+    assert.ok(!/-compile\.map/.test(read(path.join(work, 'Room'), '.gitignore')));
+});
+test('a compiled level is packed only while its level file exists', () => {
+    const project = layout.readProject(path.join(work, 'Room'));
+    const paths = layout.projectPaths(project);
+    const compiled = path.join(paths.stage, 'testmap.lvl.glb');
+    const stale = path.join(paths.stage, 'gone.lvl.glb');
+
+    fs.mkdirSync(paths.stage, { recursive: true });
+    fs.writeFileSync(compiled, '');
+    fs.writeFileSync(stale, '');
+
+    const names = packList(project).map((file) => path.basename(file));
+    assert.ok(names.includes('testmap.lvl.glb'));
+    assert.ok(!names.includes('gone.lvl.glb'), 'a deleted level stays out');
+    assert.ok(names.indexOf('testmap.lvl.glb') < names.indexOf('basic.vert'));
 });
 test('a project with no engine build is incomplete', () => assert.strictEqual(engineComplete(layout.readProject(root)), false));
 test('an engine from before the DLLs were copied gets rebuilt', () => {
@@ -120,6 +174,9 @@ test('an engine from before the DLLs were copied gets rebuilt', () => {
 
     fs.mkdirSync(paths.engineBuild, { recursive: true });
     [paths.game, paths.compiler, paths.packer, stamp].forEach((file) => fs.writeFileSync(file, ''));
+    assert.strictEqual(engineComplete(project), false, 'this engine has blitlevel, and it isn\'t built');
+
+    fs.writeFileSync(paths.mapCompiler, '');
     assert.strictEqual(engineComplete(project), process.platform !== 'win32');
 
     if (process.platform === 'win32') {
@@ -128,6 +185,7 @@ test('an engine from before the DLLs were copied gets rebuilt', () => {
         assert.strictEqual(engineComplete(project), true);
         assert.deepStrictEqual(runtimeFiles(project).map((file) => path.basename(file)).sort(),
             ['HomeInvasion.exe', 'SDL2.dll', 'libfreetype-6.dll'].sort());
+        assert.ok(!runtimeFiles(project).includes(paths.mapCompiler), 'the level compiler stays a build tool');
     }
 
     fs.rmSync(path.join(root, '.blit'), { recursive: true, force: true });
@@ -139,7 +197,7 @@ test('an engine older than its sources gets rebuilt', () => {
     const longAgo = new Date(2001, 1, 1);
 
     fs.mkdirSync(paths.engineBuild, { recursive: true });
-    [paths.game, paths.compiler, paths.packer, stamp, path.join(paths.engineBuild, 'SDL2.dll')].forEach((file) => fs.writeFileSync(file, ''));
+    [paths.game, paths.compiler, paths.packer, paths.mapCompiler, stamp, path.join(paths.engineBuild, 'SDL2.dll')].forEach((file) => fs.writeFileSync(file, ''));
     assert.strictEqual(engineComplete(project), true);
 
     fs.utimesSync(stamp, longAgo, longAgo);
@@ -182,7 +240,7 @@ test('a stray manifest in assets can not fight the generated one', () => {
     const made = layout.readProject(path.join(work, 'Walk'));
     fs.writeFileSync(path.join(made.root, 'assets', 'manifest.txt'), 'Main-Script: other.blit\n');
     assert.strictEqual(packList(made).filter((file) => path.basename(file) === 'manifest.txt').length, 1);
-    assert.ok(packList(made).find((file) => path.basename(file) === 'manifest.txt').includes('build'));
+    assert.ok(packList(made).find((file) => path.basename(file) === 'manifest.txt').includes('stage'));
 });
 test('audio goes into the archive', () => {
     const made = layout.readProject(path.join(work, 'Walk'));

@@ -49,12 +49,29 @@ const TEMPLATES = {
         script: (engine) => fs.readFileSync(path.join(engine, 'blitscript', 'main.bs'), 'utf8'),
         assets: ['assets/textures/checker.png', 'assets/models/house.glb'],
     },
+    level: {
+        title: 'Level editor level',
+        description: 'A room made in the Blit level editor: lights, a trigger, a door and plated walls, run by classes.',
+        script: (engine) => fs.readFileSync(path.join(engine, 'blitscript', 'examples', 'scripted.bs'), 'utf8')
+            .replace('INCLUDE "../level.bs"', 'INCLUDE "level.bs"'),
+        // [from in the engine, to in the project]: level textures go in assets/textures, the level names
+        // the model by its path from the project's root
+        assets: [
+            ['levels/testmap.blvl', 'levels/testmap.blvl'],
+            ['assets/models/house.glb', 'assets/models/house.glb'],
+            ...['checker', 'panel', 'panel_normal', 'panel_rough', 'clip', 'nodraw', 'skip', 'trigger']
+                .map((name) => [`assets/textures/${name}.png`, `assets/textures/${name}.png`]),
+        ],
+        needs: ['blitscript/level.bs', 'levels/testmap.blvl'],
+    },
 };
 
 const GITIGNORE = `build/
 .blit/
 ${LOCAL_FILE}
 scripts/engine.bs
+scripts/level.bs
+scripts/level2d.bs
 `;
 
 function createProject(values) {
@@ -70,8 +87,16 @@ function createProject(values) {
         throw new Error('Choose a template');
     }
 
+    // a template that needs newer engine files says so before anything is written
+    const missing = (template.needs || []).find((file) => !fs.existsSync(path.join(values.engine, file)));
+
+    if (missing) {
+        throw new Error(`The ${template.title} template needs ${missing} from a newer engine`);
+    }
+
     const root = path.join(values.location, values.name);
     const script = template.script(values.engine);
+    const levelLibrary = path.join(values.engine, 'blitscript', 'level.bs');
 
     fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
     fs.mkdirSync(path.join(root, 'assets'), { recursive: true });
@@ -82,8 +107,18 @@ function createProject(values) {
     fs.writeFileSync(path.join(root, 'scripts', 'main.bs'), script);
     fs.copyFileSync(path.join(values.engine, 'blitscript', 'engine.bs'), path.join(root, 'scripts', 'engine.bs'));
 
+    // every build refreshes it too, copying it now lets the editor find it before the first build
+    if (fs.existsSync(levelLibrary)) {
+        fs.copyFileSync(levelLibrary, path.join(root, 'scripts', 'level.bs'));
+    }
+
+    // a plain path lands in assets/ by its name, a [from, to] pair where it says
     for (const asset of template.assets) {
-        fs.copyFileSync(path.join(values.engine, asset), path.join(root, 'assets', path.basename(asset)));
+        const [from, to] = Array.isArray(asset) ? asset : [asset, path.join('assets', path.basename(asset))];
+        const target = path.join(root, to);
+
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.copyFileSync(path.join(values.engine, from), target);
     }
 
     return root;

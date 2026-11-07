@@ -109,10 +109,14 @@ function projectPaths(project) {
     return {
         engineBuild,
         output: path.join(project.root, 'build'),
+        // what goes into Engine.blfs but isn't the game itself: main.blit, manifest.txt, compiled levels
+        stage: path.join(project.root, '.blit', 'stage'),
         main: path.join(project.root, project.main),
         assets: path.join(project.root, 'assets'),
+        levels: path.join(project.root, 'levels'),
         compiler: path.join(engineBuild, executable('blitscriptc')),
         packer: path.join(engineBuild, executable('blitfs_pack')),
+        mapCompiler: path.join(engineBuild, executable('blitlevel')),
         game: path.join(engineBuild, executable('HomeInvasion')),
         shipped: path.join(project.root, 'build', executable('HomeInvasion')),
         archive: path.join(project.root, 'build', 'Engine.blfs'),

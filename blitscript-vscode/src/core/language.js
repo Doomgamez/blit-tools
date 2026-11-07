@@ -46,6 +46,7 @@ const STATEMENTS = {
     FIELD: '`FIELD name [value]`: a value every object of the class has, one value of any kind, null if none is given.',
     METHOD: '`METHOD name params...`: a function of a class, closed by END. `this` is the object. A method called Init runs on NEW.',
     NEW: '`NEW Class [values] -> variable`: makes an object, the values go to its Init method.',
+    NEWOF: '`NEWOF className [values] -> variable`: like NEW, but the class is a value, such as a string from a level\'s "script" property. The name is case sensitive, an unknown one stops the script.',
     RETURN: '`RETURN [value]`: leaves a function or method, `CALL fn -> result` gets the value.',
     ENDC: 'Closes a C block.',
     LBL: '`LBL name`: a jump target.',

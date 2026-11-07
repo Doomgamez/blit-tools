@@ -1579,7 +1579,7 @@
      "variadic": false
     }
    ],
-   "doc": "Set a sampler2D uniform to a texture, up to 7 on top of u_texture",
+   "doc": "Set a sampler2D uniform to a texture, up to 6 on top of u_texture (unit 7 is the shadow map)",
    "category": "Shaders"
   },
   "applyshader": {
@@ -3485,6 +3485,787 @@
    ],
    "doc": "Node handle of the first root of the scene, moving it moves everything under it",
    "category": "Scenes"
+  },
+  "setambientlight": {
+   "name": "SetAmbientLight",
+   "returns": "void",
+   "params": [
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    }
+   ],
+   "doc": "Light that reaches everything from every side (default 115 115 115, a grey)",
+   "category": "Lighting"
+  },
+  "setsunlight": {
+   "name": "SetSunLight",
+   "returns": "void",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "direction",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "intensity",
+     "variadic": false
+    }
+   ],
+   "doc": "The one directional light, direction is where it shines (down is VEC3 0 -1 0). Intensity 0 turns it off",
+   "category": "Lighting"
+  },
+  "createpointlight": {
+   "name": "CreatePointLight",
+   "returns": "int",
+   "params": [
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "range",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "intensity",
+     "variadic": false
+    }
+   ],
+   "doc": "A light that shines in every direction and fades to nothing at range (metres), returns a handle, 0 when 64 exist",
+   "category": "Lighting"
+  },
+  "setpointlightposition": {
+   "name": "SetPointLightPosition",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "light",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "position",
+     "variadic": false
+    }
+   ],
+   "doc": "Move a point light",
+   "category": "Lighting"
+  },
+  "setpointlightcolor": {
+   "name": "SetPointLightColor",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "light",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "intensity",
+     "variadic": false
+    }
+   ],
+   "doc": "Change a point light's color and brightness, intensity 0 turns it off",
+   "category": "Lighting"
+  },
+  "setpointlightrange": {
+   "name": "SetPointLightRange",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "light",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "range",
+     "variadic": false
+    }
+   ],
+   "doc": "How far a point light reaches",
+   "category": "Lighting"
+  },
+  "getpointlightposition": {
+   "name": "GetPointLightPosition",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "light",
+     "variadic": false
+    }
+   ],
+   "doc": "Where a point light is",
+   "category": "Lighting"
+  },
+  "destroypointlight": {
+   "name": "DestroyPointLight",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "light",
+     "variadic": false
+    }
+   ],
+   "doc": "Remove a point light",
+   "category": "Lighting"
+  },
+  "setfog": {
+   "name": "SetFog",
+   "returns": "void",
+   "params": [
+    {
+     "type": "color",
+     "name": "color",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "start",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "end",
+     "variadic": false
+    }
+   ],
+   "doc": "Fog by distance from the camera: clear up to start, only fog color from end. Clear the background to the same color",
+   "category": "Lighting"
+  },
+  "disablefog": {
+   "name": "DisableFog",
+   "returns": "void",
+   "params": [],
+   "doc": "No more fog",
+   "category": "Lighting"
+  },
+  "setshadows": {
+   "name": "SetShadows",
+   "returns": "void",
+   "params": [
+    {
+     "type": "bool",
+     "name": "enabled",
+     "variadic": false
+    }
+   ],
+   "doc": "Shadows from the sun, off by default. Things that move cast them one frame late",
+   "category": "Lighting"
+  },
+  "setshadowdistance": {
+   "name": "SetShadowDistance",
+   "returns": "void",
+   "params": [
+    {
+     "type": "float",
+     "name": "distance",
+     "variadic": false
+    }
+   ],
+   "doc": "How far in front of the camera shadows reach (default 30 m), shorter is sharper",
+   "category": "Lighting"
+  },
+  "loadlevel": {
+   "name": "LoadLevel",
+   "returns": "int",
+   "params": [
+    {
+     "type": "string",
+     "name": "file",
+     "variadic": false
+    }
+   ],
+   "doc": "Load a level (.glb, or a level editor .blvl compiled to .lvl.glb) with its entities and props, returns a handle (0 if it failed)",
+   "category": "Levels"
+  },
+  "getlaunchlevel": {
+   "name": "GetLaunchLevel",
+   "returns": "string",
+   "params": [],
+   "doc": "The level the game was started with (--level, the level editor's Play), empty when there is none",
+   "category": "Levels"
+  },
+  "unloadlevel": {
+   "name": "UnloadLevel",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    }
+   ],
+   "doc": "Free a level, its scene and its prop models",
+   "category": "Levels"
+  },
+  "drawlevel": {
+   "name": "DrawLevel",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    }
+   ],
+   "doc": "Draw the level and its prop_model entities where their nodes are, inside BeginMode3D",
+   "category": "Levels"
+  },
+  "getlevelscene": {
+   "name": "GetLevelScene",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    }
+   ],
+   "doc": "The level's scene handle, for the node, Scenes and mesh collision functions",
+   "category": "Levels"
+  },
+  "getlevelentitycount": {
+   "name": "GetLevelEntityCount",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    }
+   ],
+   "doc": "How many entities the level has, they are numbered from 0",
+   "category": "Levels"
+  },
+  "findlevelentity": {
+   "name": "FindLevelEntity",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "match",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "occurrence",
+     "variadic": false
+    }
+   ],
+   "doc": "The occurrence-th entity (from 0) whose classname or name is match, -1 if there is none",
+   "category": "Levels"
+  },
+  "findlevelentities": {
+   "name": "FindLevelEntities",
+   "returns": "array",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "match",
+     "variadic": false
+    }
+   ],
+   "doc": "Every entity whose classname or name is match, an array of entity numbers",
+   "category": "Levels"
+  },
+  "getentityclass": {
+   "name": "GetEntityClass",
+   "returns": "string",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The entity's classname, like info_player_start",
+   "category": "Levels"
+  },
+  "getentityname": {
+   "name": "GetEntityName",
+   "returns": "string",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The entity's name (its node's name)",
+   "category": "Levels"
+  },
+  "getentityposition": {
+   "name": "GetEntityPosition",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "Where the file puts the entity, in the level's space",
+   "category": "Levels"
+  },
+  "getentityangles": {
+   "name": "GetEntityAngles",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The entity's rotation in the file as degrees, matches SetNodeRotationEuler",
+   "category": "Levels"
+  },
+  "getentityscale": {
+   "name": "GetEntityScale",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The entity's scale in the file",
+   "category": "Levels"
+  },
+  "hasentitybounds": {
+   "name": "HasEntityBounds",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "Does the entity have a mesh, so a box (triggers, volumes)?",
+   "category": "Levels"
+  },
+  "getentityboundsmin": {
+   "name": "GetEntityBoundsMin",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "Smallest corner of the entity's box in the level's space, its position if it has none",
+   "category": "Levels"
+  },
+  "getentityboundsmax": {
+   "name": "GetEntityBoundsMax",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "Largest corner of the entity's box in the level's space, its position if it has none",
+   "category": "Levels"
+  },
+  "getentitynode": {
+   "name": "GetEntityNode",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The entity's node in GetLevelScene, move it with the node functions (a prop_model follows)",
+   "category": "Levels"
+  },
+  "getentitymodel": {
+   "name": "GetEntityModel",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The model a prop_model entity draws, 0 for other entities",
+   "category": "Levels"
+  },
+  "getentitylight": {
+   "name": "GetEntityLight",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    }
+   ],
+   "doc": "The point light a light_point entity made, for the Lighting functions, 0 for other entities",
+   "category": "Levels"
+  },
+  "hasentityproperty": {
+   "name": "HasEntityProperty",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    }
+   ],
+   "doc": "Does the entity have this property?",
+   "category": "Levels"
+  },
+  "getentityproperty": {
+   "name": "GetEntityProperty",
+   "returns": "string",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    }
+   ],
+   "doc": "A property as text, empty if it's missing",
+   "category": "Levels"
+  },
+  "getentitypropertyfloat": {
+   "name": "GetEntityPropertyFloat",
+   "returns": "float",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "default",
+     "variadic": false
+    }
+   ],
+   "doc": "A property as a number, default if it's missing or not a number",
+   "category": "Levels"
+  },
+  "getentitypropertyint": {
+   "name": "GetEntityPropertyInt",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "default",
+     "variadic": false
+    }
+   ],
+   "doc": "A property as a whole number, default if it's missing or not a number",
+   "category": "Levels"
+  },
+  "getentitypropertybool": {
+   "name": "GetEntityPropertyBool",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    },
+    {
+     "type": "bool",
+     "name": "default",
+     "variadic": false
+    }
+   ],
+   "doc": "A property as true/false (also yes/no, 1/0), default if it's missing",
+   "category": "Levels"
+  },
+  "getentitypropertyvec3": {
+   "name": "GetEntityPropertyVec3",
+   "returns": "vec3",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "default",
+     "variadic": false
+    }
+   ],
+   "doc": "A property of three numbers (\"1 2 3\", or a Blender vector), default if it isn't one",
+   "category": "Levels"
+  },
+  "getentitypropertycolor": {
+   "name": "GetEntityPropertyColor",
+   "returns": "color",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "string",
+     "name": "key",
+     "variadic": false
+    },
+    {
+     "type": "color",
+     "name": "default",
+     "variadic": false
+    }
+   ],
+   "doc": "A property as a color, \"255 128 0 [255]\" or Blender's 0..1 floats, default if it isn't one",
+   "category": "Levels"
+  },
+  "ispointinentity": {
+   "name": "IsPointInEntity",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "point",
+     "variadic": false
+    }
+   ],
+   "doc": "Is a point inside the entity's box? False if it has none. Use it for triggers",
+   "category": "Levels"
+  },
+  "checkcollisionsphereentity": {
+   "name": "CheckCollisionSphereEntity",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "center",
+     "variadic": false
+    },
+    {
+     "type": "float",
+     "name": "radius",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a sphere touch the entity's box?",
+   "category": "Levels"
+  },
+  "checkcollisionboxentity": {
+   "name": "CheckCollisionBoxEntity",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "level",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "entity",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMin",
+     "variadic": false
+    },
+    {
+     "type": "vec3",
+     "name": "boxMax",
+     "variadic": false
+    }
+   ],
+   "doc": "Does a box touch the entity's box?",
+   "category": "Levels"
   },
   "getdrawcalls": {
    "name": "GetDrawCalls",
