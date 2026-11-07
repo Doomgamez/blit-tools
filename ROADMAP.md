@@ -64,6 +64,25 @@ Two rules for every phase:
       `GetCurrentScene`, `GetSceneCount`, `GetSceneName`, `GetSceneIndex`
 - [ ] Values that carry over from one scene to the next (Godot's autoloads)
 
+## Lighting and rendering - doing
+
+- [x] Shadow color (white no shadow, black pitch black), a sun with color, strength and direction, 8 point lights,
+      fog. 2D sprites are lit too (flat mode). All of it set in the editor's world properties and from scripts
+- [x] FXAA (`SetAntialiasing`), sharp text from a font atlas per pixel size
+- [ ] FXAA and the game's lighting in the editor's viewport too
+- [ ] 2D point lights that follow a node moved by a script
+- [ ] Shadows from point lights, more than 8 lights (pick the nearest ones per object)
+- [ ] Materials: normal maps, specular / roughness, emission, unshaded; edited in the inspector
+- [ ] Distance-field text, so text in 3D stays sharp at any distance
+
+## Where Blit stands next to Godot
+
+Blit already has what Godot doesn't: real C99 in scripts (`C` ... `ENDC`), scripts on their own thread, triangle
+collision against whole levels (`GetSpherePushScene`), a Hammer-style brush editor, and it runs on OpenGL 2.1. What
+Godot has that Blit doesn't yet, roughly in the order it matters, is in the phases below: animation (3, 9), UI (7),
+tile maps (2), particles (6, 9), physics bodies (4, 9), autoloads (Scenes), then export, networking and navigation
+(8, 9).
+
 ## Phase 2 - Tile maps (TileMapLayer, TileSet)
 
 - [ ] A tile set from a sheet: tile size, separation, per-tile collision shapes
@@ -75,6 +94,7 @@ Two rules for every phase:
 
 - [ ] Animations by name on a sprite: frames, speed, loop, played from scripts
 - [ ] An animation panel: a timeline with keys on any element property, easing, tracks that call script methods
+- [ ] Tweens from scripts: any value to another over time, with easing (Godot's Tween)
 - [ ] Animation trees later: blends and state machines
 
 ## Phase 4 - 2D physics (CollisionShape2D, bodies, Area2D)
@@ -109,11 +129,21 @@ Two rules for every phase:
 - [ ] A remote scene tree: see and change nodes in the running game
 - [ ] Debugger: breakpoints and stepping in BlitScript, a profiler
 - [ ] Export: one folder or zip per platform, icons, a project settings panel
-- [ ] Input map: named actions bound to keys and buttons
+- [ ] Input map: named actions bound to keys and buttons, gamepads
+- [ ] Web export (WebGL through Emscripten), later mobile
+- [ ] Networking: sockets, then a simple high-level layer for multiplayer (Godot's MultiplayerAPI)
 
 ## Phase 9 - 3D
 
+- [ ] Billboards (Sprite3D, Label3D): sprites and text in the 3D level that face the camera, all of it or turning
+      only around y, lit or unlit, the same sprite sheets and `SetFrame` as 2D
+- [ ] Skeletal animation: skins and joints from glTF, its animations played by name from scripts, blended
+- [ ] Particles in 3D (GPUParticles3D / CPUParticles3D): billboarded quads or meshes, the same emitter as 2D
+- [ ] Decals: a texture projected onto the level (bullet holes, blood, signs)
+- [ ] Level of detail: simpler meshes far away, and culling what the camera can't see
+- [ ] Skybox (a cube map or a gradient) as the level's background
 - [ ] Grid maps (tile maps in 3D) from model libraries
-- [ ] 3D physics bodies and shapes, character controller
+- [ ] 3D physics bodies and shapes, character controller (`MoveAndSlide` over what `GetSpherePushScene` does now),
+      rigid bodies with gravity, joints later
 - [ ] Navigation meshes and pathfinding (2D too)
-- [ ] Environment: sky, fog, tonemapping, glow. Reflection probes and light baking need more than OpenGL 2.1
+- [ ] Environment: tonemapping, glow. Reflection probes and light baking need more than OpenGL 2.1
