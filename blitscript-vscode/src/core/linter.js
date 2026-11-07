@@ -1,5 +1,6 @@
 'use strict';
 
+const macros = require('./macros');
 const language = require('./language');
 const syntax = require('./syntax');
 const { signature } = require('./api');
@@ -147,6 +148,17 @@ function checkReads(line, index, program, api, written, options, out) {
     }
 }
 
+// an expression's names: the variables it reads have to be set somewhere
+function checkMacroReads(macro, line, index, program, api, written, options, out) {
+    for (const name of macros.names(macro).reads) {
+        const base = name.text.split('.')[0];
+
+        if (base !== 'super' && !isKnownVariable(base, line, program, api, written, options)) {
+            report(out, index, name, WARNING, `${base} is never set: the script stops here when it runs`);
+        }
+    }
+}
+
 function checkStatement(line, index, document, program, api, written, options, out) {
     const { tokens } = line;
     const first = tokens[0];
@@ -154,6 +166,16 @@ function checkStatement(line, index, document, program, api, written, options, o
 
     if (line.unterminated) {
         report(out, index, tokens[tokens.length - 1], ERROR, 'This string is not closed');
+    }
+
+    // an expression, IF, WHILE, a call as a line: the compiler's macros turn them into the instructions below
+    const macro = macros.classify(line);
+
+    if (macro) {
+        if (options.unknownVariables) {
+            checkMacroReads(macro, line, index, program, api, written, options, out);
+        }
+        return;
     }
 
     if (first.quoted || !language.isKeyword(command)) {
@@ -189,7 +211,8 @@ function checkDeadCode(document, out) {
 
         const command = line.tokens[0].text.toUpperCase();
 
-        if (['LBL', 'MAIN', 'FN', 'END', 'CONST', 'INCLUDE', 'CLASS', 'ENDCLASS', 'METHOD', 'FOR', 'FOREACH', 'ENDFOR'].includes(command)) {
+        if (['LBL', 'MAIN', 'FN', 'END', 'CONST', 'INCLUDE', 'CLASS', 'ENDCLASS', 'METHOD', 'FOR', 'FOREACH', 'ENDFOR',
+             'IF', 'ELSEIF', 'ELSE', 'ENDIF', 'WHILE', 'ENDWHILE'].includes(command)) {
             dead = false;
         } else if (dead) {
             out.push({ line: index, start: line.tokens[0].start, end: line.source.length, severity: HINT,
@@ -224,6 +247,7 @@ function lint(program, api, options) {
     });
 
     checkLoops(document, (index, token, message) => report(out, index, token, ERROR, message));
+    macros.checkMacroBlocks(document, (index, token, message) => report(out, index, token, ERROR, message));
     checkClasses(program, document, (index, token, message) => report(out, index, token, ERROR, message));
 
     for (const include of document.includes) {

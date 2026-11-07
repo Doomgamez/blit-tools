@@ -150,6 +150,8 @@
                     }
                 },
                 { "name": "keyword.control.flow.blitscript", "match": "(?i)^\\s*(ENDFOR|BREAK|CONTINUE)\\b" },
+                { "name": "keyword.control.conditional.blitscript", "match": "(?i)^\\s*(IF|ELSEIF|ELSE\\s+IF|ELSE|ENDIF)\\b" },
+                { "name": "keyword.control.loop.blitscript", "match": "(?i)^\\s*(WHILE|ENDWHILE)\\b" },
                 {
                     "match": "(?i)^\\s*(SET|LOCAL|READ|MOV)\\s+([^\\s,/]+)",
                     "captures": {
@@ -170,6 +172,9 @@
             "patterns": [
                 { "include": "#string" },
                 { "name": "keyword.operator.arrow.blitscript", "match": "->" },
+                { "name": "keyword.operator.logical.blitscript", "match": "(?i)\\b(AND|OR|NOT)\\b|&&|\\|\\||!(?!=)" },
+                { "name": "keyword.operator.comparison.blitscript", "match": "==|!=|<=|>=|<|>" },
+                { "name": "keyword.operator.assignment.blitscript", "match": "\\+\\+|--|[+\\-*/%]?=" },
                 { "name": "storage.type.blitscript", "match": "(?i)\\b(VEC[234]|IVEC[234]|UVEC[234]|QUAT|RECT|COLOR|MAT4)\\b" },
                 { "name": "variable.language.register.blitscript", "match": "(?i)\\b(EAX|EBX|ECX|EDX)\\b" },
                 { "name": "constant.language.blitscript", "match": "\\b(true|false|null)\\b" },

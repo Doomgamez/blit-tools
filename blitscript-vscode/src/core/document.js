@@ -1,5 +1,6 @@
 'use strict';
 
+const macros = require('./macros');
 const { tokenize } = require('./tokenizer');
 const { findBlocks, readFunctions } = require('./cblocks');
 
@@ -62,6 +63,13 @@ function addStatement(model, line, index, state) {
     const { tokens } = line;
     const command = tokens[0].text.toUpperCase();
     const write = (token) => model.writes.push({ name: token.text, token, line: index, fn: state.fn });
+    const macro = macros.classify(line);
+
+    // x = ..., x += ..., SET x = ...: the macros' assignments write their target
+    if (macro && macro.kind === 'assign') {
+        write(macro.target);
+        return;
+    }
 
     switch (command) {
         case 'MAIN':

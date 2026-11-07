@@ -51,6 +51,13 @@ Two rules for every phase:
 - [x] Nodes made while running (`CreateNode`, `CreateLevelText`, `CreateLevelSprite`, `CreateLevelBox`)
 - [ ] Freeing nodes made while running, and making a node from another level (prefabs, phase 5)
 
+## Scripting - doing
+
+- [x] Expressions (`x = (a + b) * 2`, calls and methods inside them), `+= -= ++`, calls as lines, `RETURN a + b`
+- [x] `IF` / `ELSEIF` / `ELSE` / `ENDIF` with `AND OR NOT`, `WHILE` / `ENDWHILE`; the VS Code linter knows them
+- [ ] Vectors in expressions (`position + velocity * dt`)
+- [ ] Rewrite the libraries (level2d.bs...) with them
+
 ## Phase 2 - Tile maps (TileMapLayer, TileSet)
 
 - [ ] A tile set from a sheet: tile size, separation, per-tile collision shapes
