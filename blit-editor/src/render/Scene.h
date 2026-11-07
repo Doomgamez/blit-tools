@@ -14,6 +14,7 @@ struct TriangleBatch
 {
     GLuint texture = 0;
     bool translucent = false;       // volumes and special faces, drawn after the solids without writing depth
+    float order = 0;                // 2D: its node's z in the level, translucent batches are drawn lowest first
     std::vector<DrawVertex> vertices;
 };
 
@@ -35,6 +36,9 @@ struct SceneOptions
 struct SceneMesh
 {
     int version = -1;
+    // while it's built: a 2D level keeps the tree's order, each node's batches go in at its z
+    bool ordered = false;
+    float order = 0;
     std::vector<TriangleBatch> batches;
     std::vector<LineVertex> lines;  // outlines of 2D brushes, direction arrows
     std::vector<SceneLight> lights; // for the preview lighting
@@ -61,7 +65,7 @@ void AddBox(std::vector<LineVertex>& lines, const Mat4& world, Vec3 lo, Vec3 hi,
 void AddBrushes(SceneMesh& mesh, const Level& level, const Node& node, const Element& element, const Mat4& world,
                 SceneContext& context, const SceneOptions& options);
 void AddModel(SceneMesh& mesh, const Element& element, const Mat4& world, SceneContext& context);
-void AddSprite(SceneMesh& mesh, const Element& element, const Mat4& world, SceneContext& context);
+void AddSprite(SceneMesh& mesh, const Node& node, const Element& element, const Mat4& world, SceneContext& context);
 void AddIcon(SceneMesh& mesh, const Element& element, const Mat4& world, GLuint white, const SceneOptions& options);
 void AddNodeToScene(SceneMesh& mesh, const Level& level, const Node& node, const Mat4& parent, SceneContext& context,
                     const SceneOptions& options);
@@ -76,4 +80,11 @@ std::string ModelPath(const SceneContext& context, const std::string& file);
 void AddNodeOutline(std::vector<LineVertex>& lines, const Level& level, const Node& node, const Mat4& world,
                     const float color[4], SceneContext& context, const SceneOptions& options);
 // the box an element's icon or model takes up in its node's space, for picking and outlines
-bool ElementPickBox(const Element& element, SceneContext& context, const SceneOptions& options, Vec3& lo, Vec3& hi);
+bool ElementPickBox(const Node& node, const Element& element, SceneContext& context, const SceneOptions& options,
+                    Vec3& lo, Vec3& hi);
+// about where a text is in its node's space: its lines at its size, placed by its alignment (render/TextArea.cpp)
+void TextArea(const Element& text, Vec3& lo, Vec3& hi);
+// how many lines and the longest one's characters
+void TextLines(const std::string& text, int& lines, int& longest);
+// what a sprite covers in its node's space: the node's brushes, else its picture's size in pixels, centred
+void SpriteArea(const Node& node, const Element& sprite, SceneContext& context, Vec3& lo, Vec3& hi);

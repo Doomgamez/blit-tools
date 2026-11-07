@@ -22,6 +22,7 @@ const std::vector<NodeKindInfo> kKinds = {
     { NodeKind::Sound, "Sound", "Points", false, false },
     { NodeKind::Model, "Model (glTF prop)", "Points", false, true },
     { NodeKind::Sprite, "Sprite", "Points", true, false },
+    { NodeKind::Text, "Text", "Points", false, false },
 };
 
 const std::vector<NodeKindInfo>& NodeKinds()
@@ -119,8 +120,15 @@ Node MakeNodeOfKind(NodeKind kind, bool is2D, float gridStep, const std::string&
     {
         Element sprite = MakeElement(ElementType::Sprite);
         sprite.texture = texture;
-        sprite.size = { s, s };
         node.elements.push_back(sprite);
+        break;
+    }
+    case NodeKind::Text:
+    {
+        Element text = MakeElement(ElementType::Text);
+        text.textSize = is2D ? 32.0f : 0.5f;
+        node.name = "Text";
+        node.elements.push_back(text);
         break;
     }
     default:

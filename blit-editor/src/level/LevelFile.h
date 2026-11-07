@@ -27,3 +27,7 @@ Json PairsToJson(const Pairs& pairs);
 Pairs PairsFromJson(const Json* json);
 Json VecToJson(Vec3 v);
 Vec3 VecFromJson(const Json& json, const std::string& key, Vec3 fallback);
+
+// a sprite's "fit": scaled, tiled, repeat
+const char* SpriteFitKey(SpriteFit fit);
+SpriteFit SpriteFitFromKey(const std::string& key);

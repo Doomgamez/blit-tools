@@ -49,6 +49,8 @@ bool DrawTransform(Editor& editor, Node& node)
 
     ImGui::SeparatorText("Transform");
     changed |= ImGui::DragFloat3("Position", &node.position.x, speed, 0, 0, "%.3f");
+    if (editor.doc.level.is2D) HelpMark("In 2D, z is what's on top: a higher z is drawn over a lower one, nodes with the "
+                                        "same z follow the hierarchy. A child's z adds to its parent's, like in 3D.");
 
     if (editor.doc.level.is2D)
     {

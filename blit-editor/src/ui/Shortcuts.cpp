@@ -28,7 +28,7 @@ bool SelectionBounds(Editor& editor, Vec3& lo, Vec3& hi)
         for (const Element& element : node->elements)
         {
             Vec3 a, b;
-            if (!ElementPickBox(element, context, editor.sceneOptions, a, b)) continue;
+            if (!ElementPickBox(*node, element, context, editor.sceneOptions, a, b)) continue;
 
             for (int i = 0; i < 8; i++)
             {
@@ -98,7 +98,8 @@ void HandleShortcuts(Editor& editor)
     if (ctrl && ImGui::IsKeyPressed(ImGuiKey_D, false) && any) doc.DuplicateSelected();
     if (ctrl && ImGui::IsKeyPressed(ImGuiKey_G, false) && any) doc.GroupSelected();
     if (ImGui::IsKeyPressed(ImGuiKey_Delete, false) && any) doc.DeleteSelected();
-    if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && !shift) doc.ClearSelection();
+    // Esc puts a canvas drag back, else it drops the selection
+    if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && !shift && !CanvasCancel(editor)) doc.ClearSelection();
 
     if (ctrl || flying || !editor.viewportHovered)
     {

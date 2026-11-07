@@ -16,6 +16,7 @@ const ElementInfo kElements[(int)ElementType::Count] = {
     { "Camera", "camera", "info_camera" },
     { "Sound", "sound", "ambient_sound" },
     { "Sprite", "sprite", "sprite_2d" },
+    { "Text", "text", "label" },
     { "Mover", "mover", "" },
     { "Script (BlitScript object)", "script", "" },
     { "Properties", "properties", "" },

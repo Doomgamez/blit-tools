@@ -78,7 +78,6 @@ Level StarterLevel2D()
 
     Node sign = PointNode("Sign", { 320, 420, 0 }, ElementType::Sprite);
     sign.elements[0].texture = "checker";
-    sign.elements[0].size = { 64, 64 };
 
     level.world = { { "message", "a new 2D level" } };
     level.nodes = { platforms, goal, start, sign };

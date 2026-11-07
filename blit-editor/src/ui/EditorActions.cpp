@@ -33,6 +33,11 @@ void InitEditor(Editor& editor)
     // the folders are known and still there: straight to the projects
     bool ready = CheckEngineFolder(editor.settings.engine).empty() && CheckToolsFolder(editor.settings.tools).empty();
     editor.screen = ready ? Screen::Hub : Screen::Setup;
+
+    if (ready && SetScriptIconFolder(editor.scriptIcon, editor.settings.tools))
+    {
+        LogAdd(editor.runner.log, LogKind::Info, "made " + editor.scriptIcon.file + ", paint it: every script object shows it");
+    }
     editor.hub.setupEngine = editor.settings.engine;
     editor.hub.setupTools = editor.settings.tools;
     editor.hub.setupToolchain = editor.settings.toolchain;
@@ -60,7 +65,7 @@ void ShutdownEditor(Editor& editor)
     editor.settings.gridStep = editor.gridStep;
     SaveSettings(editor.settings);
     FreeModels(editor.models);
-    FreeClassIcons(editor.classIcons);
+    FreeScriptIcon(editor.scriptIcon);
     FreeTextures(editor.textures);
     DestroyFramebuffer(editor.viewport);
     FreeRenderer(editor.renderer);
@@ -70,11 +75,7 @@ void RefreshLists(Editor& editor)
 {
     editor.levels = ListLevels(editor.project);
     editor.classes = LevelObjectClasses(editor.project);
-    // a blank picture for every class that has none yet, ready to paint
-    for (const std::string& file : MakeMissingClassIcons(editor.classIcons, editor.classes))
-    {
-        LogAdd(editor.runner.log, LogKind::Info, "made " + file + ", paint it and the editor shows it");
-    }
+    editor.scripts = ScriptFiles(editor.project);
     editor.modelFiles = ProjectFiles(editor.project, { ".glb", ".gltf" });
     editor.soundFiles = ProjectFiles(editor.project, { ".wav", ".ogg", ".mp3", ".flac" });
     RefreshTextureNames(editor.textures);
@@ -95,7 +96,6 @@ bool OpenProjectFolder(Editor& editor, const std::string& root)
     RememberProject(editor.settings, project.root);
     FreeModels(editor.models);
     SetTextureFolders(editor.textures, TextureFolders(project));
-    SetClassIconFolder(editor.classIcons, JoinPath(project.root, "editor/classes"));
     RefreshLists(editor);
     editor.screen = Screen::Editing;
     editor.status = "Opened " + project.name;

@@ -10,7 +10,10 @@ const char* const kGitignore =
     "blit.local.json\n"
     "scripts/engine.bs\n"
     "scripts/level.bs\n"
-    "scripts/level2d.bs\n";
+    "scripts/level2d.bs\n"
+    "scripts/levelsprite.bs\n"
+    "scripts/leveltext.bs\n"
+    "scripts/levelnodes2d.bs\n";
 
 const std::vector<ProjectTemplate> kTemplates = {
     { "room", "Sample room (3D)", "The engine's test level: lights, a trigger that opens a door, plated walls and a house prop, run by BlitScript classes.", false },
@@ -103,6 +106,9 @@ bool CreateProject(const NewProject& values, Project& project, std::string& erro
         { "blitscript/engine.bs", "scripts/engine.bs" },
         { "blitscript/level.bs", "scripts/level.bs" },
         { "blitscript/level2d.bs", "scripts/level2d.bs" },
+        { "blitscript/levelsprite.bs", "scripts/levelsprite.bs" },
+        { "blitscript/leveltext.bs", "scripts/leveltext.bs" },
+        { "blitscript/levelnodes2d.bs", "scripts/levelnodes2d.bs" },
         { "assets/textures/checker.png", "assets/textures/checker.png" },
     };
 

@@ -31,8 +31,11 @@ struct Brush
 
 enum class ElementType
 {
-    Brush, Light, Model, Spawn, Marker, Camera, Sound, Sprite, Mover, Script, Properties, Count
+    Brush, Light, Model, Spawn, Marker, Camera, Sound, Sprite, Text, Mover, Script, Properties, Count
 };
+
+// how a sprite covers its area: the frame once, tiles.x by tiles.y of it, or tiled at the frame's own size
+enum class SpriteFit { Scaled, Tiled, Repeat, Count };
 
 // how a brush draws and collides
 enum class BrushRole { Solid, Detail, Collision, Trigger, Count };
@@ -57,18 +60,30 @@ struct Element
     std::string file;
 
     // Camera
-    float fov = 60.0f;
+    float fov = 60.0f;          // 3D
+    float zoom = 1.0f;          // 2D: 2 shows half as much of the level, twice as big
 
     // Sound
     float volume = 1.0f;
     float radius = 10.0f;
     bool loop = true;
 
-    // Sprite
+    // Sprite: one frame of its picture over its node's brushes (a 2D box), or at the frame's size in pixels when
+    // there are none, and the node's scale stretches it. render/Sprites.h has the whole story
     std::string texture;
-    Vec2 size{ 32, 32 };
-    int layer = 0;
-    bool tiled = false;
+    SpriteFit fit = SpriteFit::Scaled;
+    Vec2 tiles{ 2, 2 };
+    bool flipX = false, flipY = false;
+    int columns = 1, rows = 1, frame = 0;           // a sprite sheet: the picture split into frames
+    bool useRegion = false;
+    float region[4] = { 0, 0, 0, 0 };               // the part of the picture used, pixels: x y width height
+
+    // Text (color is its colour): in the level at its node, or on the screen (a HUD), where its node's x y are pixels
+    // from the window's top left. 2D sizes are pixels, 3D ones metres
+    std::string text = "Text";
+    float textSize = 32.0f;
+    int align = 1;                  // 0 left, 1 centre, 2 right of the node
+    bool screen = false;
 
     // Mover
     bool door = true;           // func_door, else func_move
@@ -103,6 +118,8 @@ struct Level
     Pairs world;                    // worldspawn's properties: music, script, message...
     std::vector<Node> nodes;
     int nextId = 1;
+    // the 2D view's guides, level units: vertical ones at these x, horizontal ones at these y. editor only
+    std::vector<float> guidesX, guidesY;
 };
 
 // display names, file names (what's in the .blvl) and lookups

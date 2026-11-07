@@ -25,7 +25,6 @@ Element NewElementFor(Editor& editor, ElementType type)
     if (type == ElementType::Sprite)
     {
         element.texture = editor.currentTexture;
-        element.size = { s, s };
     }
 
     if (type == ElementType::Light && is2D) element.range = 200.0f;
@@ -165,7 +164,17 @@ bool DrawElement(Editor& editor, Node& node, Element& e)
         break;
 
     case ElementType::Camera:
-        changed |= ImGui::DragFloat("Field of view", &e.fov, 0.5f, 10.0f, 170.0f, "%.0f deg");
+        if (editor.doc.level.is2D)
+        {
+            changed |= ImGui::DragFloat("Zoom", &e.zoom, 0.01f, 0.05f, 20.0f, "%.2f");
+            ImGui::TextDisabled("The frame in the 2D view is what the game window shows");
+        }
+        else
+        {
+            changed |= ImGui::DragFloat("Field of view", &e.fov, 0.5f, 10.0f, 170.0f, "%.0f deg");
+        }
+
+        ImGui::TextDisabled("Scripts: LoadLevelCamera, then camera.Begin / End to draw through it");
         break;
 
     case ElementType::Sound:
@@ -175,12 +184,25 @@ bool DrawElement(Editor& editor, Node& node, Element& e)
         changed |= ImGui::Checkbox("Loop", &e.loop);
         break;
 
+    case ElementType::Text:
+    {
+        const char* aligns[] = { "Left", "Centre", "Right" };
+        bool is2D = editor.doc.level.is2D;
+        changed |= ImGui::InputTextMultiline("Text", &e.text, ImVec2(0, ImGui::GetTextLineHeight() * 3.5f));
+        changed |= ImGui::DragFloat("Size", &e.textSize, is2D || e.screen ? 0.5f : 0.01f, 0.01f, 1000.0f,
+                                    is2D || e.screen ? "%.0f px" : "%.2f m");
+        changed |= Color255("Colour", e.color);
+        changed |= ImGui::Combo("Align", &e.align, aligns, 3);
+        changed |= ImGui::Checkbox("On the screen (HUD)", &e.screen);
+        ImGui::SameLine();
+        HelpMark("On the screen it doesn't move with the camera: its node's x y are pixels from the window's top left. "
+                 "Otherwise it's in the level at its node, and in 3D it faces the camera.");
+        ImGui::TextDisabled("Scripts: FindLevelText texts \"%s\", then SetText", node.name.c_str());
+        break;
+    }
+
     case ElementType::Sprite:
-        changed |= TextureField(editor, "Texture", e.texture);
-        changed |= ImGui::DragFloat2("Size", &e.size.x, 1.0f, 1.0f, 100000.0f, "%.0f px");
-        changed |= ImGui::DragInt("Layer", &e.layer, 0.1f, -100, 100);
-        changed |= ImGui::Checkbox("Tiled", &e.tiled);
-        changed |= Color255("Tint", e.color);
+        changed |= DrawSpriteElement(editor, node, e);
         break;
 
     case ElementType::Mover:
@@ -192,7 +214,7 @@ bool DrawElement(Editor& editor, Node& node, Element& e)
         break;
 
     case ElementType::Script:
-        if (GLuint picture = GetClassIcon(editor.classIcons, e.className, ImGui::GetTime()))
+        if (GLuint picture = GetScriptIcon(editor.scriptIcon, ImGui::GetTime()))
         {
             ImGui::Image((ImTextureID)(intptr_t)picture, ImVec2(48, 48));
             ImGui::SameLine();

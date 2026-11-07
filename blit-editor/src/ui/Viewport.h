@@ -39,3 +39,5 @@ void DrawClassPictures(Editor& editor, const Mat4& view, const Mat4& projection,
 // a class dropped on a node gives it that script, dropped on nothing it's a new script object
 void DropClass(Editor& editor, const std::string& className, const Ray& ray, ImVec2 mouse, ImVec2 size);
 void HandleViewportDrops(Editor& editor, const Ray& ray, ImVec2 mouse, ImVec2 size);
+// TextNodes.cpp: every Text element's words where the game puts them
+void DrawTextNodes(Editor& editor, const Mat4& view, const Mat4& projection, ImVec2 origin, ImVec2 size);

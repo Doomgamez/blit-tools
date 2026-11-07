@@ -11,7 +11,7 @@ enum class NodeKind
 {
     Group, Box, Wedge, Cylinder, Room, Trigger, Collision, Door,
     Light, Spawn, Marker, Camera, Sound, Model, ScriptObject,
-    Sprite, Solid2D, Count
+    Sprite, Text, Solid2D, Count
 };
 
 struct NodeKindInfo

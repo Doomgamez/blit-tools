@@ -104,7 +104,7 @@ void DrawAssets(Editor& editor)
         if (ImGui::BeginTabItem("Textures")) { DrawTextureGrid(editor); ImGui::EndTabItem(); }
         if (ImGui::BeginTabItem("Models")) { DrawModelList(editor); ImGui::EndTabItem(); }
         if (ImGui::BeginTabItem("Levels")) { DrawLevelList(editor); ImGui::EndTabItem(); }
-        if (ImGui::BeginTabItem("Script classes")) { DrawClassList(editor); ImGui::EndTabItem(); }
+        if (ImGui::BeginTabItem("Scripts")) { DrawClassList(editor); ImGui::EndTabItem(); }
         ImGui::EndTabBar();
     }
 

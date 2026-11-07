@@ -13,6 +13,8 @@ bool DrawNode(Editor& editor, Node& node);
 // one element's fields, true when something changed
 bool DrawElement(Editor& editor, Node& node, Element& element);
 bool DrawBrushElement(Editor& editor, Node& node, Element& element);
+// ui/SpriteEditor.cpp
+bool DrawSpriteElement(Editor& editor, Node& node, Element& element);
 // a new element of this type for the inspector's Add element, with what's sensible for this level
 Element NewElementFor(Editor& editor, ElementType type);
 

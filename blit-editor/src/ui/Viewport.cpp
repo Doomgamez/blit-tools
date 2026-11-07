@@ -184,8 +184,10 @@ void DrawViewport(Editor& editor)
 
     HandleViewportDrops(editor, ray, mouse, size);
     DrawClassPictures(editor, view, projection, origin, size);
+    DrawTextNodes(editor, view, projection, origin, size);
 
-    bool gizmo = DrawGizmo(editor, view, projection, origin, size);
+    bool canvas = UsesCanvas(editor);
+    bool gizmo = !canvas && DrawGizmo(editor, view, projection, origin, size);
 
     if (editor.viewportHovered)
     {
@@ -194,12 +196,18 @@ void DrawViewport(Editor& editor)
             ImGui::SetWindowFocus();
         }
 
-        MoveCamera(editor, mouse, size);
+        // a right click that cancels a canvas drag doesn't pan
+        if (!CanvasBusy(editor)) MoveCamera(editor, mouse, size);
 
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !gizmo)
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !gizmo && !canvas)
         {
             ClickSelect(editor, ray, ImGui::GetIO().KeyCtrl);
         }
+    }
+
+    if (editor.doc.level.is2D && editor.camera.kind == ViewKind::TwoD)
+    {
+        DrawCanvas(editor, origin, size);
     }
 
     // the status line: where the mouse is on the grid, what the editor last did

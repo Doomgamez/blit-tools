@@ -55,7 +55,7 @@ void PickNode(Editor& editor, const Node& node, const Mat4& parent, const Ray& r
         Vec3 lo, hi;
         float t;
 
-        if (!ElementPickBox(element, context, editor.sceneOptions, lo, hi)) continue;
+        if (!ElementPickBox(node, element, context, editor.sceneOptions, lo, hi)) continue;
 
         // icons keep their size: their box is around the origin in level space
         bool sized = element.type == ElementType::Model || element.type == ElementType::Sprite;
@@ -282,8 +282,22 @@ void HandleViewportDrops(Editor& editor, const Ray& ray, ImVec2 mouse, ImVec2 si
         PickHit hit = PickAt(editor, ray);
         Node* node = hit.node ? FindNode(editor.doc.level.nodes, hit.node) : nullptr;
 
+        // in 2D a texture dropped on a box is its sprite, which covers it
+        if (node && editor.doc.level.is2D && !editor.faceMode)
+        {
+            Element* sprite = FindElement(*node, ElementType::Sprite);
+
+            if (!sprite)
+            {
+                node->elements.push_back(MakeElement(ElementType::Sprite));
+                sprite = &node->elements.back();
+            }
+
+            sprite->texture = texture;
+            editor.doc.Changed();
+        }
         // a texture dropped on a face textures that face in face mode, the whole brush otherwise
-        if (node && hit.face.node)
+        else if (node && hit.face.node)
         {
             Element& element = node->elements[(size_t)hit.face.element];
             Brush& brush = element.brushes[(size_t)hit.face.brush];

@@ -117,7 +117,7 @@ int main(int argc, char** argv)
         case Screen::Editing: DrawEditor(*editor); break;
         }
 
-        editor->doc.EndFrame(ImGui::IsAnyItemActive() || ImGuizmo::IsUsing());
+        editor->doc.EndFrame(ImGui::IsAnyItemActive() || ImGuizmo::IsUsing() || CanvasBusy(*editor));
 
         if (WindowTitle(*editor) != title)
         {

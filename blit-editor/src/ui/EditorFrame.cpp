@@ -179,6 +179,14 @@ void DrawToolbar(Editor& editor)
     ImGui::TextDisabled("|"); ImGui::SameLine();
     ImGui::Checkbox("World", &editor.worldSpace); ImGui::SameLine();
     ImGui::Checkbox("Snap", &editor.snap); ImGui::SameLine();
+
+    if (editor.doc.level.is2D)
+    {
+        ImGui::Checkbox("Smart", &editor.canvas.smart);
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Snap to other nodes' sides and middles, and to guides");
+        ImGui::SameLine();
+    }
+
     ImGui::SetNextItemWidth(70);
 
     if (editor.doc.level.is2D)

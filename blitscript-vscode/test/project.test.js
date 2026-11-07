@@ -109,7 +109,7 @@ test('the engine builds inside the project, not the engine repo', () => {
 });
 test('the build runs in order', () => {
     const steps = projectSteps(layout.readProject(root)).map((step) => step.kind);
-    assert.deepStrictEqual(steps, ['folder', 'folder', 'copy', 'copy', 'copy', 'run', 'write', 'remove', 'pack', 'runtime']);
+    assert.deepStrictEqual(steps, ['folder', 'folder', 'copy', 'copy', 'copy', 'copy', 'copy', 'copy', 'run', 'write', 'remove', 'pack', 'runtime']);
 });
 test('level.bs is refreshed next to engine.bs', () => {
     const copy = projectSteps(layout.readProject(root)).filter((step) => step.kind === 'copy')[1];
@@ -131,6 +131,7 @@ test('the 2D level editor template brings its level, level2d.bs and the platform
     assert.ok(fs.existsSync(path.join(made, 'levels', 'level2d.blvl')));
     assert.ok(fs.existsSync(path.join(made, 'assets', 'textures', 'checker.png')));
     assert.ok(fs.existsSync(path.join(made, 'scripts', 'level2d.bs')), 'there before the first build');
+    assert.ok(fs.existsSync(path.join(made, 'scripts', 'levelsprite.bs')), 'level2d.bs includes it');
     assert.ok(/INCLUDE "level2d.bs"/.test(read(made, 'scripts', 'main.bs')));
     assert.ok(!read(made, 'scripts', 'main.bs').includes('../level2d.bs'));
 });

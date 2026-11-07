@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "ui/Canvas.h"
 #include "editor/Camera.h"
 #include "editor/Document.h"
 #include "editor/Factory.h"
@@ -71,14 +72,16 @@ struct Editor
     bool faceMode = false;
     bool lighting = true;
     std::string currentTexture = "checker";
-    ClassIcons classIcons;          // a picture per level object class, editor/classes/<Class>.png
+    ScriptIcon scriptIcon;          // what every script object shows, blit-editor/icons/script.png
     ResizeDrag resize;
+    CanvasState canvas;             // the 2D view's tools, ui/Canvas.h
 
     Runner runner;
     int seenRuns = 0;
 
     // refreshed when a project opens or the user asks
     std::vector<std::string> levels, classes, modelFiles, soundFiles;
+    std::vector<ScriptFile> scripts;
 
     std::string status;
     bool quit = false;

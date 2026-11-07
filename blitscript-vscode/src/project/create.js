@@ -83,6 +83,9 @@ ${LOCAL_FILE}
 scripts/engine.bs
 scripts/level.bs
 scripts/level2d.bs
+scripts/levelsprite.bs
+scripts/leveltext.bs
+scripts/levelnodes2d.bs
 `;
 
 function createProject(values) {
@@ -119,7 +122,7 @@ function createProject(values) {
     fs.copyFileSync(path.join(values.engine, 'blitscript', 'engine.bs'), path.join(root, 'scripts', 'engine.bs'));
 
     // every build refreshes them too, copying them now lets the editor find them before the first build
-    for (const library of [levelLibrary, path.join(values.engine, 'blitscript', 'level2d.bs')]) {
+    for (const library of [levelLibrary, ...['leveltext.bs', 'level2d.bs', 'levelsprite.bs', 'levelnodes2d.bs'].map((name) => path.join(values.engine, 'blitscript', name))]) {
         if (fs.existsSync(library)) {
             fs.copyFileSync(library, path.join(root, 'scripts', path.basename(library)));
         }

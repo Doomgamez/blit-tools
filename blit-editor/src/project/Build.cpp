@@ -178,7 +178,7 @@ std::vector<BuildStep> ProjectSteps(const Project& project)
     } });
 
     // INCLUDE "engine.bs" and "level.bs" find them next to the scripts
-    for (const char* library : { "engine.bs", "level.bs", "level2d.bs" })
+    for (const char* library : { "engine.bs", "level.bs", "leveltext.bs", "level2d.bs", "levelsprite.bs", "levelnodes2d.bs" })
     {
         std::string from = JoinPath(project.engine, std::string("blitscript/") + library);
         steps.push_back({ std::string("Updating ") + library, [=](StepContext&)

@@ -26,10 +26,16 @@ engine's glad.
 - **Nodes**: everything in a level is a node in the Hierarchy, with elements in the Inspector: a brush, a point light,
   a model, a player start, a script (a BlitScript class that `EXTENDS LevelObject`), properties... Drag nodes onto
   each other to nest them.
+- **2D view**: drag to move, 8 handles to resize (Shift keeps the shape, Alt from the middle), drag on nothing to
+  box-select, arrows nudge, Alt + right click lists what's under the mouse. Moves snap to other nodes and guides
+  (Smart) or the grid. Drag guides out of the rulers, drag them back to remove them. Rotate (E) keeps its handle.
 - **Viewport**: right mouse + WASD/QE flies (wheel sets the speed), middle mouse pans. The view menu has top, front
   and side views, 2D levels get a 2D view. Q select, W move, E rotate, R scale, T resize brushes by their sides,
   F focuses, `[` and `]` change the grid, G toggles face mode for texturing.
 - **Textures and models**: drag them from the Assets panel onto a brush (a face in face mode) or into the level.
+- **Script objects** all show one picture, `icons/script.png` in this folder. The editor writes a blank one the first
+  time: paint over it and the editor picks it up when you save. Drag a class from Assets → Script classes onto a node
+  to give it that script, or into the level for a new script object.
 - **Play** (F5) saves, builds the engine if it's missing or out of date, builds the project and runs the game on this
   level. The script loads it with `LaunchLevelOr` from `level.bs`. F7 only compiles the level.
 

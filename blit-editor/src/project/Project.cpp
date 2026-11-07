@@ -126,50 +126,83 @@ std::string LevelFileFor(const Project& project, const std::string& name)
     return JoinPath(PathsOf(project).levels, name + ".blvl");
 }
 
-std::vector<std::string> LevelObjectClasses(const Project& project)
+ScriptScan ScanScripts(const Project& project)
 {
-    std::map<std::string, std::string> parents;     // class -> what it extends
+    ScriptScan scan;
     std::regex declaration(R"(^\s*CLASS\s+([A-Za-z_][A-Za-z0-9_]*)(\s+EXTENDS\s+([A-Za-z_][A-Za-z0-9_]*))?)",
                            std::regex::icase);
 
     for (const std::string& file : ListFiles(PathsOf(project).scripts, { ".bs" }, true))
     {
-        std::string text, line;
+        std::string text;
+
+        scan.files.push_back(file);
 
         if (!ReadTextFile(file, text)) continue;
 
         for (size_t start = 0; start < text.size();)
         {
             size_t end = text.find('\n', start);
-            line = text.substr(start, end == std::string::npos ? std::string::npos : end - start);
+            std::string line = text.substr(start, end == std::string::npos ? std::string::npos : end - start);
+            std::smatch match;
             start = end == std::string::npos ? text.size() : end + 1;
 
-            std::smatch match;
             if (std::regex_search(line, match, declaration))
             {
-                parents[match[1]] = match[3];
+                scan.parents[match[1]] = match[3];
+                scan.fileOf[match[1]] = file;
             }
         }
     }
 
+    return scan;
+}
+
+bool IsLevelObject(const ScriptScan& scan, const std::string& name)
+{
+    // follow EXTENDS up to LevelObject, a loop or an unknown class ends it
+    std::set<std::string> seen;
+    auto found = scan.parents.find(name);
+    std::string at = found == scan.parents.end() ? "" : found->second;
+
+    while (!at.empty() && at != "LevelObject" && !seen.count(at) && scan.parents.count(at))
+    {
+        seen.insert(at);
+        at = scan.parents.at(at);
+    }
+
+    return at == "LevelObject" && name != "LevelObject";
+}
+
+std::vector<std::string> LevelObjectClasses(const Project& project)
+{
+    ScriptScan scan = ScanScripts(project);
     std::vector<std::string> out;
 
-    for (const auto& entry : parents)
+    for (const auto& entry : scan.parents)
     {
-        // follow EXTENDS up to LevelObject, a loop or an unknown class ends it
-        std::set<std::string> seen;
-        std::string at = entry.second;
+        if (IsLevelObject(scan, entry.first)) out.push_back(entry.first);
+    }
 
-        while (!at.empty() && at != "LevelObject" && !seen.count(at) && parents.count(at))
+    return out;
+}
+
+std::vector<ScriptFile> ScriptFiles(const Project& project)
+{
+    ScriptScan scan = ScanScripts(project);
+    std::vector<ScriptFile> out;
+
+    for (const std::string& file : scan.files)
+    {
+        ScriptFile script;
+        script.file = RelativePath(file, PathsOf(project).scripts);
+
+        for (const auto& entry : scan.fileOf)
         {
-            seen.insert(at);
-            at = parents[at];
+            if (entry.second == file && IsLevelObject(scan, entry.first)) script.classes.push_back(entry.first);
         }
 
-        if (at == "LevelObject" && entry.first != "LevelObject")
-        {
-            out.push_back(entry.first);
-        }
+        out.push_back(script);
     }
 
     return out;

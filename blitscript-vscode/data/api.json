@@ -3393,6 +3393,83 @@
    "doc": "Scale a node relative to its parent",
    "category": "Model instances"
   },
+  "setnodeenabled": {
+   "name": "SetNodeEnabled",
+   "returns": "void",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    },
+    {
+     "type": "bool",
+     "name": "enabled",
+     "variadic": false
+    }
+   ],
+   "doc": "Switch a node off (false) or back on: off, it and its children aren't drawn and don't collide",
+   "category": "Model instances"
+  },
+  "isnodeenabled": {
+   "name": "IsNodeEnabled",
+   "returns": "bool",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "Is the node on? False when it or a parent is switched off",
+   "category": "Model instances"
+  },
+  "createnode": {
+   "name": "CreateNode",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "parent",
+     "variadic": false
+    }
+   ],
+   "doc": "A new empty node under parent (0 for the top) while the game runs, place it with SetNodePosition. 0 if it couldn't be made",
+   "category": "Model instances"
+  },
+  "getnodeparent": {
+   "name": "GetNodeParent",
+   "returns": "int",
+   "params": [
+    {
+     "type": "int",
+     "name": "instance",
+     "variadic": false
+    },
+    {
+     "type": "int",
+     "name": "node",
+     "variadic": false
+    }
+   ],
+   "doc": "The node's parent, 0 for a node at the top",
+   "category": "Model instances"
+  },
   "getnodeworldposition": {
    "name": "GetNodeWorldPosition",
    "returns": "vec3",

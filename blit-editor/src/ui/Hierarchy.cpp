@@ -94,7 +94,7 @@ void DrawNodeRow(Editor& editor, Node& node)
 
     for (const Element& e : node.elements)
     {
-        GLuint picture = e.type == ElementType::Script ? GetClassIcon(editor.classIcons, e.className, ImGui::GetTime()) : 0;
+        GLuint picture = e.type == ElementType::Script ? GetScriptIcon(editor.scriptIcon, ImGui::GetTime()) : 0;
 
         if (picture)
         {

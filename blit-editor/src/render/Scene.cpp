@@ -1,5 +1,7 @@
 #include "render/Scene.h"
 
+#include <algorithm>
+
 #include <cctype>
 
 #include "geometry/Brush.h"
@@ -25,14 +27,17 @@ bool SameTextNoCase(const std::string& a, const char* b)
 
 TriangleBatch& BatchFor(SceneMesh& mesh, GLuint texture, bool translucent)
 {
-    for (TriangleBatch& batch : mesh.batches)
+    // 2D draws in order: only the batch just added can take more, so nothing jumps ahead of what came before it
+    for (size_t i = mesh.ordered && !mesh.batches.empty() ? mesh.batches.size() - 1 : 0; i < mesh.batches.size(); i++)
     {
-        if (batch.texture == texture && batch.translucent == translucent) return batch;
+        TriangleBatch& batch = mesh.batches[i];
+        if (batch.texture == texture && batch.translucent == translucent && batch.order == mesh.order) return batch;
     }
 
     mesh.batches.push_back(TriangleBatch());
     mesh.batches.back().texture = texture;
     mesh.batches.back().translucent = translucent;
+    mesh.batches.back().order = mesh.order;
     return mesh.batches.back();
 }
 
@@ -149,14 +154,23 @@ void AddNodeToScene(SceneMesh& mesh, const Level& level, const Node& node, const
     }
 
     Mat4 world = parent * NodeLocal(node);
+    // in 2D what's on top is the node's z in the level: higher over lower
+    mesh.order = level.is2D ? TransformPoint(world, { 0, 0, 0 }).z : 0.0f;
 
-    for (const Element& element : node.elements)
+    // in 2D a box goes under the sprite on it, whatever order its elements are in
+    std::vector<const Element*> elements;
+    for (const Element& element : node.elements) if (element.type != ElementType::Sprite || !level.is2D) elements.push_back(&element);
+    for (const Element& element : node.elements) if (element.type == ElementType::Sprite && level.is2D) elements.push_back(&element);
+
+    for (const Element* each : elements)
     {
+        const Element& element = *each;
+
         switch (element.type)
         {
         case ElementType::Brush: AddBrushes(mesh, level, node, element, world, context, options); break;
         case ElementType::Model: AddModel(mesh, element, world, context); break;
-        case ElementType::Sprite: AddSprite(mesh, element, world, context); break;
+        case ElementType::Sprite: AddSprite(mesh, node, element, world, context); break;
         case ElementType::Light:
         {
             SceneLight light;
@@ -187,9 +201,15 @@ void BuildScene(SceneMesh& mesh, const Level& level, SceneContext& context, cons
     mesh.batches.clear();
     mesh.lines.clear();
     mesh.lights.clear();
+    mesh.ordered = level.is2D;
+    mesh.order = 0;
 
     for (const Node& node : level.nodes)
     {
         AddNodeToScene(mesh, level, node, Mat4(), context, options);
     }
+
+    // lowest z first, the tree's order for the same z
+    std::stable_sort(mesh.batches.begin(), mesh.batches.end(),
+                     [](const TriangleBatch& a, const TriangleBatch& b) { return a.order < b.order; });
 }

@@ -96,6 +96,7 @@ void DrawSetup(Editor& editor)
             editor.settings.tools = CleanPath(hub.setupTools);
             editor.settings.toolchain = CleanPath(hub.setupToolchain);
             SaveSettings(editor.settings);
+            SetScriptIconFolder(editor.scriptIcon, editor.settings.tools);
             editor.screen = Screen::Hub;
         }
 

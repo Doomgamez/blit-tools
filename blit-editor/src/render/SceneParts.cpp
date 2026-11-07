@@ -35,34 +35,6 @@ void AddModel(SceneMesh& mesh, const Element& element, const Mat4& world, SceneC
     }
 }
 
-void AddSprite(SceneMesh& mesh, const Element& element, const Mat4& world, SceneContext& context)
-{
-    const TextureInfo& texture = GetTexture(*context.textures, element.texture);
-    TriangleBatch& batch = BatchFor(mesh, texture.id, true);
-    float w = element.size.x, h = element.size.y;
-    // the node is the sprite's middle, like the engine's DrawTexturePro with the origin at the centre
-    Vec3 corners[4] = { { -w / 2, -h / 2, 0 }, { w / 2, -h / 2, 0 }, { w / 2, h / 2, 0 }, { -w / 2, h / 2, 0 } };
-    float repeatU = element.tiled ? w / (float)texture.width : 1.0f;
-    float repeatV = element.tiled ? h / (float)texture.height : 1.0f;
-    Vec2 uvs[4] = { { 0, 0 }, { repeatU, 0 }, { repeatU, repeatV }, { 0, repeatV } };
-    const int order[6] = { 0, 1, 2, 0, 2, 3 };
-
-    for (int i : order)
-    {
-        DrawVertex v = {};
-        v.position = TransformPoint(world, corners[i]);
-        // a sprite's depth is its layer, higher layers nearer the 2D camera (which looks along +Z)
-        v.position.z -= (float)element.layer * 0.01f;
-        v.normal = { 0, 0, -1 };
-        v.uv = uvs[i];
-        v.color[0] = element.color.x / 255.0f;
-        v.color[1] = element.color.y / 255.0f;
-        v.color[2] = element.color.z / 255.0f;
-        v.color[3] = 1.0f;
-        batch.vertices.push_back(v);
-    }
-}
-
 void IconColor(const Element& element, float out[4])
 {
     float r = 0.8f, g = 0.8f, b = 0.8f;
@@ -127,7 +99,8 @@ void AddIcon(SceneMesh& mesh, const Element& element, const Mat4& world, GLuint 
     }
 }
 
-bool ElementPickBox(const Element& element, SceneContext& context, const SceneOptions& options, Vec3& lo, Vec3& hi)
+bool ElementPickBox(const Node& node, const Element& element, SceneContext& context, const SceneOptions& options,
+                    Vec3& lo, Vec3& hi)
 {
     switch (element.type)
     {
@@ -143,8 +116,13 @@ bool ElementPickBox(const Element& element, SceneContext& context, const SceneOp
     }
 
     case ElementType::Sprite:
-        lo = { -element.size.x / 2, -element.size.y / 2, -0.5f };
-        hi = { element.size.x / 2, element.size.y / 2, 0.5f };
+        SpriteArea(node, element, context, lo, hi);
+        lo.z -= 0.5f;
+        hi.z += 0.5f;
+        return true;
+
+    case ElementType::Text:
+        TextArea(element, lo, hi);
         return true;
 
     default:
@@ -182,7 +160,7 @@ void AddNodeOutline(std::vector<LineVertex>& lines, const Level& level, const No
 
         Vec3 lo, hi;
 
-        if (ElementPickBox(element, context, options, lo, hi))
+        if (ElementPickBox(node, element, context, options, lo, hi))
         {
             // icons keep their size, so their box is drawn around the origin without the node's scale
             Mat4 frame = element.type == ElementType::Model || element.type == ElementType::Sprite

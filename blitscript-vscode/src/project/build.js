@@ -142,10 +142,12 @@ function projectSteps(project) {
         steps.push({ kind: 'copy', title: 'Updating level.bs', from: levelLibrary, to: path.join(scripts, 'level.bs') });
     }
 
-    const level2d = path.join(project.engine, 'blitscript', 'level2d.bs');
+    for (const name of ['leveltext.bs', 'level2d.bs', 'levelsprite.bs', 'levelnodes2d.bs']) {
+        const library = path.join(project.engine, 'blitscript', name);
 
-    if (fs.existsSync(level2d)) {
-        steps.push({ kind: 'copy', title: 'Updating level2d.bs', from: level2d, to: path.join(scripts, 'level2d.bs') });
+        if (fs.existsSync(library)) {
+            steps.push({ kind: 'copy', title: `Updating ${name}`, from: library, to: path.join(scripts, name) });
+        }
     }
 
     steps.push({ kind: 'run', title: 'Compiling scripts', command: paths.compiler, args: ['-i', paths.main, '-o', path.join(paths.stage, 'main.blit')], cwd: scripts });

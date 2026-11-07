@@ -1,5 +1,5 @@
-// level object classes as pictures: over their nodes in the viewport, dropped from the assets panel, and the
-// panel's grid. the pictures are editor/classes/<Class>.png, painted by you
+// script objects as a picture: over their nodes in the viewport, and the assets panel's classes, which drop onto
+// the level. it's one picture for all of them, blit-tools/blit-editor/icons/script.png, painted by you
 
 #include <imgui.h>
 
@@ -47,7 +47,7 @@ void DrawClassPictures(Editor& editor, const Mat4& view, const Mat4& projection,
 
         if (!script || !node.visible) return;
 
-        GLuint picture = GetClassIcon(editor.classIcons, script->className, now);
+        GLuint picture = GetScriptIcon(editor.scriptIcon, now);
         ImVec2 at;
 
         if (!picture || !ToScreen(viewProjection, TransformPoint(NodeWorld(editor.doc.level.nodes, node.id), { 0, 0, 0 }), origin, size, at))
@@ -106,42 +106,47 @@ void DrawClassList(Editor& editor)
     float tile = 72.0f;
     int columns = std::max(1, (int)(ImGui::GetContentRegionAvail().x / (tile + ImGui::GetStyle().ItemSpacing.x + 8)));
     int column = 0;
-    double now = ImGui::GetTime();
+    GLuint picture = GetScriptIcon(editor.scriptIcon, ImGui::GetTime());
+    ImTextureID image = (ImTextureID)(intptr_t)(picture ? picture : editor.textures.white);
 
-    ImGui::TextDisabled("Classes in scripts/ that EXTENDS LevelObject. Drag one onto a node to give it that script, or "
-                        "into the level for a new script object.");
-    ImGui::TextDisabled("Each picture is editor/classes/<Class>.png: paint it, the editor picks it up when you save.");
+    ImGui::TextDisabled("The scripts in scripts/. Drag one onto a node to give it the script's level object class, "
+                        "or into the level for a new script object.");
 
-    if (ImGui::SmallButton("Open the pictures folder"))
+    for (const ScriptFile& script : editor.scripts)
     {
-        MakeFolders(editor.classIcons.folder);
-        OpenWithSystem(editor.classIcons.folder);
-    }
-
-    for (const std::string& name : editor.classes)
-    {
-        GLuint picture = GetClassIcon(editor.classIcons, name, now);
+        std::string name = FileName(script.file);
+        // what a drop gives the node: the file's first class that EXTENDS LevelObject
+        const std::string* className = script.classes.empty() ? nullptr : &script.classes.front();
 
         if (column++ % columns) ImGui::SameLine();
 
         ImGui::BeginGroup();
-        ImGui::ImageButton(name.c_str(), (ImTextureID)(intptr_t)(picture ? picture : editor.textures.white), ImVec2(tile, tile),
-                           ImVec2(0, 0), ImVec2(1, 1), ImVec4(0.18f, 0.2f, 0.24f, 1.0f));
+        ImGui::PushID(script.file.c_str());
+        ImGui::ImageButton("##script", image, ImVec2(tile, tile), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0.18f, 0.2f, 0.24f, 1.0f),
+                           className ? ImVec4(1, 1, 1, 1) : ImVec4(1, 1, 1, 0.45f));
 
-        if (ImGui::BeginDragDropSource())
+        if (className && ImGui::BeginDragDropSource())
         {
-            ImGui::SetDragDropPayload(kClassPayload, name.data(), name.size());
-            if (picture) ImGui::Image((ImTextureID)(intptr_t)picture, ImVec2(48, 48));
-            ImGui::Text("%s", name.c_str());
+            ImGui::SetDragDropPayload(kClassPayload, className->data(), className->size());
+            ImGui::Image(image, ImVec2(48, 48));
+            ImGui::Text("%s (%s)", className->c_str(), name.c_str());
             ImGui::EndDragDropSource();
         }
 
-        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s\n%s", name.c_str(), ClassIconFile(editor.classIcons, name).c_str());
+        if (ImGui::IsItemHovered())
+        {
+            std::string classes;
+            for (const std::string& c : script.classes) classes += (classes.empty() ? "" : ", ") + c;
+            ImGui::SetTooltip("%s\n%s", script.file.c_str(), classes.empty() ? "no CLASS ... EXTENDS LevelObject in it"
+                                                                              : ("level objects: " + classes).c_str());
+        }
+
+        ImGui::PopID();
         ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + tile + 8);
         ImGui::TextUnformatted(name.c_str());
         ImGui::PopTextWrapPos();
         ImGui::EndGroup();
     }
 
-    if (editor.classes.empty()) ImGui::TextDisabled("None yet. INCLUDE \"level.bs\" and write CLASS Door EXTENDS LevelObject.");
+    if (editor.scripts.empty()) ImGui::TextDisabled("No scripts in scripts/ yet.");
 }

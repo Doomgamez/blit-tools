@@ -108,8 +108,16 @@ Json ElementToJson(const Element& e)
         out["file"] = Json(e.file);
         out["tint"] = VecToJson(e.color);
         break;
+    case ElementType::Text:
+        out["text"] = Json(e.text);
+        out["size"] = Json(e.textSize);
+        out["color"] = VecToJson(e.color);
+        out["align"] = Json(e.align == 0 ? "left" : e.align == 2 ? "right" : "center");
+        out["screen"] = Json(e.screen);
+        break;
     case ElementType::Camera:
         out["fov"] = Json(e.fov);
+        out["zoom"] = Json(e.zoom);
         break;
     case ElementType::Sound:
         out["file"] = Json(e.file);
@@ -119,9 +127,14 @@ Json ElementToJson(const Element& e)
         break;
     case ElementType::Sprite:
         out["texture"] = Json(e.texture);
-        out["size"] = JsonNumbers(&e.size.x, 2);
-        out["layer"] = Json(e.layer);
-        out["tiled"] = Json(e.tiled);
+        out["fit"] = Json(SpriteFitKey(e.fit));
+        out["tiles"] = JsonNumbers(&e.tiles.x, 2);
+        out["flipX"] = Json(e.flipX);
+        out["flipY"] = Json(e.flipY);
+        out["columns"] = Json(e.columns);
+        out["rows"] = Json(e.rows);
+        out["frame"] = Json(e.frame);
+        if (e.useRegion) out["region"] = JsonNumbers(e.region, 4);
         out["tint"] = VecToJson(e.color);
         break;
     case ElementType::Mover:
@@ -141,6 +154,16 @@ Json ElementToJson(const Element& e)
     return out;
 }
 
+const char* SpriteFitKey(SpriteFit fit)
+{
+    return fit == SpriteFit::Tiled ? "tiled" : fit == SpriteFit::Repeat ? "repeat" : "scaled";
+}
+
+SpriteFit SpriteFitFromKey(const std::string& key)
+{
+    return key == "tiled" ? SpriteFit::Tiled : key == "repeat" ? SpriteFit::Repeat : SpriteFit::Scaled;
+}
+
 Element ElementFromJson(const Json& json)
 {
     ElementType type = ElementFromKey(json.Text("type"));
@@ -154,18 +177,29 @@ Element ElementFromJson(const Json& json)
         e.brushes.push_back(BrushFromJson(brushes->items[i]));
     }
 
-    e.color = VecFromJson(json, type == ElementType::Light ? "color" : "tint", e.color);
+    e.color = VecFromJson(json, type == ElementType::Light || type == ElementType::Text ? "color" : "tint", e.color);
     e.range = (float)json.Number("range", e.range);
     e.intensity = (float)json.Number("intensity", e.intensity);
     e.file = json.Text("file");
     e.fov = (float)json.Number("fov", e.fov);
+    e.zoom = (float)json.Number("zoom", e.zoom);
+    e.text = json.Text("text", e.text);
+    e.textSize = (float)json.Number("size", e.textSize);
+    e.align = json.Text("align", "center") == "left" ? 0 : json.Text("align", "center") == "right" ? 2 : 1;
+    e.screen = json.Bool("screen", false);
     e.volume = (float)json.Number("volume", e.volume);
     e.radius = (float)json.Number("radius", e.radius);
     e.loop = json.Bool("loop", e.loop);
     e.texture = json.Text("texture");
-    json.Numbers("size", &e.size.x, 2);
-    e.layer = (int)json.Number("layer", 0);
-    e.tiled = json.Bool("tiled", false);
+    e.fit = SpriteFitFromKey(json.Text("fit", json.Bool("tiled", false) ? "tiled" : "scaled"));
+    json.Numbers("tiles", &e.tiles.x, 2);
+    e.flipX = json.Bool("flipX", false);
+    e.flipY = json.Bool("flipY", false);
+    e.columns = (int)json.Number("columns", 1);
+    e.rows = (int)json.Number("rows", 1);
+    e.frame = (int)json.Number("frame", 0);
+    e.useRegion = json.Find("region") != nullptr;
+    json.Numbers("region", e.region, 4);
     e.door = json.Text("kind", "door") == "door";
     e.speed = (float)json.Number("speed", e.speed);
     e.className = json.Text("class");
@@ -224,6 +258,12 @@ Node NodeFromJson(const Json& json, Level& level)
     for (size_t i = 0; elements && elements->IsArray() && i < elements->items.size(); i++)
     {
         node.elements.push_back(ElementFromJson(elements->items[i]));
+
+        // what's on top in 2D used to be a sprite's layer, it's the node's z now
+        if (node.elements.back().type == ElementType::Sprite)
+        {
+            node.position.z += (float)elements->items[i].Number("layer", 0);
+        }
     }
 
     for (size_t i = 0; children && children->IsArray() && i < children->items.size(); i++)
@@ -245,6 +285,13 @@ Json LevelToJson(const Level& level)
 
     Json& nodes = out["nodes"] = JsonArray();
     for (const Node& node : level.nodes) nodes.items.push_back(NodeToJson(node));
+
+    // what only the editor uses, the compiler leaves it alone
+    if (!level.guidesX.empty() || !level.guidesY.empty())
+    {
+        out["editor"]["guidesX"] = JsonNumbers(level.guidesX.data(), (int)level.guidesX.size());
+        out["editor"]["guidesY"] = JsonNumbers(level.guidesY.data(), (int)level.guidesY.size());
+    }
 
     return out;
 }
@@ -270,6 +317,20 @@ bool LevelFromJson(const Json& json, Level& level, std::string& error)
     level.is2D = json.Text("mode", "3d") == "2d";
     level.texelsPerMetre = (float)json.Number("texelsPerMetre", level.is2D ? 1.0 : 32.0);
     level.world = PairsFromJson(world ? world->Find("properties") : nullptr);
+
+    if (const Json* editor = json.Find("editor"))
+    {
+        for (int axis = 0; axis < 2; axis++)
+        {
+            const Json* guides = editor->Find(axis ? "guidesY" : "guidesX");
+            std::vector<float>& into = axis ? level.guidesY : level.guidesX;
+
+            for (size_t i = 0; guides && guides->IsArray() && i < guides->items.size(); i++)
+            {
+                into.push_back((float)guides->items[i].number);
+            }
+        }
+    }
 
     for (size_t i = 0; nodes && nodes->IsArray() && i < nodes->items.size(); i++)
     {

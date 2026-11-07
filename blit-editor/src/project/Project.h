@@ -10,6 +10,7 @@
 //   .blit/engine        the project's own build of the engine and its tools
 //   build/              the game: HomeInvasion.exe, Engine.blfs, compiled levels
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -47,6 +48,26 @@ std::vector<std::string> ListLevels(const Project& project);
 std::string LevelFileFor(const Project& project, const std::string& name);
 // the classes a script element can name: CLASS X EXTENDS LevelObject in scripts/, also through other classes
 std::vector<std::string> LevelObjectClasses(const Project& project);
+
+// a .bs file in scripts/ and the level object classes it defines
+struct ScriptFile
+{
+    std::string file;                   // relative to scripts/, "main.bs", "enemies/zombie.bs"
+    std::vector<std::string> classes;
+};
+
+std::vector<ScriptFile> ScriptFiles(const Project& project);
+
+// every CLASS in scripts/: what it extends and which file it's in
+struct ScriptScan
+{
+    std::vector<std::string> files;
+    std::map<std::string, std::string> parents;
+    std::map<std::string, std::string> fileOf;
+};
+
+ScriptScan ScanScripts(const Project& project);
+bool IsLevelObject(const ScriptScan& scan, const std::string& name);
 // models (.glb, .gltf) and sounds (.wav, .ogg, .mp3) under assets/, relative to the project's root
 std::vector<std::string> ProjectFiles(const Project& project, const std::vector<std::string>& extensions);
 // the folders textures are looked for in: the project's, then the engine's
