@@ -252,6 +252,28 @@ class ProjectSession {
         });
     }
 
+    // the Blit level editor (blit-tools/blit-editor) on a level, it opens the level's project with it
+    openInEditor(level) {
+        const tools = this.tools();
+
+        if (!tools) {
+            return false;
+        }
+
+        const editor = path.join(tools, 'blit-editor', 'build', process.platform === 'win32' ? 'blit-editor.exe' : 'blit-editor');
+
+        if (!fs.existsSync(editor)) {
+            vscode.window.showErrorMessage('Blit Engine: the level editor isn\'t built yet. Build it with cmake in '
+                + `${path.join(tools, 'blit-editor')}, its README says how.`);
+            return false;
+        }
+
+        startDetached(editor, [level], { cwd: path.dirname(editor), env: process.env }, (reason) => {
+            vscode.window.showErrorMessage(`Blit Engine: the level editor didn't start: ${reason}`);
+        });
+        return true;
+    }
+
     dispose() {
         this.stop();
         this.output.dispose();

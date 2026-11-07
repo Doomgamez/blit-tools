@@ -27,7 +27,7 @@ void ApplyStyle()
     style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.30f, 0.40f, 0.56f, 1.0f);
 }
 
-int main(int, char**)
+int main(int argc, char** argv)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
     {
@@ -71,6 +71,11 @@ int main(int, char**)
 
     Editor* editor = new Editor();   // big, and it outlives the loop's frames
     InitEditor(*editor);
+
+    if (argc > 1)
+    {
+        OpenFromCommandLine(*editor, argv[1]);
+    }
 
     std::string title;
 

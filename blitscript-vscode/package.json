@@ -112,6 +112,12 @@
                 "category": "Blit Engine"
             },
             {
+                "command": "blitscript.openInEditor",
+                "title": "Open in Level Editor",
+                "category": "Blit Engine",
+                "icon": "$(edit)"
+            },
+            {
                 "command": "blitscript.searchApi",
                 "title": "Find an Engine Function",
                 "category": "Blit Engine",
@@ -146,6 +152,11 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "blitscript.openInEditor",
+                    "when": "resourceExtname == .blvl",
+                    "group": "navigation"
+                },
+                {
                     "command": "blitscript.compile",
                     "when": "editorLangId == blitscript",
                     "group": "navigation"
@@ -166,6 +177,11 @@
                 },
                 {
                     "command": "blitscript.playLevel",
+                    "when": "resourceExtname == .blvl",
+                    "group": "navigation"
+                },
+                {
+                    "command": "blitscript.openInEditor",
                     "when": "resourceExtname == .blvl",
                     "group": "navigation"
                 }

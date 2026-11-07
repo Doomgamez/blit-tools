@@ -113,6 +113,8 @@ void InitEditor(Editor& editor);
 void ShutdownEditor(Editor& editor);
 bool OpenProjectFolder(Editor& editor, const std::string& root);
 void CloseProject(Editor& editor);
+// blit-editor.exe levels/house.blvl: that level's project, then the level (what VS Code's Open in Level Editor does)
+bool OpenFromCommandLine(Editor& editor, const std::string& file);
 void RefreshLists(Editor& editor);
 bool OpenLevelFile(Editor& editor, const std::string& file);
 bool CreateLevel(Editor& editor, const std::string& name, bool is2D);

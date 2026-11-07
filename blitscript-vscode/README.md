@@ -43,7 +43,9 @@ A `name_normal.png` and `name_rough.png` next to a texture add bumps and shine. 
 build like `engine.bs`, so `INCLUDE "level.bs"` gives you `LevelObject` classes for the level's Script elements, and
 `LoadLevelSprites` for 2D levels. Right-click a level (or use the button above an open one) for **Play Level**, which builds
 and starts the game on it, the editor's **Play** does the same. The script picks the level with `LaunchLevelOr` from
-`level.bs`. The **Level editor level** template sets this up, with a room that has lights, a trigger and a door.
+`level.bs`. Right-click a level for **Open in Level Editor** too, which starts `blit-editor` (build it once, see its README) on
+that level and its project. The **Level editor level** template sets this up, with a room that has lights, a trigger
+and a door, and **2D level editor level** with a platformer whose platforms can be turned.
 
 **Tools:** right-click a `.glb` for **Inspect glTF Model**, which runs `gltf-inspector`, and use **Open Build in BLITFS
 Viewer** to look inside the archive. The viewer needs `pyfltk`. Both use the `python` on your PATH, not the toolchain's,

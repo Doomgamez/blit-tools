@@ -44,7 +44,7 @@ test('the tools folder is not an engine', () => assert.ok(/isn't the homeinvasio
 test('the engine folder is not the tools', () => assert.ok(/isn't the blit-tools/.test(layout.checkTools(engine))));
 test('a file is not a folder', () => assert.ok(layout.checkEngine(path.join(engine, 'CMakeLists.txt'))));
 
-test('there are four templates', () => assert.deepStrictEqual(templateList().map((item) => item.id), ['empty', 'twoD', 'threeD', 'level']));
+test('there are five templates', () => assert.deepStrictEqual(templateList().map((item) => item.id), ['empty', 'twoD', 'threeD', 'level', 'level2d']));
 
 let root;
 
@@ -125,6 +125,14 @@ test('the level editor template brings its level, textures and detail maps', () 
     assert.ok(/INCLUDE "level.bs"/.test(read(made, 'scripts', 'main.bs')));
     assert.ok(!read(made, 'scripts', 'main.bs').includes('../level.bs'));
     assert.ok(/scripts\/level.bs/.test(read(made, '.gitignore')));
+});
+test('the 2D level editor template brings its level, level2d.bs and the platformer', () => {
+    const made = createProject(values({ name: 'Platforms', template: 'level2d' }));
+    assert.ok(fs.existsSync(path.join(made, 'levels', 'level2d.blvl')));
+    assert.ok(fs.existsSync(path.join(made, 'assets', 'textures', 'checker.png')));
+    assert.ok(fs.existsSync(path.join(made, 'scripts', 'level2d.bs')), 'there before the first build');
+    assert.ok(/INCLUDE "level2d.bs"/.test(read(made, 'scripts', 'main.bs')));
+    assert.ok(!read(made, 'scripts', 'main.bs').includes('../level2d.bs'));
 });
 test('each level is compiled after the scripts, with both texture folders', () => {
     const project = layout.readProject(path.join(work, 'Room'));

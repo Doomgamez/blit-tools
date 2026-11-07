@@ -64,6 +64,17 @@ const TEMPLATES = {
         ],
         needs: ['blitscript/level.bs', 'levels/testmap.blvl'],
     },
+    level2d: {
+        title: '2D level editor level',
+        description: 'A platformer on a 2D level from the Blit level editor: platforms that can be turned, a goal and a sprite.',
+        script: (engine) => fs.readFileSync(path.join(engine, 'blitscript', 'examples', 'platformer.bs'), 'utf8')
+            .replace('INCLUDE "../level2d.bs"', 'INCLUDE "level2d.bs"'),
+        assets: [
+            ['levels/level2d.blvl', 'levels/level2d.blvl'],
+            ['assets/textures/checker.png', 'assets/textures/checker.png'],
+        ],
+        needs: ['blitscript/level2d.bs', 'blitscript/examples/platformer.bs', 'levels/level2d.blvl'],
+    },
 };
 
 const GITIGNORE = `build/
@@ -107,9 +118,11 @@ function createProject(values) {
     fs.writeFileSync(path.join(root, 'scripts', 'main.bs'), script);
     fs.copyFileSync(path.join(values.engine, 'blitscript', 'engine.bs'), path.join(root, 'scripts', 'engine.bs'));
 
-    // every build refreshes it too, copying it now lets the editor find it before the first build
-    if (fs.existsSync(levelLibrary)) {
-        fs.copyFileSync(levelLibrary, path.join(root, 'scripts', 'level.bs'));
+    // every build refreshes them too, copying them now lets the editor find them before the first build
+    for (const library of [levelLibrary, path.join(values.engine, 'blitscript', 'level2d.bs')]) {
+        if (fs.existsSync(library)) {
+            fs.copyFileSync(library, path.join(root, 'scripts', path.basename(library)));
+        }
     }
 
     // a plain path lands in assets/ by its name, a [from, to] pair where it says

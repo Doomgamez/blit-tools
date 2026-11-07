@@ -39,6 +39,11 @@ function registerProjectCommands(context, state, session) {
             const map = uri ? uri.fsPath : editor && editor.document.fileName;
             return map ? session.playLevel(map) : false;
         }),
+        command('blitscript.openInEditor', async (uri) => {
+            const editor = vscode.window.activeTextEditor;
+            const level = uri ? uri.fsPath : editor && editor.document.fileName;
+            return level && /\.blvl$/i.test(level) ? session.openInEditor(level) : false;
+        }),
         command('blitscript.stopProject', () => session.stop()),
         command('blitscript.buildEngine', () => session.buildEngine()),
         command('blitscript.openArchive', () => session.openArchive()),

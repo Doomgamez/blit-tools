@@ -119,6 +119,31 @@ bool OpenProjectFolder(Editor& editor, const std::string& root)
     return true;
 }
 
+bool OpenFromCommandLine(Editor& editor, const std::string& file)
+{
+    std::string level = CleanPath(file);
+
+    if (FileExtension(level) != ".blvl" || !FileExists(level))
+    {
+        LogAdd(editor.runner.log, LogKind::Error, "can't open " + file + ": not a .blvl level");
+        return false;
+    }
+
+    // the project is the nearest folder above the level with a blit.project.json
+    for (std::string at = ParentFolder(level); !at.empty(); at = ParentFolder(at))
+    {
+        if (IsProjectFolder(at))
+        {
+            return OpenProjectFolder(editor, at) && OpenLevelFile(editor, level);
+        }
+
+        if (ParentFolder(at) == at) break;
+    }
+
+    editor.hub.error = file + " isn't inside a Blit project";
+    return false;
+}
+
 void CloseProject(Editor& editor)
 {
     editor.doc.New(false);
