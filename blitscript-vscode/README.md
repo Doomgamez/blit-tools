@@ -64,16 +64,20 @@ script. The search button finds one by name or description.
 - **Go to definition, references and rename** for labels, functions, constants and variables, through `INCLUDE`s.
   Labels and functions ignore case and variables don't, like the compiler. A parameter stays inside its function.
   Engine functions and the generated `engine.bs` can't be renamed.
-- **Macros**: type one at the start of a line and press Enter to write it out, Tab moves between its values. Each one
-  picks a free label, so you can use them as often as you like:
-  - `if`, `ifne`, `iflt`, `ifle`, `ifgt`, `ifge`: run a block if a is ==, !=, <, <=, > or >= b
-  - `ifelse`: one block if a == b, another otherwise
+- **The shorthand the compiler reads**: expressions (`x = (a + b) * 2`, calls and methods inside them), `+= -= ++`,
+  calls as lines (`DrawText(label, 10, 10, 20, RED)`), `IF` / `ELSEIF` / `ELSE` / `ENDIF` with `AND OR NOT`,
+  `WHILE` / `ENDWHILE` and `RETURN a + b`. It's highlighted, and checked like the instructions it becomes.
+- **Macros**: type one at the start of a line and press Enter to write it out, Tab moves between its values:
+  - `if`, `ifne`, `iflt`, `ifle`, `ifgt`, `ifge`: an `IF` block when a is ==, !=, <, <=, > or >= b
+  - `ifelse`: an `IF` with an `ELSE`
   - `for`, `foreach`, `while`, `repeat`: loops. The first three can run 0 times, `repeat` always runs at least once
+    (it picks a free label, so use it as often as you like)
   - `ifkey`, `ifpressed`: run a block if a key is held down, or went down this frame
+  - `nextscene`: go to the next scene
   - `class`: a class with a field and an `Init`
   - `cblock`: a block of C99, its functions work with `CALL`
-- **Outline, folding and snippets**: try `main`, `fn`, `mode3d`, `scene`, `level`, `levelobject`, `lighting` and
-  `pointlight`.
+- **Outline, folding and snippets**: try `main`, `fn`, `mode3d`, `scene`, `level`, `level2d`, `levelobject`,
+  `lighting`, `dark`, `pointlight` and `scenes`.
 - **Color swatches and a picker** on `COLOR 24 26 32 255`.
 - **Parameter names in front of arguments**, turn on `blitscript.inlayHints.parameterNames`.
 
@@ -85,6 +89,8 @@ While you type it checks for what would otherwise only show up at runtime or in 
 - variables that are never set, and `-NAME`, since BlitScript has no unary minus
 - `RET` outside a function, nested `FN`, a second `MAIN`, duplicates, missing `INCLUDE` files, open strings
 - loops without `ENDFOR`, `BREAK` outside a loop, a `FOR` step of 0
+- `IF` without `ENDIF`, `WHILE` without `ENDWHILE`, `ELSE` twice, a block closed by the wrong `END...`, and variables an
+  expression reads that are never set
 - `ONCE` anywhere but the top of a file
 - C blocks without `ENDC`. Saving builds them with gcc, whose errors land on the line in the script
 - classes: missing `ENDCLASS`, unknown parents, repeated fields, `this.` a field that doesn't exist, methods nothing has,

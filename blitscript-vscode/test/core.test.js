@@ -193,15 +193,16 @@ test('macros come first at the start of a line', () => {
     const names = complete(program, model, 0, 0, api, files).sort((a, b) => (a.sortText || a.label).localeCompare(b.sortText || b.label)).map((item) => item.label);
     assert.ok(names.indexOf('if') < names.indexOf('ADD'));
 });
-test('a macro inserts real BlitScript', () => assert.ok(/^CMP .*\nJNE endif\n[\s\S]*LBL endif$/.test(macro('\n', 'if').snippet)));
-test('a macro avoids a label in use', () => assert.ok(/JNE endif2/.test(macro('MAIN LBL m\nLBL endif\nEND\n', 'if').snippet)));
-test('a macro avoids labels in any case', () => assert.ok(/JNE endif2/.test(macro('MAIN LBL m\nLBL ENDIF\nEND\n', 'if').snippet)));
-test('a macro skips every used number', () => assert.ok(/JNE endif3/.test(macro('MAIN LBL m\nLBL endif\nLBL endif2\nEND\n', 'if').snippet)));
+test('a macro writes the IF the compiler reads', () => assert.ok(/^IF .* == .*\n[\s\S]*\nENDIF$/.test(macro('\n', 'if').snippet)));
+test('a key macro calls inside the IF', () => assert.ok(/^IF IsKeyDown\(/.test(macro('\n', 'ifkey').snippet)));
+test('a macro avoids a label in use', () => assert.ok(/JNE loop2/.test(macro('MAIN LBL m\nLBL loop\nEND\n', 'repeat').snippet)));
+test('a macro avoids labels in any case', () => assert.ok(/JNE loop2/.test(macro('MAIN LBL m\nLBL LOOP\nEND\n', 'repeat').snippet)));
+test('a macro skips every used number', () => assert.ok(/JNE loop3/.test(macro('MAIN LBL m\nLBL loop\nLBL loop2\nEND\n', 'repeat').snippet)));
 test('a macro sees labels in included files', () => {
-    const files = memoryFiles({ 'test.bs': 'INCLUDE "other.bs"\n', 'other.bs': 'LBL endif\n' });
+    const files = memoryFiles({ 'test.bs': 'INCLUDE "other.bs"\n', 'other.bs': 'LBL loop\n' });
     const program = loadProgram(path.resolve('/virtual/test.bs'), files);
-    const item = complete(program, program.documents.get(program.entry), 1, 0, api, files).find((entry) => entry.label === 'if');
-    assert.ok(/JNE endif2/.test(item.snippet));
+    const item = complete(program, program.documents.get(program.entry), 1, 0, api, files).find((entry) => entry.label === 'repeat');
+    assert.ok(/JNE loop2/.test(item.snippet));
 });
 test('macros are only offered for statements', () => {
     const { program, model, files } = open('MAIN LBL m\nCALL \nEND');

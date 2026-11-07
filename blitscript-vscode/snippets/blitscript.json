@@ -8,9 +8,9 @@
             "MAIN LBL main",
             "",
             "LBL frame",
-            "    CALL ClearBackground BLACK",
+            "    ClearBackground(BLACK)",
             "    $0",
-            "    CALL WaitFrame",
+            "    WaitFrame()",
             "    JMP frame",
             "",
             "END"
@@ -45,13 +45,12 @@
     },
     "Level": {
         "prefix": "level",
-        "description": "Load a level (.blvl from the level editor, or .glb), start at its info_player_start, spawn its scripted objects. Needs INCLUDE \"level.bs\"",
+        "description": "Load the level the game was started on (the scene, or the editor's Play), start at its info_player_start, spawn its scripted objects. Needs INCLUDE \"level.bs\"",
         "body": [
-            "CALL LoadLevel \"${1:level.blvl}\" -> ${2:level}",
-            "CALL GetLevelScene $2 -> ${3:scene}",
-            "CALL SpawnLevelObjects $2 -> ${4:objects}",
-            "CALL FindLevelEntity $2 \"info_player_start\" 0 -> spawn",
-            "CALL GetEntityPosition $2 spawn -> start",
+            "${2:level} = LoadLevel(LaunchLevelOr(\"${1:main.blvl}\"))",
+            "${3:scene} = GetLevelScene($2)",
+            "${4:objects} = SpawnLevelObjects($2)",
+            "start = GetEntityPosition($2, FindLevelEntity($2, \"info_player_start\", 0))",
             "CALL CreateCamera3D start, VEC3 0 0 -10, 60 -> ${5:camera}",
             "$0"
         ]
@@ -65,7 +64,7 @@
             "",
             "    // once, after level, scene, entity, name and node are set",
             "    METHOD Spawn",
-            "        CALL this.PropertyFloat \"$2\" 1.0 -> this.$2",
+            "        this.$2 = this.PropertyFloat(\"$2\", 1.0)",
             "    END",
             "",
             "    METHOD Update dt",
@@ -80,11 +79,11 @@
     },
     "Lighting": {
         "prefix": "lighting",
-        "description": "Ambient light, a sun with shadows, and fog",
+        "description": "The shadow color (what nothing lights: WHITE no shadow, BLACK pitch black), a sun with shadows, and fog",
         "body": [
-            "CALL SetAmbientLight COLOR ${1:40 42 55} 255",
+            "CALL SetShadowColor COLOR ${1:40 42 55} 255",
             "CALL SetSunLight VEC3 ${2:-0.6 -0.7 -0.4}, COLOR 255 240 220 255, ${3:0.9}",
-            "CALL SetShadows true",
+            "SetShadows(true)",
             "CALL SetFog COLOR ${4:24 26 32} 255, ${5:8} ${6:30}",
             "$0"
         ]
@@ -95,6 +94,47 @@
         "body": [
             "CALL CreatePointLight VEC3 ${1:0 2 0}, COLOR ${2:255 190 110} 255, ${3:6}, ${4:1.0} -> ${5:light}",
             "$0"
+        ]
+    },
+    "Dark": {
+        "prefix": "dark",
+        "description": "Pitch black except where point lights reach: a black shadow color and no sun",
+        "body": [
+            "CALL SetShadowColor COLOR ${1:8 8 12} 255",
+            "CALL SetSunLight VEC3 0 -1 0, WHITE, 0",
+            "$0"
+        ]
+    },
+    "Scenes": {
+        "prefix": "scenes",
+        "description": "Go to another scene (the level editor's Scenes tab): the main script starts again on its level",
+        "body": [
+            "IF IsKeyPressed(${1:KEY_N})",
+            "    ChangeScene((GetCurrentScene() + 1) % GetSceneCount())",
+            "ENDIF",
+            "$0"
+        ]
+    },
+    "Level 2D": {
+        "prefix": "level2d",
+        "description": "A 2D level with its sprites, boxes, texts and camera, drawn in the editor's order. Needs INCLUDE \"level2d.bs\"",
+        "body": [
+            "level = LoadLevel(LaunchLevelOr(\"${1:main.blvl}\"))",
+            "sprites = LoadLevelSprites(level)",
+            "walls = LoadLevelBoxes(level, \"solid_2d\")",
+            "texts = LoadLevelTexts(level)",
+            "camera = LoadLevelCamera(level, true)",
+            "",
+            "LBL frame",
+            "    ClearBackground(BLACK)",
+            "    camera.Begin()",
+            "        DrawLevelLayers(sprites, walls, GRAY, camera)",
+            "        DrawLevelTexts(texts, camera)",
+            "    camera.End()",
+            "    DrawScreenTexts(texts)",
+            "    $0",
+            "    WaitFrame()",
+            "    JMP frame"
         ]
     }
 }

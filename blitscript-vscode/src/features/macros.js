@@ -5,34 +5,34 @@ const { collect } = require('../core/program');
 const A = '${1:a}';
 const B = '${2:b}';
 
-// BlitScript jumps over a block, so each condition uses the opposite jump: if a < b skips with JGE
-function conditional(label, detail, skipJump) {
+// IF ... ENDIF, the compiler turns it into CMP and a jump (blitscript/blitmacros.c)
+function conditional(label, detail, operator) {
     return {
         label,
         detail,
-        labels: ['endif'],
-        body: ([end]) => [`CMP ${A} ${B}`, `${skipJump} ${end}`, '    $0', `LBL ${end}`],
+        labels: [],
+        body: () => [`IF ${A} ${operator} ${B}`, '    $0', 'ENDIF'],
     };
 }
 
 const MACROS = [
-    conditional('if', 'if a == b', 'JNE'),
-    conditional('ifne', 'if a != b', 'JE'),
-    conditional('iflt', 'if a < b', 'JGE'),
-    conditional('ifle', 'if a <= b', 'JG'),
-    conditional('ifgt', 'if a > b', 'JLE'),
-    conditional('ifge', 'if a >= b', 'JL'),
+    conditional('if', 'if a == b', '=='),
+    conditional('ifne', 'if a != b', '!='),
+    conditional('iflt', 'if a < b', '<'),
+    conditional('ifle', 'if a <= b', '<='),
+    conditional('ifgt', 'if a > b', '>'),
+    conditional('ifge', 'if a >= b', '>='),
     {
         label: 'ifelse',
         detail: 'if a == b, otherwise',
-        labels: ['otherwise', 'endif'],
-        body: ([otherwise, end]) => [`CMP ${A} ${B}`, `JNE ${otherwise}`, '    $3', `    JMP ${end}`, `LBL ${otherwise}`, '    $0', `LBL ${end}`],
+        labels: [],
+        body: () => [`IF ${A} == ${B}`, '    $3', 'ELSE', '    $0', 'ENDIF'],
     },
     {
         label: 'while',
         detail: 'while a < b',
-        labels: ['loop', 'endloop'],
-        body: ([loop, end]) => [`LBL ${loop}`, `    CMP ${A} ${B}`, `    JGE ${end}`, '    $0', `    JMP ${loop}`, `LBL ${end}`],
+        labels: [],
+        body: () => [`WHILE ${A} < ${B}`, '    $0', 'ENDWHILE'],
     },
     {
         label: 'for',
@@ -59,22 +59,29 @@ const MACROS = [
         body: () => ['C', 'int ${1:Name}(int ${2:value})', '{', '    $0', '}', 'ENDC'],
     },
     {
+        // nothing in the shorthand runs a block before checking, so this one is a label and a jump
         label: 'repeat',
         detail: 'run a block count times, at least once',
         labels: ['loop'],
-        body: ([loop]) => ['SET ${1:count} ${2:10}', `LBL ${loop}`, '    $0', '    SUB $1 1', `    JNE ${loop}`],
+        body: ([loop]) => ['${1:count} = ${2:10}', `LBL ${loop}`, '    $0', '    SUB $1 1', `    JNE ${loop}`],
     },
     {
         label: 'ifkey',
         detail: 'if a key is held down',
-        labels: ['endif'],
-        body: ([end]) => ['CALL IsKeyDown ${1:KEY_SPACE} -> ${2:down}', 'CMP $2 true', `JNE ${end}`, '    $0', `LBL ${end}`],
+        labels: [],
+        body: () => ['IF IsKeyDown(${1:KEY_SPACE})', '    $0', 'ENDIF'],
     },
     {
         label: 'ifpressed',
         detail: 'if a key went down this frame',
-        labels: ['endif'],
-        body: ([end]) => ['CALL IsKeyPressed ${1:KEY_SPACE} -> ${2:pressed}', 'CMP $2 true', `JNE ${end}`, '    $0', `LBL ${end}`],
+        labels: [],
+        body: () => ['IF IsKeyPressed(${1:KEY_SPACE})', '    $0', 'ENDIF'],
+    },
+    {
+        label: 'nextscene',
+        detail: 'go to the next scene, back to the first after the last',
+        labels: [],
+        body: () => ['ChangeScene((GetCurrentScene() + 1) % GetSceneCount())$0'],
     },
 ];
 
